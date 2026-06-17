@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>دعوة فرح | فرح عمر وسلمى</title>
+    <meta
+      name="description"
+      content="دعوة فرح رقمية شيك وسهلة المشاركة باللينك."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="invitation" aria-live="polite">
+      <div class="falling-layer" id="fallingLayer" aria-hidden="true"></div>
+
+      <section class="cover" id="cover">
+        <button class="open-card" id="openInvite" type="button" aria-label="فتح الدعوة">
+          <span class="envelope">
+            <span class="envelope-flap"></span>
+            <span class="envelope-body"></span>
+            <span class="wax-seal" aria-hidden="true">
+              <img src="assets/wax-logo.png" alt="" />
+            </span>
+          </span>
+        </button>
+      </section>
+
+      <section class="details" id="details" aria-label="تفاصيل الدعوة">
+        <div class="topbar">
+          <button class="icon-button" id="soundToggle" type="button" aria-label="تشغيل أو إيقاف الموسيقى">
+            <span class="icon-line"></span>
+          </button>
+          <button class="icon-button" id="shareInvite" type="button" aria-label="مشاركة الدعوة">
+            <span class="share-mark"></span>
+          </button>
+        </div>
+
+        <article class="invite-panel">
+          <div class="couple-ornament groom" aria-hidden="true">
+            <img src="assets/groom-ornament.png" alt="" />
+          </div>
+          <div class="couple-ornament bride" aria-hidden="true">
+            <img src="assets/bride-ornament.png" alt="" />
+          </div>
+
+          <header class="letter-head reveal">
+            <p class="kicker">بكل الحب والفرحة</p>
+            <h1 id="coupleNames">عمر &amp; سلمى</h1>
+            <p class="intro" id="introText">
+              يشرفنا حضوركم ومشاركتكم أجمل ليلة في العمر.
+            </p>
+          </header>
+
+          <section class="letter-section reveal" aria-label="ميعاد الفرح">
+            <div class="date-block">
+              <span id="weekday">الخميس</span>
+              <strong id="dateText">12 ديسمبر 2026</strong>
+              <span id="timeText">الساعة 8 مساء</span>
+            </div>
+          </section>
+
+          <section class="letter-section reveal" aria-label="مكان الفرح">
+            <div class="info-grid">
+              <div class="info-item">
+              <span>المكان</span>
+              <strong id="venueName">قاعة اللؤلؤة</strong>
+              </div>
+              <div class="info-item">
+              <span>العنوان</span>
+              <strong id="venueAddress">كورنيش النيل، القاهرة</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="letter-section reveal" aria-label="العد التنازلي للفرح">
+            <div class="countdown" id="countdown">
+              <div><strong id="days">00</strong><span>يوم</span></div>
+              <div><strong id="hours">00</strong><span>ساعة</span></div>
+              <div><strong id="minutes">00</strong><span>دقيقة</span></div>
+              <div><strong id="seconds">00</strong><span>ثانية</span></div>
+            </div>
+          </section>
+
+          <section class="letter-section reveal">
+            <div class="actions">
+              <a class="primary-action" id="mapLink" href="address.html">
+                صفحة العنوان
+              </a>
+              <a class="secondary-action" href="rsvp.html">
+                صفحة التأكيد
+              </a>
+            </div>
+          </section>
+
+          <p class="status" id="statusText"></p>
+        </article>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="script.js"></script>
+  </body>
+</html>
