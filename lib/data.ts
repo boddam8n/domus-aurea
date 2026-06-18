@@ -76,64 +76,58 @@ export const themes = [
 
 export const invitationTemplates = [
   {
-    name: "Royal Gold",
-    nameAr: "الذهب الملكي",
+    name: "Mirror Acrylic",
+    nameAr: "أكريليك مرايا",
     image: "/assets/template-ivory.webp",
-    description: "Ivory stationery, champagne foil and a restrained royal border."
+    description: "Reflective champagne acrylic, white floral linework, and polished layered typography."
   },
   {
-    name: "Emerald Palace",
-    nameAr: "قصر الزمرد",
-    image: "/assets/template-emerald.webp",
-    description: "Deep forest green, fine geometric embossing and evening elegance."
-  },
-  {
-    name: "Classic Arabic",
-    nameAr: "العربي الكلاسيكي",
-    image: "/assets/paper-clean.webp",
-    description: "Arabic calligraphy feeling, soft ivory paper and delicate gold ornaments."
-  },
-  {
-    name: "Modern Luxury",
-    nameAr: "الفخامة الحديثة",
-    image: "/assets/domus-hero.webp",
-    description: "Editorial spacing, minimal composition and a refined hotel-brand mood."
-  },
-  {
-    name: "Floral Gold",
-    nameAr: "ورود ذهبية",
-    image: "/assets/floral-aisle-luxury.webp",
-    description: "Romantic floral aisle inspiration with warm gold detail."
-  },
-  {
-    name: "Minimal Elegant",
-    nameAr: "بساطة راقية",
-    image: "/assets/template-ivory.webp",
-    description: "Quiet typography, open space and subtle foil accents."
-  },
-  {
-    name: "Golden Night",
-    nameAr: "ليلة ذهبية",
+    name: "Burgundy Scroll",
+    nameAr: "لفافة عنابية",
     image: "/assets/candle-table.webp",
-    description: "Candlelight, black tie contrast and warm cinematic gold."
+    description: "Velvet burgundy scroll mood with a warm wax seal and ceremonial reveal."
   },
   {
-    name: "White & Gold",
-    nameAr: "أبيض وذهبي",
+    name: "Ocean Floral Arch",
+    nameAr: "قوس ورد على البحر",
+    image: "/assets/floral-aisle-luxury.webp",
+    description: "White floral arches, sea horizon light, and a clean romantic ceremony rhythm."
+  },
+  {
+    name: "Royal Scroll",
+    nameAr: "مخطوطة ملكية",
+    image: "/assets/paper-texture.webp",
+    description: "Parchment scroll layout with gold rods, ornate spacing, and classic script hierarchy."
+  },
+  {
+    name: "Message Bottle",
+    nameAr: "رسالة في زجاجة",
+    image: "/assets/sunset-venue.webp",
+    description: "Seaside bottle concept with sand, shell detail, and a private handwritten feeling."
+  },
+  {
+    name: "Navy Laser Gate",
+    nameAr: "بوابة كحلية محفورة",
+    image: "/assets/domus-hero.webp",
+    description: "Navy laser-cut gate pattern with a gold monogram and crisp inner card."
+  },
+  {
+    name: "Emerald Velvet",
+    nameAr: "مخمل زمردي",
+    image: "/assets/template-emerald.webp",
+    description: "Deep velvet green, transparent acrylic feeling, ornate crest, and gold border lines."
+  },
+  {
+    name: "Vintage Letterpress",
+    nameAr: "طباعة كلاسيكية",
+    image: "/assets/paper-clean.webp",
+    description: "Ivory letterpress paper, antique floral border, olive envelope energy, and soft shadows."
+  },
+  {
+    name: "Noir Gold Pocket",
+    nameAr: "جيب أسود وذهبي",
     image: "/assets/wedding-hero.webp",
-    description: "Classic white celebration style with champagne gold warmth."
-  },
-  {
-    name: "Emerald Garden",
-    nameAr: "حديقة الزمرد",
-    image: "/assets/wedding-aisle.webp",
-    description: "Garden ceremony atmosphere with forest green and candlelit depth."
-  },
-  {
-    name: "Luxury Wedding Hall",
-    nameAr: "قاعة فاخرة",
-    image: "/assets/luxury-hall.webp",
-    description: "Palace ballroom styling, chandeliers and royal ceremony grandeur."
+    description: "Black pocket invitation with gold initials, modern QR-like structure, and editorial contrast."
   }
 ];
 
