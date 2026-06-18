@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Eye } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { PageShell } from "@/components/page-shell";
+import { SafeImage } from "@/components/safe-image";
 import { invitationTemplates } from "@/lib/data";
 
 export default function TemplatesPage() {
@@ -30,10 +30,11 @@ export default function TemplatesPage() {
             {invitationTemplates.map((template, index) => (
               <article key={template.name} className={index % 3 === 1 ? "xl:mt-10" : ""}>
                 <div className="group relative aspect-[4/5] overflow-hidden rounded-[1.75rem] border border-gold/15">
-                  <Image
+                  <SafeImage
                     src={template.image}
                     alt={`${template.name} template preview`}
                     fill
+                    fallbackLabel={isArabic ? template.nameAr : template.name}
                     sizes="(min-width:1280px) 31vw, (min-width:768px) 48vw, 100vw"
                     className="object-cover transition duration-500 group-hover:scale-[1.025]"
                   />

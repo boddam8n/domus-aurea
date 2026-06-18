@@ -2,7 +2,6 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { LuxuryAudioPlayer } from "@/components/luxury-audio-player";
 import { getCoupleInitials, InvitationTemplateRenderer, resolveTemplate } from "@/components/invitation-template-renderer";
 import type { PublicInvitation } from "@/lib/invitations";
 
@@ -17,7 +16,6 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
   const template = resolveTemplate(invitation.template_name);
   const couple = `${invitation.bride_name} و ${invitation.groom_name}`;
   const initials = getCoupleInitials(invitation.bride_name, invitation.groom_name);
-  const musicSrc = invitation.music_file_name ? `/audio/${invitation.music_file_name}` : "/audio/wedding-music.mp3";
 
   useEffect(() => {
     if (!isOpen || invitation.id === "demo") return;
@@ -81,8 +79,6 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
           rsvp={{ guestName, response, loading, status, error, setGuestName, setResponse, submit: submitRsvp }}
         />
       )}
-
-      <LuxuryAudioPlayer src={musicSrc} shouldStart={isOpen} startDelayMs={2200} />
     </section>
   );
 }

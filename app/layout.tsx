@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Tajawal } from "next/font/google";
 import { LanguageProvider } from "@/components/language-provider";
+import { LuxuryAudioPlayer } from "@/components/luxury-audio-player";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
@@ -35,7 +36,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body className={`${tajawal.variable} bg-[var(--color-bg)] font-body text-[var(--color-text)] antialiased`}>
         <LanguageProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            {children}
+            <LuxuryAudioPlayer src="/audio/wedding-music.mp3" variant="nav" />
+          </ThemeProvider>
         </LanguageProvider>
       </body>
     </html>

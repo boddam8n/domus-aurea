@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { CheckCircle2, Copy, Music } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
+import { SafeImage } from "@/components/safe-image";
 import { countdownStyles, invitationTemplates, pricingPlans } from "@/lib/data";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { invitationRequestSchema } from "@/lib/validation";
@@ -115,7 +115,7 @@ export default function DesignInvitationPage() {
                       }`}
                     >
                       <span className="relative block aspect-[4/3] overflow-hidden">
-                        <Image src={item.image} alt={item.name} fill sizes="(min-width:1024px) 22vw, 50vw" className="object-cover transition duration-500 group-hover:scale-[1.03]" />
+                        <SafeImage src={item.image} alt={item.name} fill fallbackLabel={item.nameAr} sizes="(min-width:1024px) 22vw, 50vw" className="object-cover transition duration-500 group-hover:scale-[1.03]" />
                       </span>
                       <span className="block p-4">
                         <span className="block font-bold text-[var(--color-text)]">{item.nameAr}</span>
@@ -188,7 +188,7 @@ export default function DesignInvitationPage() {
             <aside className="lg:sticky lg:top-28 lg:self-start">
               <div className="paper-card rounded-[2.25rem] p-7 text-night">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem]">
-                  <Image src={selectedTemplate.image} alt="" fill sizes="(min-width:1024px) 34vw, 100vw" className="object-cover" />
+                  <SafeImage src={selectedTemplate.image} alt="" fill fallbackLabel={selectedTemplate.nameAr} sizes="(min-width:1024px) 34vw, 100vw" className="object-cover" />
                 </div>
                 <p className="mt-6 text-sm font-bold uppercase tracking-[0.22em] text-[#9b7330]">مراجعة الدعوة</p>
                 <h2 className="mt-3 font-display text-4xl text-[#24170f]">{selectedTemplate.nameAr}</h2>

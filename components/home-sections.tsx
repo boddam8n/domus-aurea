@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Check, CheckCircle2, Gem, PenLine } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
+import { SafeImage } from "@/components/safe-image";
 import { SectionHeading } from "@/components/section-heading";
 import { comparison, faqs, features, gallery, invitationTemplates, pricingPlans, processSteps, testimonials, themes } from "@/lib/data";
 import { fadeUp, stagger } from "@/components/motion-presets";
@@ -65,7 +66,7 @@ export function TemplateShowcase() {
           {invitationTemplates.map((template, index) => (
             <article key={template.name} className={index === 1 ? "lg:mt-14" : ""}>
               <div className="group relative aspect-[4/5] overflow-hidden rounded-[1.25rem] border border-gold/15 bg-black/10">
-                <Image src={template.image} alt={`${template.name} invitation template`} fill sizes="(min-width:1024px) 31vw, 100vw" className="object-cover transition duration-500 group-hover:scale-[1.025]" />
+                <SafeImage src={template.image} alt={`${template.name} invitation template`} fill fallbackLabel={isArabic ? template.nameAr : template.name} sizes="(min-width:1024px) 31vw, 100vw" className="object-cover transition duration-500 group-hover:scale-[1.025]" />
                 <div className="absolute inset-0 bg-gradient-to-t from-night/65 via-transparent to-transparent" />
                 <Link href="/design" className="absolute bottom-5 left-5 rounded-full border border-white/30 bg-black/25 px-5 py-2 text-sm font-bold text-white backdrop-blur-md transition duration-300 hover:bg-white hover:text-night">
                   {isArabic ? "تخصيص القالب" : "Customize template"}
@@ -202,7 +203,7 @@ export function GalleryPreview() {
         <div className="mt-14 grid auto-rows-[240px] gap-4 md:grid-cols-5">
           {gallery.map((src, index) => (
             <motion.div key={src} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55 }} className={`relative overflow-hidden rounded-[2rem] ${index === 0 ? "md:col-span-2 md:row-span-2" : ""} ${index === 3 ? "md:col-span-2" : ""}`}>
-              <Image src={src} alt="" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover transition duration-700 hover:scale-[1.03]" />
+              <SafeImage src={src} alt="" fill fallbackLabel="Gallery" sizes="(min-width: 768px) 33vw, 100vw" className="object-cover transition duration-700 hover:scale-[1.03]" />
               <div className="absolute inset-0 bg-gradient-to-t from-night/55 to-transparent" />
             </motion.div>
           ))}

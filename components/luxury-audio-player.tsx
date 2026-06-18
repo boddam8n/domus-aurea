@@ -33,12 +33,14 @@ function getStoredNumber(key: string, fallback: number) {
 
 export function LuxuryAudioPlayer({
   src,
-  shouldStart,
-  startDelayMs = 2600
+  shouldStart = false,
+  startDelayMs = 2600,
+  variant = "full"
 }: {
   src: string;
-  shouldStart: boolean;
+  shouldStart?: boolean;
   startDelayMs?: number;
+  variant?: "full" | "nav";
 }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const graphRef = useRef<AudioGraph | null>(null);
@@ -195,6 +197,37 @@ export function LuxuryAudioPlayer({
       graphRef.current?.context.close();
     };
   }, []);
+
+  if (variant === "nav") {
+    return (
+      <div className="fixed left-4 top-[5.25rem] z-[60] md:left-auto md:right-8 md:top-5">
+        <audio ref={audioRef} src={src} preload="metadata" loop playsInline />
+        <div className="flex items-center gap-1 rounded-full border border-gold/25 bg-black/35 p-1.5 text-pearl shadow-[0_18px_60px_rgba(0,0,0,.22)] backdrop-blur-xl">
+          <button
+            type="button"
+            onClick={() => (isPlaying ? pauseSoftly() : playSoftly())}
+            className="grid h-9 w-9 place-items-center rounded-full bg-pearl text-night transition hover:bg-gold"
+            aria-label={isPlaying ? "Pause music" : "Play music"}
+          >
+            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsMuted((current) => !current)}
+            className="grid h-9 w-9 place-items-center rounded-full text-pearl/80 transition hover:bg-white/10"
+            aria-label={isMuted ? "Unmute music" : "Mute music"}
+          >
+            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
+          {needsGesture ? (
+            <button type="button" onClick={playSoftly} className="rounded-full px-3 py-2 text-xs font-bold text-gold">
+              Enable
+            </button>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 rounded-full border border-white/12 bg-black/35 px-3 py-3 text-[#f7efe2] shadow-[0_18px_60px_rgba(0,0,0,.28)] backdrop-blur-xl md:px-4">
