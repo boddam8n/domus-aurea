@@ -105,7 +105,7 @@ export default function DesignInvitationPage() {
               <section className="glass rounded-[2.25rem] p-6">
                 <h2 className="font-display text-3xl text-[var(--color-text)]">١. اختر شكل الدعوة</h2>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {invitationTemplates.slice(0, 6).map((item) => (
+                  {invitationTemplates.map((item) => (
                     <button
                       key={item.name}
                       type="button"

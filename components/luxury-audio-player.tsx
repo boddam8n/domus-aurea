@@ -54,7 +54,7 @@ export function LuxuryAudioPlayer({
     return window.sessionStorage.getItem("domus_music_enabled") !== "false";
   });
   const [volume, setVolume] = useState(() => getStoredNumber("domus_music_volume", 0.18));
-  const [speed, setSpeed] = useState<Speed>(() => (getStoredNumber("domus_music_speed", 0.8) as Speed) || 0.8);
+  const [speed, setSpeed] = useState<Speed>(() => (getStoredNumber("domus_music_speed", 1) as Speed) || 1);
 
   const ensureGraph = useCallback(() => {
     if (!audioRef.current) return null;

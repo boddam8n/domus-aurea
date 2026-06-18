@@ -78,55 +78,55 @@ export const invitationTemplates = [
   {
     name: "Mirror Acrylic",
     nameAr: "أكريليك مرايا",
-    image: "/assets/template-ivory.webp",
+    image: "/assets/templates/mirror-acrylic.webp",
     description: "Reflective champagne acrylic, white floral linework, and polished layered typography."
   },
   {
     name: "Burgundy Scroll",
     nameAr: "لفافة عنابية",
-    image: "/assets/candle-table.webp",
+    image: "/assets/templates/burgundy-scroll.webp",
     description: "Velvet burgundy scroll mood with a warm wax seal and ceremonial reveal."
   },
   {
     name: "Ocean Floral Arch",
     nameAr: "قوس ورد على البحر",
-    image: "/assets/floral-aisle-luxury.webp",
+    image: "/assets/templates/ocean-floral-arch.webp",
     description: "White floral arches, sea horizon light, and a clean romantic ceremony rhythm."
   },
   {
     name: "Royal Scroll",
     nameAr: "مخطوطة ملكية",
-    image: "/assets/paper-texture.webp",
+    image: "/assets/templates/royal-scroll.webp",
     description: "Parchment scroll layout with gold rods, ornate spacing, and classic script hierarchy."
   },
   {
     name: "Message Bottle",
     nameAr: "رسالة في زجاجة",
-    image: "/assets/sunset-venue.webp",
+    image: "/assets/templates/message-bottle.webp",
     description: "Seaside bottle concept with sand, shell detail, and a private handwritten feeling."
   },
   {
     name: "Navy Laser Gate",
     nameAr: "بوابة كحلية محفورة",
-    image: "/assets/domus-hero.webp",
+    image: "/assets/templates/navy-laser-gate.webp",
     description: "Navy laser-cut gate pattern with a gold monogram and crisp inner card."
   },
   {
     name: "Emerald Velvet",
     nameAr: "مخمل زمردي",
-    image: "/assets/template-emerald.webp",
+    image: "/assets/templates/emerald-velvet.webp",
     description: "Deep velvet green, transparent acrylic feeling, ornate crest, and gold border lines."
   },
   {
     name: "Vintage Letterpress",
     nameAr: "طباعة كلاسيكية",
-    image: "/assets/paper-clean.webp",
+    image: "/assets/templates/vintage-letterpress.webp",
     description: "Ivory letterpress paper, antique floral border, olive envelope energy, and soft shadows."
   },
   {
     name: "Noir Gold Pocket",
     nameAr: "جيب أسود وذهبي",
-    image: "/assets/wedding-hero.webp",
+    image: "/assets/templates/noir-gold-pocket.webp",
     description: "Black pocket invitation with gold initials, modern QR-like structure, and editorial contrast."
   }
 ];
