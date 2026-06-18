@@ -63,7 +63,7 @@ export default function DashboardPage() {
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
-              <p className="text-sm font-bold uppercase tracking-[0.34em] text-gold">لوحة العميل</p>
+              <p className="text-sm font-bold uppercase tracking-[0.24em] text-gold">لوحة العميل</p>
               <h1 className="mt-4 font-display text-5xl text-[var(--color-text)] md:text-7xl">دعواتك وتحليلات الحضور</h1>
             </div>
             <Link href="/design" className="rounded-full bg-[var(--color-text)] px-6 py-4 text-center font-bold text-[var(--color-bg)] transition hover:bg-gold">
@@ -104,9 +104,9 @@ export default function DashboardPage() {
                 <article key={invitation.id} className="glass rounded-[2rem] p-5 md:p-7">
                   <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
                     <div>
-                      <p className="text-sm font-bold uppercase tracking-[0.28em] text-gold">{invitation.template_name}</p>
+                      <p className="text-sm font-bold uppercase tracking-[0.22em] text-gold">{invitation.template_name}</p>
                       <h2 className="mt-3 font-display text-4xl text-[var(--color-text)]">{invitation.bride_name} و {invitation.groom_name}</h2>
-                      <p className="mt-2 text-[var(--color-muted)]">{invitation.wedding_date} · {invitation.venue}</p>
+                      <p className="mt-2 text-[var(--color-muted)]">{invitation.wedding_date} - {invitation.venue}</p>
                       <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                         <Link href={`/invitation/${invitation.slug}`} className="rounded-full border border-white/12 px-5 py-3 text-center font-bold text-[var(--color-text)]">
                           <Link2 className="ml-2 inline h-4 w-4" />
@@ -134,7 +134,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="mt-6 overflow-hidden rounded-3xl border border-white/10">
-                    <div className="grid grid-cols-3 bg-white/[0.06] px-4 py-3 text-xs font-bold uppercase tracking-[0.22em] text-[var(--color-muted)]">
+                    <div className="grid grid-cols-3 bg-white/[0.06] px-4 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">
                       <span>الضيف</span>
                       <span>الرد</span>
                       <span>التاريخ</span>

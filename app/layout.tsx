@@ -1,7 +1,15 @@
-﻿import type { Metadata, Viewport } from "next";
+import type { Metadata, Viewport } from "next";
+import { Tajawal } from "next/font/google";
 import { LanguageProvider } from "@/components/language-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
+
+const tajawal = Tajawal({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "700", "800"],
+  variable: "--font-tajawal",
+  display: "swap"
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://domus-aurea.example"),
@@ -25,7 +33,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <body className="bg-[var(--color-bg)] font-body text-[var(--color-text)] antialiased">
+      <body className={`${tajawal.variable} bg-[var(--color-bg)] font-body text-[var(--color-text)] antialiased`}>
         <LanguageProvider>
           <ThemeProvider>{children}</ThemeProvider>
         </LanguageProvider>

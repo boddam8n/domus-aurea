@@ -7,7 +7,7 @@ export default function AboutPage() {
       <section className="px-4 py-32 md:px-8">
         <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[.85fr_1.15fr]">
           <div>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.34em] text-gold">ع�  Domus Aurea</p>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-gold">عن Domus Aurea</p>
             <h1 className="font-display text-5xl leading-tight text-[var(--color-text)] md:text-7xl">
               A digital atelier for luxury wedding invitation orders.
             </h1>

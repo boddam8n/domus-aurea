@@ -4,23 +4,21 @@ import {
   CheckCircle2,
   Clock,
   Gem,
-  Globe2,
   Heart,
   Music,
   Palette,
   QrCode,
   ShieldCheck,
-  Sparkles,
   Users
 } from "lucide-react";
 
 export const wedding = {
   brand: "Domus Aurea",
-  arabicBrand: "د���&��س أ��ر�`ا",
-  couple: "��`ا�  �� �`اس�`� ",
+  arabicBrand: "دوموس أوريا",
+  couple: "ليان و ياسين",
   coupleEn: "Layan & Yassin",
   date: "2026-12-12T20:00:00+02:00",
-  venue: "�صر ا�ز�&رد",
+  venue: "قصر الزمرد",
   venueEn: "Emerald Palace",
   city: "Cairo",
   whatsapp: "https://wa.me/201000000000",
@@ -29,12 +27,12 @@ export const wedding = {
 };
 
 export const navItems = [
-  { href: "/", label: "Home", ar: "ا�رئ�`س�`ة" },
-  { href: "/templates", label: "Templates", ar: "ا����ا�ب" },
-  { href: "/design", label: "Design Invitation", ar: "ص�&�& دع��تْ" },
-  { href: "/pricing", label: "Pricing", ar: "ا�أسعار" },
-  { href: "/gallery", label: "Gallery", ar: "ا�ص��ر" },
-  { href: "/#faq", label: "FAQ", ar: "ا�أسئ�ة" }
+  { href: "/", label: "Home", ar: "الرئيسية" },
+  { href: "/templates", label: "Templates", ar: "القوالب" },
+  { href: "/design", label: "Design Invitation", ar: "صمم دعوتك" },
+  { href: "/pricing", label: "Pricing", ar: "الأسعار" },
+  { href: "/gallery", label: "Gallery", ar: "المعرض" },
+  { href: "/#faq", label: "FAQ", ar: "الأسئلة" }
 ];
 
 export const features = [
@@ -79,61 +77,61 @@ export const themes = [
 export const invitationTemplates = [
   {
     name: "Royal Gold",
-    nameAr: "ا�ذ�!ب ا��&�ْ�`",
+    nameAr: "الذهب الملكي",
     image: "/assets/template-ivory.webp",
     description: "Ivory stationery, champagne foil and a restrained royal border."
   },
   {
     name: "Emerald Palace",
-    nameAr: "�صر ا�ز�&رد",
+    nameAr: "قصر الزمرد",
     image: "/assets/template-emerald.webp",
     description: "Deep forest green, fine geometric embossing and evening elegance."
   },
   {
     name: "Classic Arabic",
-    nameAr: "ا�عرب�` ا�ْ�اس�`ْ�`",
+    nameAr: "العربي الكلاسيكي",
     image: "/assets/paper-clean.webp",
     description: "Arabic calligraphy feeling, soft ivory paper and delicate gold ornaments."
   },
   {
     name: "Modern Luxury",
-    nameAr: "ا�فخا�&ة ا�حد�`ثة",
+    nameAr: "الفخامة الحديثة",
     image: "/assets/domus-hero.webp",
     description: "Editorial spacing, minimal composition and a refined hotel-brand mood."
   },
   {
     name: "Floral Gold",
-    nameAr: "��ر��د ذ�!ب�`ة",
+    nameAr: "ورود ذهبية",
     image: "/assets/floral-aisle-luxury.webp",
     description: "Romantic floral aisle inspiration with warm gold detail."
   },
   {
     name: "Minimal Elegant",
-    nameAr: "بساطة را��`ة",
+    nameAr: "بساطة راقية",
     image: "/assets/template-ivory.webp",
     description: "Quiet typography, open space and subtle foil accents."
   },
   {
     name: "Golden Night",
-    nameAr: "��`�ة ذ�!ب�`ة",
+    nameAr: "ليلة ذهبية",
     image: "/assets/candle-table.webp",
     description: "Candlelight, black tie contrast and warm cinematic gold."
   },
   {
     name: "White & Gold",
-    nameAr: "أب�`ض ��ذ�!ب�`",
+    nameAr: "أبيض وذهبي",
     image: "/assets/wedding-hero.webp",
     description: "Classic white celebration style with champagne gold warmth."
   },
   {
     name: "Emerald Garden",
-    nameAr: "حد�`�ة ا�ز�&رد",
+    nameAr: "حديقة الزمرد",
     image: "/assets/wedding-aisle.webp",
     description: "Garden ceremony atmosphere with forest green and candlelit depth."
   },
   {
     name: "Luxury Wedding Hall",
-    nameAr: "�اعة فاخرة",
+    nameAr: "قاعة فاخرة",
     image: "/assets/luxury-hall.webp",
     description: "Palace ballroom styling, chandeliers and royal ceremony grandeur."
   }
@@ -142,14 +140,14 @@ export const invitationTemplates = [
 export const pricingPlans = [
   {
     name: "Basic Package",
-    nameAr: "ا�با�ة ا�أساس�`ة",
+    nameAr: "الباقة الأساسية",
     price: "30 EGP",
     description: "A refined digital invitation request with one elegant direction.",
     features: ["Invitation style consultation", "Basic wedding details", "WhatsApp-ready summary", "Arabic or English"]
   },
   {
     name: "Premium Package",
-    nameAr: "ا�با�ة ا��&�&�`زة",
+    nameAr: "الباقة المميزة",
     price: "500 EGP",
     description: "For couples who want a richer custom invitation direction.",
     featured: true,
@@ -157,7 +155,7 @@ export const pricingPlans = [
   },
   {
     name: "Royal Package",
-    nameAr: "ا�با�ة ا��&�ْ�`ة",
+    nameAr: "الباقة الملكية",
     price: "900 EGP",
     description: "A complete luxury request for a memorable guest experience.",
     features: ["Full creative direction", "Opening animation choice", "Premium RSVP direction", "Music support", "Priority delivery"]

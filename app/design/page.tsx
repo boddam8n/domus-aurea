@@ -91,12 +91,12 @@ export default function DesignInvitationPage() {
       <section className="px-4 py-32 md:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-3xl">
-            <p className="text-sm font-bold uppercase tracking-[0.34em] text-gold">إنشاء دعوة</p>
+            <p className="text-sm font-bold uppercase tracking-[0.24em] text-gold">إنشاء دعوة</p>
             <h1 className="mt-5 font-display text-5xl leading-tight text-[var(--color-text)] md:text-7xl">
               اختر التصميم، أدخل البيانات، واستلم رابط الدعوة فورًا.
             </h1>
             <p className="mt-5 leading-8 text-[var(--color-muted)]">
-              فلو بسيط لعملاء Domus Aurea: كل دعوة تتحفظ في حسابك، ويظهر رابط عام جاهز للمشاركة مع الضيوف.
+              مسار بسيط لعملاء Domus Aurea: كل دعوة تحفظ في حسابك، ويظهر رابط عام جاهز للمشاركة مع الضيوف.
             </p>
           </div>
 
@@ -190,13 +190,13 @@ export default function DesignInvitationPage() {
                 <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem]">
                   <Image src={selectedTemplate.image} alt="" fill sizes="(min-width:1024px) 34vw, 100vw" className="object-cover" />
                 </div>
-                <p className="mt-6 text-sm font-bold uppercase tracking-[0.28em] text-[#9b7330]">مراجعة الدعوة</p>
+                <p className="mt-6 text-sm font-bold uppercase tracking-[0.22em] text-[#9b7330]">مراجعة الدعوة</p>
                 <h2 className="mt-3 font-display text-4xl text-[#24170f]">{selectedTemplate.nameAr}</h2>
                 <div className="mt-5 space-y-2 text-sm leading-7 text-night/65">
                   <p>العروسة: {form.brideName || "-"}</p>
                   <p>العريس: {form.groomName || "-"}</p>
                   <p>التاريخ: {form.weddingDate || "-"}</p>
-                  <p>الباقة: {selectedPackage.nameAr} · {selectedPackage.price}</p>
+                  <p>الباقة: {selectedPackage.nameAr} - {selectedPackage.price}</p>
                   <p>العداد: {countdown}</p>
                 </div>
                 {error ? <p className="mt-5 rounded-2xl border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-900">{error}</p> : null}

@@ -33,17 +33,17 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
         body: JSON.stringify({ guestName, response })
       });
       const json = await result.json();
-      if (!result.ok) throw new Error(json.error || "��& �`ت�& حفظ ا�رد.");
-      setStatus("ت�& تسج�`� ردْ ب� جاح. شْر�9ا ��&شارْتْ.");
+      if (!result.ok) throw new Error(json.error || "لم يتم حفظ الرد.");
+      setStatus("تم تسجيل ردك بنجاح. شكرًا لمشاركتك.");
       setGuestName("");
     } catch (rsvpError) {
-      setError(rsvpError instanceof Error ? rsvpError.message : "حدث خطأ غ�`ر �&ت���ع.");
+      setError(rsvpError instanceof Error ? rsvpError.message : "حدث خطأ غير متوقع.");
     } finally {
       setLoading(false);
     }
   }
 
-  const couple = `${invitation.bride_name} �� ${invitation.groom_name}`;
+  const couple = `${invitation.bride_name} و ${invitation.groom_name}`;
   const musicSrc = invitation.music_file_name ? `/audio/${invitation.music_file_name}` : "/audio/wedding-music.mp3";
 
   return (
@@ -81,23 +81,23 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
           className="relative z-10 mx-auto grid max-w-7xl items-start gap-10 lg:grid-cols-[.92fr_1.08fr]"
         >
           <div className="paper-card relative overflow-hidden rounded-[2.5rem] p-8 text-center text-night md:p-12">
-            <p className="gold-text text-sm font-extrabold tracking-[0.35em]">بْ� ا�حب ��ا�فرحة</p>
+            <p className="gold-text text-sm font-extrabold tracking-[0.18em]">بكل الحب والفرحة</p>
             <h1 className="mt-8 font-display text-6xl text-rose md:text-8xl">{couple}</h1>
             <p className="mx-auto mt-6 max-w-md text-lg leading-9 text-night/62">
-              �`شرف� ا حض��رْ�& ���&شارْتْ�& ��`�ة �&�  ا�ع�&ر�R ح�`ث تبدأ حْا�`ة جد�`دة تحت ض��ء ا�ذ�!ب ��ا���رد.
+              يشرفنا حضوركم ومشاركتكم ليلة من العمر، حيث تبدأ حكاية جديدة تحت ضوء الذهب والورد.
             </p>
             <div className="mt-10">
               <Countdown target={invitation.wedding_date} />
             </div>
           </div>
           <div className="glass rounded-[2.5rem] p-7 md:p-10">
-            <p className="text-sm font-bold uppercase tracking-[0.34em] text-gold">دع��ة خاصة</p>
-            <h2 className="mt-5 font-display text-4xl text-pearl md:text-6xl">�`سعد� ا تأْ�`د حض��رْ�&.</h2>
+            <p className="text-sm font-bold uppercase tracking-[0.22em] text-gold">دعوة خاصة</p>
+            <h2 className="mt-5 font-display text-4xl text-pearl md:text-6xl">يسعدنا تأكيد حضوركم.</h2>
             <div className="mt-8 grid gap-4">
               {[
                 { icon: Calendar, label: invitation.wedding_date },
                 { icon: MapPin, label: invitation.venue },
-                { icon: QrCode, label: "رابط دع��ة شخص�` �اب� ���&شارْة" }
+                { icon: QrCode, label: "رابط دعوة شخصي قابل للمشاركة" }
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-4 rounded-2xl bg-white/[0.06] p-4 text-pearl/78">
                   <item.icon className="h-5 w-5 text-gold" />
@@ -108,13 +108,13 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
 
             <form onSubmit={submitRsvp} className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.05] p-5">
               <label className="block">
-                <span className="mb-2 block text-sm font-bold text-pearl/65">اس�& ا�ض�`ف</span>
+                <span className="mb-2 block text-sm font-bold text-pearl/65">اسم الضيف</span>
                 <input value={guestName} onChange={(event) => setGuestName(event.target.value)} className="w-full rounded-2xl border border-white/10 bg-night/35 px-5 py-4 text-pearl outline-none transition focus:border-gold" required />
               </label>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <button type="button" onClick={() => setResponse("accepted")} className={`rounded-2xl border px-4 py-4 font-bold transition ${response === "accepted" ? "border-gold bg-gold/15 text-gold" : "border-white/10 text-pearl/70"}`}>
                   <Check className="ml-2 inline h-4 w-4" />
-                  �ب��� ا�دع��ة
+                  قبول الدعوة
                 </button>
                 <button type="button" onClick={() => setResponse("declined")} className={`rounded-2xl border px-4 py-4 font-bold transition ${response === "declined" ? "border-gold bg-gold/15 text-gold" : "border-white/10 text-pearl/70"}`}>
                   <X className="ml-2 inline h-4 w-4" />
@@ -125,7 +125,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
               {status ? <p className="mt-4 rounded-2xl border border-emerald-400/25 bg-emerald-500/10 p-3 text-sm text-emerald-100">{status}</p> : null}
               <button disabled={loading} className="mt-5 w-full rounded-full bg-pearl px-7 py-4 font-bold text-night transition hover:bg-gold disabled:opacity-60">
                 <Send className="ml-2 inline h-4 w-4" />
-                {loading ? "جار�` ا�حفظ..." : "إرسا� ا�رد"}
+                {loading ? "جاري الحفظ..." : "إرسال الرد"}
               </button>
             </form>
           </div>

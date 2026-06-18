@@ -15,13 +15,13 @@ export default function TemplatesPage() {
       <section className="px-4 py-32 md:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-3xl">
-            <p className="text-sm font-bold uppercase tracking-[0.34em] text-gold">{isArabic ? "قوالب الدعوات" : "Invitation Templates"}</p>
+            <p className="text-sm font-bold uppercase tracking-[0.24em] text-gold">{isArabic ? "قوالب الدعوات" : "Invitation Templates"}</p>
             <h1 className="mt-5 font-display text-5xl leading-tight text-[var(--color-text)] md:text-7xl">
               {isArabic ? "تصفح أنماط دعوات راقية." : "Browse refined invitation styles."}
             </h1>
             <p className="mt-5 leading-8 text-[var(--color-muted)]">
               {isArabic
-                ? "اختر النمط الأقرب لذوقك، ثم أكمل الطلب. كل دعوة نهائية يتم صقلها خصيصاً بواسطة دوموس أوريا."
+                ? "اختر النمط الأقرب لذوقك، ثم أكمل الطلب. كل دعوة نهائية يتم صقلها خصيصًا بواسطة دوموس أوريا."
                 : "Choose a preferred style, then complete a request. Every final invitation is custom-polished by Domus Aurea."}
             </p>
           </div>
