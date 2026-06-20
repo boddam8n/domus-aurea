@@ -51,16 +51,16 @@ export default function TemplatesPage() {
               >
                 <div className="absolute -inset-3 rounded-[2rem] bg-gold/0 blur-2xl transition duration-500 group-hover:bg-gold/10" />
                 <div className="relative overflow-hidden rounded-[2rem] border border-gold/15 bg-[var(--color-surface)] shadow-[0_24px_80px_rgba(0,0,0,.16)] transition duration-500 group-hover:-translate-y-2 group-hover:border-gold/35 group-hover:shadow-[0_34px_100px_rgba(0,0,0,.24)]">
-                  <div className="relative aspect-[4/5] overflow-hidden bg-night">
+                  <div className="relative aspect-[4/5] overflow-hidden bg-[#e8dfcf]">
                     <SafeImage
                       src={template.image}
                       alt={`${template.name} template preview`}
                       fill
                       fallbackLabel={isArabic ? template.nameAr : template.name}
                       sizes="(min-width:1280px) 31vw, (min-width:768px) 48vw, 100vw"
-                      className="object-cover transition duration-700 group-hover:scale-[1.035]"
+                      className="object-contain transition duration-700 group-hover:scale-[1.025]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent opacity-80" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-80" />
                     <div className="absolute left-5 top-5 rounded-full border border-white/20 bg-black/30 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white/85 backdrop-blur-md">
                       {styleNotes[index]}
                     </div>
