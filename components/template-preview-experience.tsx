@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { gsap } from "gsap";
 import { CalendarDays, MapPin, Play, Send, X } from "lucide-react";
 import { getTemplatePreviewConfig, type TemplateMechanism, type TemplatePreviewConfig } from "@/lib/template-preview-config";
+
+const SHOWCASE_WIDTH = 960;
+const SHOWCASE_HEIGHT = 680;
 
 export type TemplatePreviewSample = {
   brideName: string;
@@ -42,6 +46,10 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
   const initials = getInitials(data.brideName, data.groomName);
   const sceneRef = useRef<HTMLDivElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { viewportRef, scale } = useShowcaseScale(isOpen);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => setIsMounted(true), []);
 
   useEffect(() => {
     if (!isOpen || !sceneRef.current) return;
@@ -88,8 +96,7 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
       const startedAt = performance.now();
       interval = window.setInterval(() => {
         const progress = Math.min(1, (performance.now() - startedAt) / duration);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        audio.volume = start + (target - start) * eased;
+        audio.volume = start + (target - start) * (1 - Math.pow(1 - progress, 3));
         if (progress >= 1) {
           if (interval) window.clearInterval(interval);
           interval = null;
@@ -114,7 +121,7 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
     };
   }, [data.musicSrc, isOpen]);
 
-  return (
+  const modal = (
     <AnimatePresence>
       {isOpen ? (
         <motion.div
@@ -133,28 +140,85 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
             <X className="h-5 w-5" />
           </button>
 
-          <div ref={sceneRef} className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-7xl items-center">
-            <div className="product-stage relative w-full overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_45px_160px_rgba(0,0,0,.58)]">
+          <div ref={sceneRef} className="mx-auto grid min-h-[calc(100svh-2rem)] max-w-[1500px] items-start gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-7">
+            <div className="product-stage relative min-w-0 rounded-[2rem] border border-white/10 shadow-[0_45px_160px_rgba(0,0,0,.58)]">
               <ProductTable config={config}>
-                <div className="relative grid min-h-[760px] items-center gap-6 p-4 md:p-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-                  <div className="relative min-h-[680px]">
-                    <MechanismScene config={config} initials={initials} data={data} />
+                <div className="relative p-3 md:p-5 xl:p-7">
+                  <div className="mb-4 flex flex-wrap items-end justify-between gap-3 px-1 md:mb-5">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.28em]" style={{ color: config.palette.gold }}>
+                        Luxury product showcase
+                      </p>
+                      <h2 className="mt-2 font-display text-3xl leading-none text-pearl md:text-4xl">{config.label}</h2>
+                    </div>
+                    <p className="max-w-md text-xs leading-6 text-pearl/62 md:text-sm">
+                      Full-object view with the opening motion scaled to fit your screen.
+                    </p>
                   </div>
-                  <ProductNotes config={config} data={data} />
+
+                  <div
+                    ref={viewportRef}
+                    className="showcase-viewport relative h-[clamp(390px,70svh,680px)] overflow-hidden rounded-[1.8rem] border border-white/12 bg-black/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)] sm:h-[clamp(430px,70svh,680px)]"
+                  >
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_44%_26%,rgba(255,255,255,.28),transparent_34%),radial-gradient(circle_at_64%_72%,rgba(0,0,0,.16),transparent_40%)]" />
+                    <div
+                      className="absolute left-1/2 top-1/2"
+                      style={{
+                        width: SHOWCASE_WIDTH,
+                        height: SHOWCASE_HEIGHT,
+                        transform: `translate(-50%, -50%) scale(${scale})`,
+                        transformOrigin: "50% 50%"
+                      }}
+                    >
+                      <MechanismScene config={config} initials={initials} data={data} />
+                    </div>
+                  </div>
                 </div>
               </ProductTable>
             </div>
+            <ProductNotes config={config} data={data} />
           </div>
         </motion.div>
       ) : null}
     </AnimatePresence>
   );
+
+  return isMounted ? createPortal(modal, document.body) : null;
+}
+
+function useShowcaseScale(active: boolean) {
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    if (!active || !viewport) return;
+
+    const updateScale = () => {
+      const bounds = viewport.getBoundingClientRect();
+      const paddedWidth = Math.max(320, bounds.width - 28);
+      const paddedHeight = Math.max(280, bounds.height - 28);
+      setScale(Number(Math.min(1, paddedWidth / SHOWCASE_WIDTH, paddedHeight / SHOWCASE_HEIGHT).toFixed(4)));
+    };
+
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(viewport);
+    window.addEventListener("resize", updateScale);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateScale);
+    };
+  }, [active]);
+
+  return { viewportRef, scale };
 }
 
 function ProductTable({ config, children }: { config: TemplatePreviewConfig; children: ReactNode }) {
   return (
     <div
-      className="relative overflow-hidden"
+      className="relative overflow-hidden rounded-[2rem]"
       style={{
         background:
           `radial-gradient(circle at 24% 12%, rgba(255,255,255,.38), transparent 28%),
@@ -300,11 +364,9 @@ function BurgundyScrollObject({ config, initials, data }: SceneProps) {
       <GlassBox className="absolute left-[52%] top-[8%] h-[520px] w-[270px] rotate-[17deg]" />
       <DriedFlorals className="absolute left-[17%] top-[18%] -rotate-[23deg]" />
       <div className="scroll-roll absolute left-[23%] top-[16%] h-[520px] w-[300px] rounded-[9rem] bg-[#78182c] shadow-[0_38px_90px_rgba(48,11,21,.38)]">
-        <div className="absolute inset-y-6 left-10 w-px bg-white/12" />
-        <div className="absolute inset-y-6 left-20 w-px bg-black/14" />
-        <div className="absolute inset-y-6 right-12 w-px bg-white/10" />
         <div className="scroll-top absolute left-8 right-8 top-8 h-8 rounded-full bg-[#9b2c45] shadow-inner" />
         <div className="scroll-bottom absolute bottom-8 left-8 right-8 h-8 rounded-full bg-[#561224] shadow-inner" />
+        <Grooves />
         <Ribbon className="ribbon-left left-[-72px] top-[250px] w-[225px] rotate-2" color="#b88b54" />
         <Ribbon className="ribbon-right right-[-78px] top-[250px] w-[235px] -rotate-2" color="#b88b54" />
         <ScrollSheet className="scroll-sheet absolute left-1/2 top-1/2 h-[430px] w-[270px] -translate-x-1/2 -translate-y-1/2" config={config} initials={initials} data={data} />
@@ -324,11 +386,7 @@ function OceanFloralObject({ config, initials, data }: SceneProps) {
         <div className="floral-gate absolute left-1/2 top-[23%] h-[315px] w-[78%] -translate-x-1/2 rounded-t-full border-[28px] border-white/85 shadow-[0_0_0_14px_rgba(255,255,255,.25)]" />
         <div className="absolute bottom-[24%] left-1/2 h-64 w-20 -translate-x-1/2 bg-white/70 [clip-path:polygon(45%_0,55%_0,100%_100%,0_100%)]" />
         {Array.from({ length: 26 }).map((_, index) => (
-          <span
-            key={index}
-            className="loose-flower absolute h-4 w-4 rounded-full bg-white shadow"
-            style={{ left: `${10 + (index % 13) * 6.5}%`, top: `${50 + Math.floor(index / 13) * 18}%` }}
-          />
+          <span key={index} className="loose-flower absolute h-4 w-4 rounded-full bg-white shadow" style={{ left: `${10 + (index % 13) * 6.5}%`, top: `${50 + Math.floor(index / 13) * 18}%` }} />
         ))}
       </div>
       <PaperCard className="reveal-card absolute left-[45%] top-[29%] h-[380px] w-[300px]" config={config} initials={initials} data={data} />
@@ -343,9 +401,7 @@ function RoyalScrollObject({ config, initials, data }: SceneProps) {
       <ObjectShadow className="left-[16%] top-[74%] h-24 w-[660px] -rotate-1" color={config.palette.shadow} />
       <div className="scroll-box absolute left-[13%] top-[10%] h-[560px] w-[620px] rounded-[1.2rem] border border-[#8c6d43]/35 bg-[#d0beb1] shadow-[0_34px_90px_rgba(72,44,34,.3)]">
         <OrnateBoxBorder />
-        <div className="scroll-sheet absolute left-1/2 top-1/2 h-[390px] w-[410px] -translate-x-1/2 -translate-y-1/2 rounded-sm bg-[#b9958b] shadow-[0_18px_42px_rgba(61,41,35,.2)]">
-          <InvitationText config={config} initials={initials} data={data} />
-        </div>
+        <ScrollSheet className="scroll-sheet absolute left-1/2 top-1/2 h-[390px] w-[410px] -translate-x-1/2 -translate-y-1/2 bg-[#b9958b]" config={config} initials={initials} data={data} />
         <GoldRod className="scroll-top left-[86px] top-[112px] w-[450px]" />
         <GoldRod className="scroll-bottom bottom-[112px] left-[86px] w-[450px]" />
         <Ribbon className="ribbon-left left-[245px] top-[62px] w-[120px] rotate-[20deg]" color="#d3b8a7" />
@@ -448,15 +504,11 @@ function NoirGoldObject({ config, initials, data }: SceneProps) {
 
 function ObjectStage({ children, wood = false, fabric = false }: { children: ReactNode; wood?: boolean; fabric?: boolean }) {
   let background = "linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.05))";
-  if (wood) {
-    background = "linear-gradient(135deg,#d9bd90,#b78953 48%,#e2c69a)";
-  }
-  if (fabric) {
-    background = "linear-gradient(135deg,#ded3bd,#c9b99a)";
-  }
+  if (wood) background = "linear-gradient(135deg,#d9bd90,#b78953 48%,#e2c69a)";
+  if (fabric) background = "linear-gradient(135deg,#ded3bd,#c9b99a)";
 
   return (
-    <div className="relative min-h-[680px] overflow-hidden rounded-[1.7rem]" style={{ background }}>
+    <div className="relative h-full w-full overflow-visible rounded-[1.7rem]" style={{ background }}>
       <div className="pointer-events-none absolute inset-0 opacity-[0.16] [background-image:linear-gradient(120deg,rgba(255,255,255,.55)_1px,transparent_1px)] [background-size:18px_18px]" />
       <div className="pointer-events-none absolute left-[-12%] top-[-18%] h-[58%] w-[80%] rotate-[-18deg] bg-white/26 blur-2xl" />
       {children}
@@ -464,19 +516,9 @@ function ObjectStage({ children, wood = false, fabric = false }: { children: Rea
   );
 }
 
-function PaperCard({
-  config,
-  initials,
-  data,
-  className = "",
-  floral = false,
-  inkWash = false
-}: SceneProps & { className?: string; floral?: boolean; inkWash?: boolean }) {
+function PaperCard({ config, initials, data, className = "", floral = false, inkWash = false }: SceneProps & { className?: string; floral?: boolean; inkWash?: boolean }) {
   return (
-    <div
-      className={`${className} relative rounded-sm border p-7 text-center shadow-[0_22px_65px_rgba(0,0,0,.2)]`}
-      style={{ background: config.palette.paper, color: config.palette.ink, borderColor: `${config.palette.gold}77` }}
-    >
+    <div className={`${className} relative rounded-sm border p-7 text-center shadow-[0_22px_65px_rgba(0,0,0,.2)]`} style={{ background: config.palette.paper, color: config.palette.ink, borderColor: `${config.palette.gold}77` }}>
       <PaperTexture />
       {inkWash ? <InkWash /> : null}
       {floral ? <FloralBorder color={config.palette.gold} /> : <FineBorder color={config.palette.gold} />}
@@ -626,6 +668,16 @@ function FoilMonogram({ initials, className, ornate = false }: { initials: strin
       <span className="font-display">{initials}</span>
       {ornate ? <span className="absolute inset-2 rounded-full border border-[#2a1a08]/30" /> : null}
     </div>
+  );
+}
+
+function Grooves() {
+  return (
+    <>
+      <div className="absolute inset-y-6 left-10 w-px bg-white/12" />
+      <div className="absolute inset-y-6 left-20 w-px bg-black/14" />
+      <div className="absolute inset-y-6 right-12 w-px bg-white/10" />
+    </>
   );
 }
 
