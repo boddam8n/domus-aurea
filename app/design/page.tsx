@@ -6,6 +6,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { CheckCircle2, Copy, Music } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { SafeImage } from "@/components/safe-image";
+import { PlayPreviewButton, TemplatePreviewModal } from "@/components/template-preview-experience";
 import { countdownStyles, invitationTemplates, pricingPlans } from "@/lib/data";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { invitationRequestSchema } from "@/lib/validation";
@@ -24,6 +25,7 @@ export default function DesignInvitationPage() {
     phone: ""
   });
   const [publicUrl, setPublicUrl] = useState("");
+  const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -106,22 +108,25 @@ export default function DesignInvitationPage() {
                 <h2 className="font-display text-3xl text-[var(--color-text)]">١. اختر شكل الدعوة</h2>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {invitationTemplates.map((item) => (
-                    <button
+                    <div
                       key={item.name}
-                      type="button"
-                      onClick={() => setTemplate(item.name)}
                       className={`group overflow-hidden rounded-[1.5rem] border text-right transition duration-300 hover:-translate-y-1 ${
                         template === item.name ? "border-gold shadow-glow" : "border-white/10"
                       }`}
                     >
-                      <span className="relative block aspect-[4/3] overflow-hidden bg-[#e8dfcf]">
+                      <button type="button" onClick={() => setTemplate(item.name)} className="block w-full text-right">
+                        <span className="relative block aspect-[4/3] overflow-hidden bg-[#e8dfcf]">
                         <SafeImage src={item.image} alt={item.name} fill fallbackLabel={item.nameAr} sizes="(min-width:1024px) 22vw, 50vw" className="object-contain transition duration-500 group-hover:scale-[1.025]" />
-                      </span>
-                      <span className="block p-4">
-                        <span className="block font-bold text-[var(--color-text)]">{item.nameAr}</span>
-                        <span className="mt-1 block text-sm leading-6 text-[var(--color-muted)]">{item.description}</span>
-                      </span>
-                    </button>
+                        </span>
+                        <span className="block p-4">
+                          <span className="block font-bold text-[var(--color-text)]">{item.nameAr}</span>
+                          <span className="mt-1 block text-sm leading-6 text-[var(--color-muted)]">{item.description}</span>
+                        </span>
+                      </button>
+                      <div className="px-4 pb-4">
+                        <PlayPreviewButton onClick={() => setPreviewTemplate(item.name)} isArabic />
+                      </div>
+                    </div>
                   ))}
                 </div>
               </section>
@@ -226,6 +231,18 @@ export default function DesignInvitationPage() {
           </form>
         </div>
       </section>
+      <TemplatePreviewModal
+        isOpen={Boolean(previewTemplate)}
+        templateName={previewTemplate ?? selectedTemplate.name}
+        onClose={() => setPreviewTemplate(null)}
+        sample={{
+          brideName: form.brideName || "Layan",
+          groomName: form.groomName || "Yassin",
+          date: form.weddingDate || "12 December 2026",
+          venue: form.venue || "Emerald Palace, Cairo",
+          musicSrc: musicName ? `/audio/${musicName}` : "/audio/wedding-music.mp3"
+        }}
+      />
     </PageShell>
   );
 }

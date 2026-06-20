@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { ArrowUpLeft, Eye, Sparkles } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { PageShell } from "@/components/page-shell";
 import { SafeImage } from "@/components/safe-image";
+import { PlayPreviewButton, TemplatePreviewModal } from "@/components/template-preview-experience";
 import { invitationTemplates } from "@/lib/data";
 
 const styleNotes = [
@@ -21,6 +23,7 @@ const styleNotes = [
 
 export default function TemplatesPage() {
   const { isArabic } = useLanguage();
+  const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
 
   return (
     <PageShell>
@@ -64,13 +67,16 @@ export default function TemplatesPage() {
                     <div className="absolute left-5 top-5 rounded-full border border-white/20 bg-black/30 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white/85 backdrop-blur-md">
                       {styleNotes[index]}
                     </div>
-                    <Link
-                      href={`/design?template=${encodeURIComponent(template.name)}`}
-                      className="absolute bottom-5 left-5 inline-flex items-center gap-2 rounded-full bg-[#f7efe2] px-5 py-3 text-sm font-bold text-night shadow-[0_16px_40px_rgba(0,0,0,.25)] transition hover:bg-gold"
-                    >
-                      {isArabic ? "اختيار القالب" : "Select Template"}
-                      <ArrowUpLeft className="h-4 w-4" />
-                    </Link>
+                    <div className="absolute bottom-5 left-5 right-5 flex flex-wrap items-center gap-3">
+                      <PlayPreviewButton onClick={() => setPreviewTemplate(template.name)} isArabic={isArabic} />
+                      <Link
+                        href={`/design?template=${encodeURIComponent(template.name)}`}
+                        className="inline-flex items-center gap-2 rounded-full bg-[#f7efe2] px-5 py-3 text-sm font-bold text-night shadow-[0_16px_40px_rgba(0,0,0,.25)] transition hover:bg-gold"
+                      >
+                        {isArabic ? "اختيار القالب" : "Select Template"}
+                        <ArrowUpLeft className="h-4 w-4" />
+                      </Link>
+                    </div>
                   </div>
 
                   <div className="p-6">
@@ -94,6 +100,11 @@ export default function TemplatesPage() {
           </div>
         </div>
       </section>
+      <TemplatePreviewModal
+        isOpen={Boolean(previewTemplate)}
+        templateName={previewTemplate ?? invitationTemplates[0].name}
+        onClose={() => setPreviewTemplate(null)}
+      />
     </PageShell>
   );
 }
