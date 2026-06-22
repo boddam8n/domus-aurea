@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import Image from "next/image";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { gsap } from "gsap";
@@ -16,6 +17,7 @@ export type TemplatePreviewSample = {
   groomName: string;
   date: string;
   venue: string;
+  message?: string;
   musicSrc?: string;
 };
 
@@ -37,11 +39,101 @@ const defaultSample: TemplatePreviewSample = {
   groomName: "Yassin",
   date: "12 December 2026",
   venue: "Emerald Palace, Cairo",
+  message: "With love and joy, we invite you to celebrate a night made for family, friends, and memory.",
   musicSrc: "/audio/wedding-music.mp3"
 };
 
+type SequenceFrame = {
+  label: string;
+  src: string;
+};
+
+type ReadingOverlay = {
+  left: string;
+  top: string;
+  width: string;
+  height: string;
+  tone: "warm" | "noir";
+};
+
+type KeyframeSequence = {
+  templateName: string;
+  label: string;
+  material: string;
+  aspectRatio: number;
+  maxWidth: number;
+  palette: {
+    gold: string;
+    ink: string;
+    panel: string;
+  };
+  overlay: ReadingOverlay;
+  frames: SequenceFrame[];
+};
+
+const keyframeSequences: KeyframeSequence[] = [
+  {
+    templateName: "Burgundy Scroll",
+    label: "Burgundy Scroll",
+    material: "Burgundy paper scroll, glass box, cord, dried florals and wax seal",
+    aspectRatio: 1086 / 1448,
+    maxWidth: 620,
+    palette: {
+      gold: "#c89a57",
+      ink: "#4b3023",
+      panel: "rgba(44, 19, 18, .48)"
+    },
+    overlay: {
+      left: "36.5%",
+      top: "23%",
+      width: "29%",
+      height: "51%",
+      tone: "warm"
+    },
+    frames: [
+      { label: "Closed", src: "/assets/invitation-sequences/burgundy-scroll/closed.png" },
+      { label: "25% Open", src: "/assets/invitation-sequences/burgundy-scroll/open-25.png" },
+      { label: "50% Open", src: "/assets/invitation-sequences/burgundy-scroll/open-50.png" },
+      { label: "75% Open", src: "/assets/invitation-sequences/burgundy-scroll/open-75.png" },
+      { label: "Reading State", src: "/assets/invitation-sequences/burgundy-scroll/reading.png" }
+    ]
+  },
+  {
+    templateName: "Navy Laser Gate",
+    label: "Navy Laser Gate",
+    material: "Navy laser-cut gatefold, gold monogram, layered card and folded paper shadows",
+    aspectRatio: 1536 / 1024,
+    maxWidth: 920,
+    palette: {
+      gold: "#d4a84f",
+      ink: "#171717",
+      panel: "rgba(6, 12, 28, .48)"
+    },
+    overlay: {
+      left: "38.3%",
+      top: "18.5%",
+      width: "25%",
+      height: "61%",
+      tone: "noir"
+    },
+    frames: [
+      { label: "Closed", src: "/assets/invitation-sequences/navy-gate/closed.png" },
+      { label: "25% Open", src: "/assets/invitation-sequences/navy-gate/open-20.png" },
+      { label: "50% Open", src: "/assets/invitation-sequences/navy-gate/open-40.png" },
+      { label: "75% Open", src: "/assets/invitation-sequences/navy-gate/open-60.png" },
+      { label: "Fully Open", src: "/assets/invitation-sequences/navy-gate/open-80.png" },
+      { label: "Reading State", src: "/assets/invitation-sequences/navy-gate/reading.png" }
+    ]
+  }
+];
+
+function getKeyframeSequence(templateName: string) {
+  return keyframeSequences.find((sequence) => sequence.templateName === templateName);
+}
+
 export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = defaultSample }: TemplatePreviewModalProps) {
   const config = useMemo(() => getTemplatePreviewConfig(templateName), [templateName]);
+  const sequence = useMemo(() => getKeyframeSequence(templateName), [templateName]);
   const data = { ...defaultSample, ...sample };
   const initials = getInitials(data.brideName, data.groomName);
   const sceneRef = useRef<HTMLDivElement | null>(null);
@@ -59,21 +151,36 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
       gsap.set(".product-stage", { opacity: 0, scale: 0.985, y: 18 });
-      gsap.set(".object-note, .object-date, .object-rsvp", { opacity: 0, y: 18 });
-      gsap.set(".wax-shard", { opacity: 0, scale: 0, x: 0, y: 0, rotate: 0 });
-      gsap.set(".reveal-card, .acrylic-panel, .scroll-sheet, .bottle-scroll, .pocket-insert, .pocket-rsvp", { opacity: 0 });
-      gsap.set(".loose-flower", { opacity: 0, y: 10, rotate: 0 });
-
       tl.to(".product-stage", { opacity: 1, scale: 1, y: 0, duration: 0.85 });
-      animatePhysicalObject(tl, config.mechanism);
-      tl.to(".object-note, .object-date, .object-rsvp", { opacity: 1, y: 0, duration: 0.62, stagger: 0.08 }, "-=.35");
+
+      if (sequence) {
+        gsap.set(".sequence-frame", { opacity: 0 });
+        gsap.set(".sequence-frame-0", { opacity: 1 });
+        gsap.set(".dynamic-reading-copy, .sequence-rsvp, .sequence-progress", { opacity: 0, y: 16 });
+
+        sequence.frames.slice(1).forEach((_, index) => {
+          tl.to(`.sequence-frame-${index}`, { opacity: 0, duration: 0.72 }, "+=0.16")
+            .to(`.sequence-frame-${index + 1}`, { opacity: 1, duration: 0.72 }, "<");
+        });
+
+        tl.to(".dynamic-reading-copy", { opacity: 1, y: 0, duration: 0.88 }, "-=.1")
+          .to(".sequence-rsvp, .sequence-progress", { opacity: 1, y: 0, duration: 0.64, stagger: 0.08 }, "-=.45");
+      } else {
+        gsap.set(".object-note, .object-date, .object-rsvp", { opacity: 0, y: 18 });
+        gsap.set(".wax-shard", { opacity: 0, scale: 0, x: 0, y: 0, rotate: 0 });
+        gsap.set(".reveal-card, .acrylic-panel, .scroll-sheet, .bottle-scroll, .pocket-insert, .pocket-rsvp", { opacity: 0 });
+        gsap.set(".loose-flower", { opacity: 0, y: 10, rotate: 0 });
+
+        animatePhysicalObject(tl, config.mechanism);
+        tl.to(".object-note, .object-date, .object-rsvp", { opacity: 1, y: 0, duration: 0.62, stagger: 0.08 }, "-=.35");
+      }
     }, sceneRef);
 
     return () => {
       ctx.revert();
       document.body.style.overflow = "";
     };
-  }, [config.mechanism, isOpen]);
+  }, [config.mechanism, isOpen, sequence]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -140,43 +247,49 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
             <X className="h-5 w-5" />
           </button>
 
-          <div ref={sceneRef} className="mx-auto grid min-h-[calc(100svh-2rem)] max-w-[1500px] items-start gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-7">
-            <div className="product-stage relative min-w-0 rounded-[2rem] border border-white/10 shadow-[0_45px_160px_rgba(0,0,0,.58)]">
-              <ProductTable config={config}>
-                <div className="relative p-3 md:p-5 xl:p-7">
-                  <div className="mb-4 flex flex-wrap items-end justify-between gap-3 px-1 md:mb-5">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.28em]" style={{ color: config.palette.gold }}>
-                        Luxury product showcase
-                      </p>
-                      <h2 className="mt-2 font-display text-3xl leading-none text-pearl md:text-4xl">{config.label}</h2>
-                    </div>
-                    <p className="max-w-md text-xs leading-6 text-pearl/62 md:text-sm">
-                      Full-object view with the opening motion scaled to fit your screen.
-                    </p>
-                  </div>
+          <div ref={sceneRef} className="mx-auto min-h-[calc(100svh-2rem)] max-w-[1500px] py-5">
+            {sequence ? (
+              <KeyframeInvitationExperience sequence={sequence} data={data} initials={initials} />
+            ) : (
+              <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-7">
+                <div className="product-stage relative min-w-0 rounded-[2rem] border border-white/10 shadow-[0_45px_160px_rgba(0,0,0,.58)]">
+                  <ProductTable config={config}>
+                    <div className="relative p-3 md:p-5 xl:p-7">
+                      <div className="mb-4 flex flex-wrap items-end justify-between gap-3 px-1 md:mb-5">
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.28em]" style={{ color: config.palette.gold }}>
+                            Luxury product showcase
+                          </p>
+                          <h2 className="mt-2 font-display text-3xl leading-none text-pearl md:text-4xl">{config.label}</h2>
+                        </div>
+                        <p className="max-w-md text-xs leading-6 text-pearl/62 md:text-sm">
+                          Full-object view with the opening motion scaled to fit your screen.
+                        </p>
+                      </div>
 
-                  <div
-                    ref={viewportRef}
-                    className="showcase-viewport relative h-[clamp(390px,70svh,680px)] overflow-hidden rounded-[1.8rem] border border-white/12 bg-black/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)] sm:h-[clamp(430px,70svh,680px)]"
-                  >
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_44%_26%,rgba(255,255,255,.28),transparent_34%),radial-gradient(circle_at_64%_72%,rgba(0,0,0,.16),transparent_40%)]" />
-                    <div
-                      className="absolute left-1/2 top-1/2"
-                      style={{
-                        width: SHOWCASE_WIDTH,
-                        height: SHOWCASE_HEIGHT,
-                        transform: `translate(-50%, -50%) scale(${scale})`,
-                        transformOrigin: "50% 50%"
-                      }}
-                    >
-                      <MechanismScene config={config} initials={initials} data={data} />
+                      <div
+                        ref={viewportRef}
+                        className="showcase-viewport relative h-[clamp(390px,70svh,680px)] overflow-hidden rounded-[1.8rem] border border-white/12 bg-black/10 shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)] sm:h-[clamp(430px,70svh,680px)]"
+                      >
+                        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_44%_26%,rgba(255,255,255,.28),transparent_34%),radial-gradient(circle_at_64%_72%,rgba(0,0,0,.16),transparent_40%)]" />
+                        <div
+                          className="absolute left-1/2 top-1/2"
+                          style={{
+                            width: SHOWCASE_WIDTH,
+                            height: SHOWCASE_HEIGHT,
+                            transform: `translate(-50%, -50%) scale(${scale})`,
+                            transformOrigin: "50% 50%"
+                          }}
+                        >
+                          <MechanismScene config={config} initials={initials} data={data} />
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  </ProductTable>
                 </div>
-              </ProductTable>
-            </div>
-            <ProductNotes config={config} data={data} />
+                <ProductNotes config={config} data={data} />
+              </div>
+            )}
           </div>
         </motion.div>
       ) : null}
@@ -230,6 +343,141 @@ function ProductTable({ config, children }: { config: TemplatePreviewConfig; chi
       <div className="pointer-events-none absolute -left-28 top-0 h-[120%] w-72 rotate-12 bg-white/18 blur-2xl" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(110deg,rgba(255,255,255,.22),transparent_34%,rgba(0,0,0,.12)_70%)]" />
       {children}
+    </div>
+  );
+}
+
+function KeyframeInvitationExperience({ sequence, data, initials }: { sequence: KeyframeSequence; data: TemplatePreviewSample; initials: string }) {
+  const frameWidth = useSequenceFrameWidth(sequence.aspectRatio, sequence.maxWidth);
+  const frameHeight = frameWidth / sequence.aspectRatio;
+
+  return (
+    <div className="product-stage relative rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_42%_8%,rgba(255,255,255,.16),transparent_34%),linear-gradient(135deg,#14100c,#080706_72%)] p-3 shadow-[0_45px_160px_rgba(0,0,0,.62)] md:p-5">
+      <div className="grid min-h-[calc(100svh-4rem)] items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-7">
+        <div className="relative flex min-w-0 items-center justify-center overflow-hidden rounded-[1.7rem] border border-white/10 bg-[radial-gradient(circle_at_50%_18%,rgba(255,255,255,.14),transparent_32%),radial-gradient(circle_at_50%_82%,rgba(0,0,0,.34),transparent_42%)] px-3 py-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,.04)] sm:px-5">
+          <div className="absolute left-4 top-4 z-20 rounded-full border border-white/12 bg-black/35 px-3 py-2 text-[9px] font-bold uppercase tracking-[0.22em] text-pearl/80 backdrop-blur-md" style={{ color: sequence.palette.gold }}>
+            {sequence.label}
+          </div>
+          <div className="relative mx-auto" style={{ width: frameWidth, height: frameHeight }}>
+            <div
+              className="sequence-frame-box relative h-full w-full overflow-hidden rounded-[1rem] shadow-[0_35px_120px_rgba(0,0,0,.55)]"
+              data-template={sequence.templateName}
+              data-frame-count={sequence.frames.length}
+            >
+              {sequence.frames.map((frame, index) => (
+                <Image
+                  key={frame.src}
+                  src={frame.src}
+                  alt={`${sequence.label} ${frame.label}`}
+                  fill
+                  priority={index === 0 || index === sequence.frames.length - 1}
+                  sizes="(min-width: 1024px) 920px, 100vw"
+                  className={`sequence-frame sequence-frame-${index} object-contain`}
+                  data-state={frame.label}
+                />
+              ))}
+              <DynamicReadingOverlay sequence={sequence} data={data} initials={initials} />
+            </div>
+          </div>
+        </div>
+
+        <SequenceProductNotes sequence={sequence} data={data} initials={initials} />
+      </div>
+    </div>
+  );
+}
+
+function useSequenceFrameWidth(aspectRatio: number, maxWidth: number) {
+  const [width, setWidth] = useState(maxWidth);
+
+  useLayoutEffect(() => {
+    const updateWidth = () => {
+      const hasSidePanel = window.innerWidth >= 1024;
+      const availableWidth = Math.max(280, window.innerWidth - (hasSidePanel ? 520 : 34));
+      const availableHeight = Math.max(360, window.innerHeight - (hasSidePanel ? 150 : 250));
+      const fittedWidth = Math.min(maxWidth, availableWidth, availableHeight * aspectRatio);
+      setWidth(Math.max(280, Math.floor(fittedWidth)));
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, [aspectRatio, maxWidth]);
+
+  return width;
+}
+
+function DynamicReadingOverlay({ sequence, data, initials }: { sequence: KeyframeSequence; data: TemplatePreviewSample; initials: string }) {
+  const isNoir = sequence.overlay.tone === "noir";
+
+  return (
+    <div
+      className="dynamic-reading-copy absolute z-20 flex flex-col items-center justify-center overflow-hidden text-center"
+      style={{
+        left: sequence.overlay.left,
+        top: sequence.overlay.top,
+        width: sequence.overlay.width,
+        height: sequence.overlay.height,
+        color: isNoir ? "#171717" : sequence.palette.ink,
+        textShadow: isNoir ? "0 1px 0 rgba(255,255,255,.36)" : "0 1px 0 rgba(255,255,255,.45)"
+      }}
+    >
+      <div className="w-full rounded-[.55rem] bg-[rgba(255,251,240,.76)] px-[8%] py-[9%] shadow-[0_14px_44px_rgba(0,0,0,.16)] backdrop-blur-[2px]">
+        <p className="text-[clamp(6px,0.62vw,10px)] font-bold uppercase tracking-[0.18em]" style={{ color: sequence.palette.gold }}>
+          Domus Aurea
+        </p>
+        <p className="mt-[7%] font-display text-[clamp(16px,2vw,34px)] leading-none" style={{ color: sequence.palette.gold }}>
+          {initials}
+        </p>
+        <h3 className="mt-[8%] font-display text-[clamp(14px,1.55vw,28px)] leading-[1.02]">
+          {data.brideName}
+          <span className="block text-[clamp(8px,0.95vw,15px)]">&</span>
+          {data.groomName}
+        </h3>
+        <div className="mx-auto my-[7%] h-px w-[54%]" style={{ background: sequence.palette.gold }} />
+        <p className="text-[clamp(6px,0.72vw,11px)] font-semibold uppercase tracking-[0.14em]">{data.date}</p>
+        <p className="mt-[5%] text-[clamp(6px,0.78vw,12px)] leading-[1.35]">{data.venue}</p>
+        <p className="mt-[6%] hidden text-[clamp(6px,0.7vw,10px)] leading-[1.5] text-black/58 sm:block">{data.message}</p>
+      </div>
+    </div>
+  );
+}
+
+function SequenceProductNotes({ sequence, data, initials }: { sequence: KeyframeSequence; data: TemplatePreviewSample; initials: string }) {
+  return (
+    <div className="sequence-rsvp rounded-[1.6rem] border border-white/12 bg-black/30 p-5 shadow-[0_24px_80px_rgba(0,0,0,.28)] backdrop-blur-xl md:p-6">
+      <p className="text-xs font-bold uppercase tracking-[0.26em]" style={{ color: sequence.palette.gold }}>
+        Product reveal
+      </p>
+      <h2 className="mt-4 font-display text-4xl leading-tight">{sequence.label}</h2>
+      <p className="mt-4 text-sm leading-7 text-pearl/70">
+        {sequence.material}. The preview uses the uploaded states as animation keyframes, then overlays editable invitation data for real customers.
+      </p>
+      <div className="mt-5 grid gap-3">
+        <InfoLine icon={<CalendarDays className="h-4 w-4" />} label={data.date} color={sequence.palette.gold} />
+        <InfoLine icon={<MapPin className="h-4 w-4" />} label={data.venue} color={sequence.palette.gold} />
+      </div>
+      <div className="mt-5 rounded-[1.25rem] border border-white/12 bg-[#f7efe2] p-5 text-center text-night shadow-[0_18px_60px_rgba(0,0,0,.18)]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.24em]" style={{ color: sequence.palette.gold }}>Reading state</p>
+        <p className="mt-3 font-display text-4xl leading-none" style={{ color: sequence.palette.gold }}>{initials}</p>
+        <h3 className="mt-3 font-display text-3xl leading-tight">
+          {data.brideName}
+          <span className="block text-xl">&</span>
+          {data.groomName}
+        </h3>
+        <p className="mt-4 text-xs font-bold uppercase tracking-[0.16em] text-night/65">{data.date}</p>
+        <p className="mt-3 text-sm leading-6 text-night/62">{data.message}</p>
+      </div>
+      <div className="mt-5 rounded-[1.25rem] border border-white/12 bg-white/[0.06] p-4">
+        <p className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: sequence.palette.gold }}>RSVP preview</p>
+        <div className="mt-4 grid gap-3">
+          <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-pearl/60">Guest name</div>
+          <button type="button" className="rounded-2xl px-5 py-3 text-sm font-bold text-night" style={{ background: sequence.palette.gold }}>
+            <Send className="mr-2 inline h-4 w-4" />
+            Accept invitation
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -820,7 +1068,7 @@ export function PlayPreviewButton({ onClick, isArabic }: { onClick: () => void; 
       className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/35 px-5 py-3 text-sm font-bold text-white shadow-[0_16px_40px_rgba(0,0,0,.25)] backdrop-blur-md transition hover:border-gold hover:bg-gold hover:text-night"
     >
       <Play className="h-4 w-4" />
-      {isArabic ? "تشغيل المعاينة" : "Play Preview"}
+      {isArabic ? "????? ????????" : "Play Preview"}
     </button>
   );
 }

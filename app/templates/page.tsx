@@ -33,15 +33,15 @@ export default function TemplatesPage() {
             <div>
               <p className="inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-gold">
                 <Sparkles className="h-4 w-4" />
-                {isArabic ? "مجموعة القوالب" : "Template Collection"}
+                {isArabic ? "?????? ???????" : "Template Collection"}
               </p>
               <h1 className="mt-6 max-w-4xl font-display text-5xl leading-tight text-[var(--color-text)] md:text-7xl">
-                {isArabic ? "دعوات تبدو كقطعة فنية قبل أن تصبح رابطًا." : "Invitation previews that feel crafted, not generated."}
+                {isArabic ? "????? ???? ????? ???? ??? ?? ???? ??????." : "Invitation previews that feel crafted, not generated."}
               </h1>
             </div>
             <p className="max-w-2xl leading-8 text-[var(--color-muted)] lg:justify-self-end">
               {isArabic
-                ? "كل قالب هنا أعيد بناؤه كمعاينة حقيقية: خامات، طبقات، ختم، ورق، أكريليك، ومونوجرام. اختر الاتجاه الأقرب لفرحك ثم أكمل التفاصيل من صفحة التصميم."
+                ? "?? ???? ??? ???? ????? ??????? ??????: ?????? ?????? ???? ???? ???????? ?????????. ???? ??????? ?????? ????? ?? ???? ???????? ?? ???? ???????."
                 : "Each template now uses a dedicated invitation artwork preview: material, layering, seal, paper, acrylic and monogram details. Choose the direction closest to the wedding mood."}
             </p>
           </div>
@@ -50,6 +50,7 @@ export default function TemplatesPage() {
             {invitationTemplates.map((template, index) => (
               <article
                 key={template.name}
+                data-template-name={template.name}
                 className={`group relative ${index % 3 === 1 ? "xl:mt-12" : ""} ${index % 3 === 2 ? "xl:mt-5" : ""}`}
               >
                 <div className="absolute -inset-3 rounded-[2rem] bg-gold/0 blur-2xl transition duration-500 group-hover:bg-gold/10" />
@@ -73,7 +74,7 @@ export default function TemplatesPage() {
                         href={`/design?template=${encodeURIComponent(template.name)}`}
                         className="inline-flex items-center gap-2 rounded-full bg-[#f7efe2] px-5 py-3 text-sm font-bold text-night shadow-[0_16px_40px_rgba(0,0,0,.25)] transition hover:bg-gold"
                       >
-                        {isArabic ? "اختيار القالب" : "Select Template"}
+                        {isArabic ? "?????? ??????" : "Select Template"}
                         <ArrowUpLeft className="h-4 w-4" />
                       </Link>
                     </div>
@@ -90,7 +91,7 @@ export default function TemplatesPage() {
                       </span>
                     </div>
                     <div className="mt-5 flex items-center justify-between border-t border-gold/10 pt-5 text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">
-                      <span>{isArabic ? "معاينة تفاعلية" : "Interactive preview"}</span>
+                      <span>{isArabic ? "?????? ???????" : "Interactive preview"}</span>
                       <span className="text-gold">Domus Aurea</span>
                     </div>
                   </div>

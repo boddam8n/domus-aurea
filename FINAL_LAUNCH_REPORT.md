@@ -11,6 +11,12 @@ This polish pass focused on production blockers: broken image resilience, global
 - Added `SafeImage` fallback handling for template, gallery, design, and preview cards.
 - Replaced direct preview image rendering with resilient `next/image` usage where the UI depends on card imagery.
 - Added luxury missing-image fallbacks so cards never collapse or show broken browser icons.
+- Added source-image keyframe preview experiences for `Burgundy Scroll` and `Navy Laser Gate`.
+- Imported the provided invitation state sequences into `public/assets/invitation-sequences`.
+- Replaced the affected template card preview images with the real closed-state invitation frames.
+- Preserved fixed camera/background/lighting by crossfading between the uploaded invitation states.
+- Added dynamic HTML reading overlays for bride name, groom name, date, venue, message, and generated initials.
+- Added a readable final-state panel beside/below the product preview so narrow physical invitations remain comfortable to read.
 - Added a global fixed music control in the main app layout.
 - Reused the existing audio system instead of introducing duplicate players.
 - Music controls now support play, pause, mute, low-volume start, fade behavior, and browser autoplay restrictions.
@@ -20,6 +26,7 @@ This polish pass focused on production blockers: broken image resilience, global
 - Improved Arabic localization on the public RSVP page.
 - Verified Arabic source files are UTF-8 and rendered without mojibake in production responses.
 - Confirmed production build succeeds.
+- Verified the new keyframe preview flow on desktop `1280x720` and mobile `390x844`.
 
 ## Production QA Results
 
@@ -43,6 +50,10 @@ Results:
 - Image-heavy pages returned optimized image markup.
 - Invitation public route rendered successfully.
 - Dashboard route rendered successfully.
+- `Burgundy Scroll` preview showed 5 states and ended on `Reading State`.
+- `Navy Laser Gate` preview showed 6 states and ended on `Reading State`.
+- Both keyframe previews remained fully visible with no viewport crop on desktop and mobile.
+- Both keyframe previews displayed readable dynamic final-state data and RSVP preview UI.
 
 ## Image System
 
