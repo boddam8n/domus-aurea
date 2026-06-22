@@ -154,17 +154,13 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
       tl.to(".product-stage", { opacity: 1, scale: 1, y: 0, duration: 0.85 });
 
       if (sequence) {
+        const finalFrameIndex = sequence.frames.length - 1;
         gsap.set(".sequence-frame", { opacity: 0 });
-        gsap.set(".sequence-frame-0", { opacity: 1 });
-        gsap.set(".dynamic-reading-copy, .sequence-rsvp, .sequence-progress", { opacity: 0, y: 16 });
+        gsap.set(`.sequence-frame-${finalFrameIndex}`, { opacity: 1 });
+        gsap.set(".dynamic-reading-copy, .sequence-rsvp", { opacity: 0, y: 16 });
 
-        sequence.frames.slice(1).forEach((_, index) => {
-          tl.to(`.sequence-frame-${index}`, { opacity: 0, duration: 0.72 }, "+=0.16")
-            .to(`.sequence-frame-${index + 1}`, { opacity: 1, duration: 0.72 }, "<");
-        });
-
-        tl.to(".dynamic-reading-copy", { opacity: 1, y: 0, duration: 0.88 }, "-=.1")
-          .to(".sequence-rsvp, .sequence-progress", { opacity: 1, y: 0, duration: 0.64, stagger: 0.08 }, "-=.45");
+        tl.to(".dynamic-reading-copy", { opacity: 1, y: 0, duration: 0.72 }, "-=.18")
+          .to(".sequence-rsvp", { opacity: 1, y: 0, duration: 0.58 }, "-=.42");
       } else {
         gsap.set(".object-note, .object-date, .object-rsvp", { opacity: 0, y: 18 });
         gsap.set(".wax-shard", { opacity: 0, scale: 0, x: 0, y: 0, rotate: 0 });
@@ -350,6 +346,8 @@ function ProductTable({ config, children }: { config: TemplatePreviewConfig; chi
 function KeyframeInvitationExperience({ sequence, data, initials }: { sequence: KeyframeSequence; data: TemplatePreviewSample; initials: string }) {
   const frameWidth = useSequenceFrameWidth(sequence.aspectRatio, sequence.maxWidth);
   const frameHeight = frameWidth / sequence.aspectRatio;
+  const finalFrameIndex = sequence.frames.length - 1;
+  const finalFrame = sequence.frames[finalFrameIndex];
 
   return (
     <div className="product-stage relative rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_42%_8%,rgba(255,255,255,.16),transparent_34%),linear-gradient(135deg,#14100c,#080706_72%)] p-3 shadow-[0_45px_160px_rgba(0,0,0,.62)] md:p-5">
@@ -363,19 +361,17 @@ function KeyframeInvitationExperience({ sequence, data, initials }: { sequence: 
               className="sequence-frame-box relative h-full w-full overflow-hidden rounded-[1rem] shadow-[0_35px_120px_rgba(0,0,0,.55)]"
               data-template={sequence.templateName}
               data-frame-count={sequence.frames.length}
+              data-preview-mode="static-reading"
             >
-              {sequence.frames.map((frame, index) => (
-                <Image
-                  key={frame.src}
-                  src={frame.src}
-                  alt={`${sequence.label} ${frame.label}`}
-                  fill
-                  priority={index === 0 || index === sequence.frames.length - 1}
-                  sizes="(min-width: 1024px) 920px, 100vw"
-                  className={`sequence-frame sequence-frame-${index} object-contain`}
-                  data-state={frame.label}
-                />
-              ))}
+              <Image
+                src={finalFrame.src}
+                alt={`${sequence.label} ${finalFrame.label}`}
+                fill
+                priority
+                sizes="(min-width: 1024px) 920px, 100vw"
+                className={`sequence-frame sequence-frame-${finalFrameIndex} object-contain`}
+                data-state={finalFrame.label}
+              />
               <DynamicReadingOverlay sequence={sequence} data={data} initials={initials} />
             </div>
           </div>
@@ -451,7 +447,7 @@ function SequenceProductNotes({ sequence, data, initials }: { sequence: Keyframe
       </p>
       <h2 className="mt-4 font-display text-4xl leading-tight">{sequence.label}</h2>
       <p className="mt-4 text-sm leading-7 text-pearl/70">
-        {sequence.material}. The preview uses the uploaded states as animation keyframes, then overlays editable invitation data for real customers.
+        {sequence.material}. Animation has been temporarily disabled for stability; this view uses the final reading state with editable invitation data for real customers.
       </p>
       <div className="mt-5 grid gap-3">
         <InfoLine icon={<CalendarDays className="h-4 w-4" />} label={data.date} color={sequence.palette.gold} />
