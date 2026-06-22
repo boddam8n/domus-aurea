@@ -14,11 +14,11 @@ import {
 
 export const wedding = {
   brand: "Domus Aurea",
-  arabicBrand: "????? ?????",
-  couple: "???? ? ?????",
+  arabicBrand: "دوموس أوريا",
+  couple: "ليان و ياسين",
   coupleEn: "Layan & Yassin",
   date: "2026-12-12T20:00:00+02:00",
-  venue: "??? ??????",
+  venue: "قصر الزمرد",
   venueEn: "Emerald Palace",
   city: "Cairo",
   whatsapp: "https://wa.me/201000000000",
@@ -27,12 +27,12 @@ export const wedding = {
 };
 
 export const navItems = [
-  { href: "/", label: "Home", ar: "????????" },
-  { href: "/templates", label: "Templates", ar: "???????" },
-  { href: "/design", label: "Design Invitation", ar: "??? ?????" },
-  { href: "/pricing", label: "Pricing", ar: "???????" },
-  { href: "/gallery", label: "Gallery", ar: "??????" },
-  { href: "/#faq", label: "FAQ", ar: "???????" }
+  { href: "/", label: "Home", ar: "الرئيسية" },
+  { href: "/templates", label: "Templates", ar: "القوالب" },
+  { href: "/design", label: "Design Invitation", ar: "صمم دعوتك" },
+  { href: "/pricing", label: "Pricing", ar: "الأسعار" },
+  { href: "/gallery", label: "Gallery", ar: "المعرض" },
+  { href: "/#faq", label: "FAQ", ar: "الأسئلة" }
 ];
 
 export const features = [
@@ -77,55 +77,55 @@ export const themes = [
 export const invitationTemplates = [
   {
     name: "Mirror Acrylic",
-    nameAr: "??????? ?????",
+    nameAr: "أكريليك مرايا",
     image: "/assets/templates/mirror-acrylic-reference.webp",
     description: "Reflective champagne acrylic, white floral linework, and polished layered typography."
   },
   {
     name: "Burgundy Scroll",
-    nameAr: "????? ??????",
+    nameAr: "لفافة عنابية",
     image: "/assets/invitation-sequences/burgundy-scroll/closed.png",
     description: "Velvet burgundy scroll mood with a warm wax seal and ceremonial reveal."
   },
   {
     name: "Ocean Floral Arch",
-    nameAr: "??? ??? ??? ?????",
+    nameAr: "قوس ورد على البحر",
     image: "/assets/templates/ocean-floral-arch-reference.webp",
     description: "White floral arches, sea horizon light, and a clean romantic ceremony rhythm."
   },
   {
     name: "Royal Scroll",
-    nameAr: "?????? ?????",
+    nameAr: "مخطوطة ملكية",
     image: "/assets/templates/royal-scroll-reference.webp",
     description: "Parchment scroll layout with gold rods, ornate spacing, and classic script hierarchy."
   },
   {
     name: "Message Bottle",
-    nameAr: "????? ?? ?????",
+    nameAr: "رسالة في زجاجة",
     image: "/assets/templates/message-bottle-reference.webp",
     description: "Seaside bottle concept with sand, shell detail, and a private handwritten feeling."
   },
   {
     name: "Navy Laser Gate",
-    nameAr: "????? ????? ??????",
+    nameAr: "بوابة كحلية محفورة",
     image: "/assets/invitation-sequences/navy-gate/closed.png",
     description: "Navy laser-cut gate pattern with a gold monogram and crisp inner card."
   },
   {
     name: "Emerald Velvet",
-    nameAr: "???? ?????",
+    nameAr: "مخمل زمردي",
     image: "/assets/templates/emerald-velvet-reference.webp",
     description: "Deep velvet green, transparent acrylic feeling, ornate crest, and gold border lines."
   },
   {
     name: "Vintage Letterpress",
-    nameAr: "????? ????????",
+    nameAr: "طباعة كلاسيكية",
     image: "/assets/templates/vintage-letterpress-reference.webp",
     description: "Ivory letterpress paper, antique floral border, olive envelope energy, and soft shadows."
   },
   {
     name: "Noir Gold Pocket",
-    nameAr: "??? ???? ?????",
+    nameAr: "جيب أسود وذهبي",
     image: "/assets/templates/noir-gold-pocket-reference.webp",
     description: "Black pocket invitation with gold initials, modern QR-like structure, and editorial contrast."
   }
@@ -134,14 +134,14 @@ export const invitationTemplates = [
 export const pricingPlans = [
   {
     name: "Basic Package",
-    nameAr: "?????? ????????",
+    nameAr: "الباقة الأساسية",
     price: "30 EGP",
     description: "A refined digital invitation request with one elegant direction.",
     features: ["Invitation style consultation", "Basic wedding details", "WhatsApp-ready summary", "Arabic or English"]
   },
   {
     name: "Premium Package",
-    nameAr: "?????? ???????",
+    nameAr: "الباقة المميزة",
     price: "500 EGP",
     description: "For couples who want a richer custom invitation direction.",
     featured: true,
@@ -149,7 +149,7 @@ export const pricingPlans = [
   },
   {
     name: "Royal Package",
-    nameAr: "?????? ???????",
+    nameAr: "الباقة الملكية",
     price: "900 EGP",
     description: "A complete luxury request for a memorable guest experience.",
     features: ["Full creative direction", "Opening animation choice", "Premium RSVP direction", "Music support", "Priority delivery"]

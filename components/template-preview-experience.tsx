@@ -1064,7 +1064,7 @@ export function PlayPreviewButton({ onClick, isArabic }: { onClick: () => void; 
       className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/35 px-5 py-3 text-sm font-bold text-white shadow-[0_16px_40px_rgba(0,0,0,.25)] backdrop-blur-md transition hover:border-gold hover:bg-gold hover:text-night"
     >
       <Play className="h-4 w-4" />
-      {isArabic ? "????? ????????" : "Play Preview"}
+      {isArabic ? "تشغيل المعاينة" : "Play Preview"}
     </button>
   );
 }

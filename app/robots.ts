@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
+  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://domus-aurea.vercel.app";
+
   return {
     rules: {
       userAgent: "*",
       allow: "/"
     },
-    sitemap: "https://domus-aurea.example/sitemap.xml"
+    sitemap: `${base.replace(/\/$/, "")}/sitemap.xml`
   };
 }

@@ -13,7 +13,7 @@ const tajawal = Tajawal({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://domus-aurea.example"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://domus-aurea.vercel.app"),
   title: "Domus Aurea | Luxury Wedding Invitations",
   description:
     "A premium Arabic-inspired digital wedding invitation platform with RSVP, guest management, gallery, stories, QR sharing and luxury themes.",

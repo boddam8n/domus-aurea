@@ -10,6 +10,7 @@ export type PublicInvitation = {
   countdown_style: string;
   music_file_name: string | null;
   public_url: string | null;
+  invitation_text?: string | null;
 };
 
 export type DashboardInvitation = PublicInvitation & {
