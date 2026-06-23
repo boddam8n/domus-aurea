@@ -87,7 +87,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
         <div className="rounded-[2rem] border border-white/10 bg-black/20 p-3 shadow-[0_44px_150px_rgba(0,0,0,.46)] backdrop-blur-xl md:p-6">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4 px-2">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#c89b46]">Domus Aurea physical reveal</p>
+              <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#c89b46]">Domus Aurea Wedding Invitation</p>
               <h1 className="mt-3 font-display text-4xl leading-tight md:text-6xl">{couple}</h1>
             </div>
             <button
@@ -292,15 +292,15 @@ function GoldInvitationCopy({
       className="relative z-10 ml-[270px] flex h-full w-[300px] flex-col items-center justify-center px-4 text-center text-[#d8af61]"
     >
       <LaurelCrest initials={initials} />
-      <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.22em] text-[#f0cf84]">Together with their families</p>
-      <h2 className="mt-6 font-display text-4xl leading-tight text-[#f5cf7b]">
+      <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.22em] text-[#f0cf84] [text-shadow:0_1px_0_rgba(255,255,255,.22),0_8px_16px_rgba(0,0,0,.22)]">Together with their families</p>
+      <h2 className="mt-6 bg-[linear-gradient(110deg,#ffe8a8,#b7792c_35%,#fff0b8_52%,#c18b3a_75%,#f8d98c)] bg-clip-text font-display text-4xl leading-tight text-transparent [text-shadow:0_12px_24px_rgba(0,0,0,.28)]">
         {invitation.bride_name}
-        <span className="block py-2 text-lg text-[#c89b46]">and</span>
+        <span className="block py-2 text-lg text-[#c89b46]">و</span>
         {invitation.groom_name}
       </h2>
-      <p className="mt-5 max-w-xs text-xs leading-6 text-[#e7c477]/90">{invitationText}</p>
-      <p className="mt-5 text-xs font-bold uppercase leading-6 tracking-[0.14em] text-[#f0cf84]">{readableDate}</p>
-      <p className="mt-3 font-display text-2xl text-[#f5cf7b]">{invitation.venue}</p>
+      <p className="mt-5 max-w-xs text-xs leading-6 text-[#e7c477]/90 [text-shadow:0_8px_18px_rgba(0,0,0,.2)]">{invitationText}</p>
+      <p className="mt-5 text-xs font-bold uppercase leading-6 tracking-[0.14em] text-[#f0cf84] [text-shadow:0_8px_18px_rgba(0,0,0,.24)]">{readableDate}</p>
+      <p className="mt-3 bg-[linear-gradient(110deg,#ffe8a8,#b7792c_42%,#fff0b8_60%,#c18b3a)] bg-clip-text font-display text-2xl text-transparent [text-shadow:0_12px_24px_rgba(0,0,0,.28)]">{invitation.venue}</p>
       <SmallOrnament />
     </motion.div>
   );
@@ -392,6 +392,16 @@ function BurgundyPaperTexture() {
     <>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_18%,rgba(255,255,255,.12),transparent_32%),linear-gradient(90deg,rgba(255,255,255,.05),transparent_22%,rgba(0,0,0,.12)_88%)]" />
       <div className="absolute inset-0 opacity-[.18] [background-image:radial-gradient(circle_at_8px_8px,rgba(255,255,255,.22)_1px,transparent_1px),radial-gradient(circle_at_17px_16px,rgba(0,0,0,.28)_1px,transparent_1px)] [background-size:28px_28px]" />
+      <svg className="absolute inset-0 h-full w-full opacity-[.14]" viewBox="0 0 620 410" aria-hidden="true">
+        <defs>
+          <pattern id="burgundy-emboss" width="96" height="96" patternUnits="userSpaceOnUse">
+            <path d="M18 76 C44 36 56 34 78 16" fill="none" stroke="#ffd797" strokeWidth="1.1" />
+            <path d="M34 54 q22 -22 44 -2 q-26 11 -44 2Z" fill="none" stroke="#ffd797" strokeWidth="1" />
+            <path d="M16 78 q18 -18 34 0 q-18 9 -34 0Z" fill="none" stroke="#ffd797" strokeWidth="1" />
+          </pattern>
+        </defs>
+        <rect width="620" height="410" fill="url(#burgundy-emboss)" />
+      </svg>
       <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-black/18 to-transparent" />
       <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-black/24 to-transparent" />
     </>
@@ -401,9 +411,12 @@ function BurgundyPaperTexture() {
 function ScrollRoll({ className }: { className: string }) {
   return (
     <div className={`absolute z-20 w-72 -rotate-[8deg] rounded-full bg-[#851634] shadow-[inset_24px_0_36px_rgba(255,255,255,.08),inset_-28px_0_40px_rgba(0,0,0,.32),0_28px_58px_rgba(50,8,18,.34)] ${className}`}>
+      <div className="absolute inset-0 rounded-full bg-[linear-gradient(90deg,rgba(255,255,255,.14),transparent_20%,rgba(0,0,0,.22)_54%,transparent_76%,rgba(255,255,255,.08))]" />
       <div className="absolute inset-y-4 left-9 w-px bg-white/12" />
       <div className="absolute inset-y-8 left-20 w-px bg-black/18" />
       <div className="absolute inset-y-6 right-12 w-px bg-white/10" />
+      <div className="absolute inset-y-6 left-[132px] w-px bg-black/20" />
+      <div className="absolute inset-y-8 left-[180px] w-px bg-white/10" />
       <div className="absolute inset-0 rounded-full opacity-[.14] [background-image:radial-gradient(circle_at_12px_12px,rgba(255,255,255,.35)_1px,transparent_1px)] [background-size:26px_26px]" />
     </div>
   );
@@ -485,6 +498,8 @@ function LaserCutPanel({ side }: { side: "left" | "right" }) {
   const flipped = side === "right";
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#111d36] shadow-[inset_0_0_28px_rgba(255,255,255,.05),0_22px_55px_rgba(4,8,20,.32)]">
+      <div className={`absolute inset-y-0 z-20 w-5 bg-[linear-gradient(90deg,rgba(0,0,0,.34),rgba(255,255,255,.06),rgba(0,0,0,.18))] ${side === "left" ? "left-0" : "right-0"}`} />
+      <div className={`absolute inset-y-0 z-10 w-16 bg-gradient-to-r from-black/35 to-transparent ${side === "left" ? "right-0" : "left-0 rotate-180"}`} />
       <div className="absolute inset-0 opacity-[.16] [background-image:linear-gradient(90deg,rgba(255,255,255,.5)_1px,transparent_1px),radial-gradient(circle_at_12px_12px,rgba(255,255,255,.32)_1px,transparent_1px)] [background-size:22px_22px]" />
       <svg className={`absolute inset-0 h-full w-full ${flipped ? "-scale-x-100" : ""}`} viewBox="0 0 300 460" aria-hidden="true">
         <rect width="300" height="460" fill="transparent" />
