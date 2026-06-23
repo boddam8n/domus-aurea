@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
-import { CheckCircle2, Copy, Music } from "lucide-react";
+import { CheckCircle2, Copy, Lock, Music } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { SafeImage } from "@/components/safe-image";
 import { PlayPreviewButton, TemplatePreviewModal } from "@/components/template-preview-experience";
+import { TestInvitationMiniature } from "@/components/test-invitation-object";
 import { countdownStyles, invitationTemplates, pricingPlans } from "@/lib/data";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { invitationRequestSchema } from "@/lib/validation";
 
+const launchTemplate = invitationTemplates.find((item) => item.status === "available") ?? invitationTemplates[invitationTemplates.length - 1];
+
 export default function DesignInvitationPage() {
   const router = useRouter();
-  const [template, setTemplate] = useState(invitationTemplates[0].name);
   const [countdown, setCountdown] = useState(countdownStyles[0].name);
   const [pkg, setPkg] = useState(pricingPlans[1].name);
   const [musicName, setMusicName] = useState("wedding-music.mp3");
@@ -25,23 +27,22 @@ export default function DesignInvitationPage() {
     phone: ""
   });
   const [publicUrl, setPublicUrl] = useState("");
-  const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const selectedTemplate = invitationTemplates.find((item) => item.name === template) ?? invitationTemplates[0];
   const selectedPackage = pricingPlans.find((item) => item.name === pkg) ?? pricingPlans[1];
 
   const payload = useMemo(
     () => ({
       ...form,
-      templateName: template,
+      templateName: launchTemplate.name,
       packageName: selectedPackage.name,
       countdownStyle: countdown,
       musicFileName: musicName
     }),
-    [countdown, form, musicName, selectedPackage.name, template]
+    [countdown, form, musicName, selectedPackage.name]
   );
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -95,10 +96,10 @@ export default function DesignInvitationPage() {
           <div className="max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-[0.24em] text-gold">إنشاء دعوة</p>
             <h1 className="mt-5 font-display text-5xl leading-tight text-[var(--color-text)] md:text-7xl">
-              اختر التصميم، أدخل البيانات، واستلم رابط الدعوة فورًا.
+              صمم دعوتك باستخدام قالب TEST الجاهز للإطلاق.
             </h1>
             <p className="mt-5 leading-8 text-[var(--color-muted)]">
-              مسار بسيط لعملاء Domus Aurea: كل دعوة تحفظ في حسابك، ويظهر رابط عام جاهز للمشاركة مع الضيوف.
+              لتجهيز الإطلاق بثبات، أوقفنا اختيار القوالب التجريبية مؤقتًا. قالب TEST فقط هو المتاح الآن، وكل دعوة تحفظ في حسابك ويظهر رابط عام جاهز للمشاركة.
             </p>
           </div>
 
@@ -107,27 +108,42 @@ export default function DesignInvitationPage() {
               <section className="glass rounded-[2.25rem] p-6">
                 <h2 className="font-display text-3xl text-[var(--color-text)]">١. اختر شكل الدعوة</h2>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {invitationTemplates.map((item) => (
-                    <div
-                      key={item.name}
-                      className={`group overflow-hidden rounded-[1.5rem] border text-right transition duration-300 hover:-translate-y-1 ${
-                        template === item.name ? "border-gold shadow-glow" : "border-white/10"
-                      }`}
-                    >
-                      <button type="button" onClick={() => setTemplate(item.name)} className="block w-full text-right">
+                  {invitationTemplates.map((item) =>
+                    item.status === "available" ? (
+                      <div key={item.name} className="group overflow-hidden rounded-[1.5rem] border border-gold shadow-glow text-right">
+                        <button type="button" onClick={() => setPreviewOpen(true)} className="block w-full text-right">
+                          <span className="relative block aspect-[4/3] overflow-hidden bg-[#e8dfcf]">
+                            <TestInvitationMiniature />
+                          </span>
+                          <span className="block p-4">
+                            <span className="flex items-center justify-between gap-3">
+                              <span className="font-bold text-[var(--color-text)]">{item.nameAr}</span>
+                              <span className="rounded-full bg-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-gold">Selected</span>
+                            </span>
+                            <span className="mt-2 block text-sm leading-6 text-[var(--color-muted)]">{item.description}</span>
+                          </span>
+                        </button>
+                        <div className="px-4 pb-4">
+                          <PlayPreviewButton onClick={() => setPreviewOpen(true)} isArabic />
+                        </div>
+                      </div>
+                    ) : (
+                      <div key={item.name} className="relative overflow-hidden rounded-[1.5rem] border border-white/10 text-right opacity-80">
                         <span className="relative block aspect-[4/3] overflow-hidden bg-[#e8dfcf]">
-                        <SafeImage src={item.image} alt={item.name} fill fallbackLabel={item.nameAr} sizes="(min-width:1024px) 22vw, 50vw" className="object-contain transition duration-500 group-hover:scale-[1.025]" />
+                          <SafeImage src={item.image} alt={item.name} fill fallbackLabel={item.nameAr} sizes="(min-width:1024px) 22vw, 50vw" className="object-contain grayscale-[.2]" />
+                          <span className="absolute inset-0 bg-black/50" />
+                          <span className="absolute inset-x-4 bottom-4 inline-flex items-center justify-center gap-2 rounded-full border border-[#d8b15f]/30 bg-black/45 px-4 py-2 text-xs font-bold text-[#f7efe2] backdrop-blur-md">
+                            <Lock className="h-3.5 w-3.5 text-gold" />
+                            تحت التطوير
+                          </span>
                         </span>
                         <span className="block p-4">
                           <span className="block font-bold text-[var(--color-text)]">{item.nameAr}</span>
-                          <span className="mt-1 block text-sm leading-6 text-[var(--color-muted)]">{item.description}</span>
+                          <span className="mt-1 block text-sm leading-6 text-[var(--color-muted)]">قريبًا، وغير متاح للاختيار الآن.</span>
                         </span>
-                      </button>
-                      <div className="px-4 pb-4">
-                        <PlayPreviewButton onClick={() => setPreviewTemplate(item.name)} isArabic />
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </section>
 
@@ -193,14 +209,15 @@ export default function DesignInvitationPage() {
             <aside className="lg:sticky lg:top-28 lg:self-start">
               <div className="paper-card rounded-[2.25rem] p-7 text-night">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-[#e8dfcf]">
-                  <SafeImage src={selectedTemplate.image} alt="" fill fallbackLabel={selectedTemplate.nameAr} sizes="(min-width:1024px) 34vw, 100vw" className="object-contain" />
+                  <TestInvitationMiniature />
                 </div>
                 <p className="mt-6 text-sm font-bold uppercase tracking-[0.22em] text-[#9b7330]">مراجعة الدعوة</p>
-                <h2 className="mt-3 font-display text-4xl text-[#24170f]">{selectedTemplate.nameAr}</h2>
+                <h2 className="mt-3 font-display text-4xl text-[#24170f]">{launchTemplate.nameAr}</h2>
                 <div className="mt-5 space-y-2 text-sm leading-7 text-night/65">
                   <p>العروسة: {form.brideName || "-"}</p>
                   <p>العريس: {form.groomName || "-"}</p>
                   <p>التاريخ: {form.weddingDate || "-"}</p>
+                  <p>المكان: {form.venue || "-"}</p>
                   <p>الباقة: {selectedPackage.nameAr} - {selectedPackage.price}</p>
                   <p>العداد: {countdown}</p>
                 </div>
@@ -232,9 +249,9 @@ export default function DesignInvitationPage() {
         </div>
       </section>
       <TemplatePreviewModal
-        isOpen={Boolean(previewTemplate)}
-        templateName={previewTemplate ?? selectedTemplate.name}
-        onClose={() => setPreviewTemplate(null)}
+        isOpen={previewOpen}
+        templateName={launchTemplate.name}
+        onClose={() => setPreviewOpen(false)}
         sample={{
           brideName: form.brideName || "Layan",
           groomName: form.groomName || "Yassin",

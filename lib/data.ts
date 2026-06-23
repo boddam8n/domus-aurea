@@ -12,6 +12,18 @@ import {
   Users
 } from "lucide-react";
 
+export type InvitationTemplateStatus = "development" | "available";
+
+export type InvitationTemplate = {
+  name: string;
+  nameAr: string;
+  image: string;
+  description: string;
+  status: InvitationTemplateStatus;
+  badge: string;
+  badgeAr: string;
+};
+
 export const wedding = {
   brand: "Domus Aurea",
   arabicBrand: "دوموس أوريا",
@@ -74,60 +86,84 @@ export const themes = [
   { name: "Ivory Couture", description: "Sunlit ivory, champagne gradients, floral softness and editorial calm.", colors: ["#f7efe2", "#b8894b", "#8f2634"] }
 ];
 
-export const invitationTemplates = [
+const developmentBadge = {
+  status: "development" as const,
+  badge: "Coming Soon",
+  badgeAr: "قريبًا"
+};
+
+export const invitationTemplates: InvitationTemplate[] = [
   {
     name: "Mirror Acrylic",
     nameAr: "أكريليك مرايا",
     image: "/assets/templates/mirror-acrylic-reference.webp",
-    description: "Reflective champagne acrylic, white floral linework, and polished layered typography."
+    description: "Reflective champagne acrylic, white floral linework, and polished layered typography.",
+    ...developmentBadge
   },
   {
     name: "Burgundy Scroll",
     nameAr: "لفافة عنابية",
     image: "/assets/invitation-sequences/burgundy-scroll/closed.png",
-    description: "Velvet burgundy scroll mood with a warm wax seal and ceremonial reveal."
+    description: "Velvet burgundy scroll mood with a warm wax seal and ceremonial reveal.",
+    ...developmentBadge
   },
   {
     name: "Ocean Floral Arch",
     nameAr: "قوس ورد على البحر",
     image: "/assets/templates/ocean-floral-arch-reference.webp",
-    description: "White floral arches, sea horizon light, and a clean romantic ceremony rhythm."
+    description: "White floral arches, sea horizon light, and a clean romantic ceremony rhythm.",
+    ...developmentBadge
   },
   {
     name: "Royal Scroll",
     nameAr: "مخطوطة ملكية",
     image: "/assets/templates/royal-scroll-reference.webp",
-    description: "Parchment scroll layout with gold rods, ornate spacing, and classic script hierarchy."
+    description: "Parchment scroll layout with gold rods, ornate spacing, and classic script hierarchy.",
+    ...developmentBadge
   },
   {
     name: "Message Bottle",
     nameAr: "رسالة في زجاجة",
     image: "/assets/templates/message-bottle-reference.webp",
-    description: "Seaside bottle concept with sand, shell detail, and a private handwritten feeling."
+    description: "Seaside bottle concept with sand, shell detail, and a private handwritten feeling.",
+    ...developmentBadge
   },
   {
     name: "Navy Laser Gate",
     nameAr: "بوابة كحلية محفورة",
     image: "/assets/invitation-sequences/navy-gate/closed.png",
-    description: "Navy laser-cut gate pattern with a gold monogram and crisp inner card."
+    description: "Navy laser-cut gate pattern with a gold monogram and crisp inner card.",
+    ...developmentBadge
   },
   {
     name: "Emerald Velvet",
     nameAr: "مخمل زمردي",
     image: "/assets/templates/emerald-velvet-reference.webp",
-    description: "Deep velvet green, transparent acrylic feeling, ornate crest, and gold border lines."
+    description: "Deep velvet green, transparent acrylic feeling, ornate crest, and gold border lines.",
+    ...developmentBadge
   },
   {
     name: "Vintage Letterpress",
     nameAr: "طباعة كلاسيكية",
     image: "/assets/templates/vintage-letterpress-reference.webp",
-    description: "Ivory letterpress paper, antique floral border, olive envelope energy, and soft shadows."
+    description: "Ivory letterpress paper, antique floral border, olive envelope energy, and soft shadows.",
+    ...developmentBadge
   },
   {
     name: "Noir Gold Pocket",
     nameAr: "جيب أسود وذهبي",
     image: "/assets/templates/noir-gold-pocket-reference.webp",
-    description: "Black pocket invitation with gold initials, modern QR-like structure, and editorial contrast."
+    description: "Black pocket invitation with gold initials, modern QR-like structure, and editorial contrast.",
+    ...developmentBadge
+  },
+  {
+    name: "TEST",
+    nameAr: "TEST",
+    image: "",
+    description: "The launch-ready Domus Aurea invitation: a cinematic ivory card revealed from an emerald and gold luxury envelope.",
+    status: "available",
+    badge: "Launch Ready",
+    badgeAr: "جاهز للإطلاق"
   }
 ];
 

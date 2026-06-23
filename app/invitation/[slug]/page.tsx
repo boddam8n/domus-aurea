@@ -26,7 +26,7 @@ export default async function InvitationPage({ params }: { params: { slug: strin
         groom_name: "ياسين",
         wedding_date: "2026-12-12T20:00:00+02:00",
         venue: "قصر الزمرد - القاهرة",
-        template_name: "Emerald Velvet",
+        template_name: "TEST",
         package_name: "Royal Package",
         countdown_style: "Luxury Gold",
         music_file_name: "wedding-music.mp3",

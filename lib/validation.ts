@@ -6,7 +6,7 @@ export const invitationRequestSchema = z.object({
   weddingDate: z.string().trim().min(6, "Wedding date is required").max(80),
   venue: z.string().trim().min(2, "Venue is required").max(140),
   phone: z.string().trim().min(7, "WhatsApp number is required").max(32),
-  templateName: z.string().trim().min(2).max(80),
+  templateName: z.string().trim().refine((value) => value === "TEST", "TEST is the only launch-ready template."),
   packageName: z.string().trim().min(2).max(80),
   countdownStyle: z.string().trim().min(2).max(80),
   musicFileName: z.string().trim().max(160).optional()
