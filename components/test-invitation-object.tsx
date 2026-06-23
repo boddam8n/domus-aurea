@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 type TestInvitationObjectProps = {
   isOpen: boolean;
@@ -30,6 +30,10 @@ export function TestInvitationObject({
   compact = false
 }: TestInvitationObjectProps) {
   const initials = getInitials(brideName, groomName);
+  const shouldReduceMotion = useReducedMotion();
+  const mainDuration = shouldReduceMotion ? 0.01 : 2.05;
+  const secondaryDuration = shouldReduceMotion ? 0.01 : 1.45;
+  const revealDelay = shouldReduceMotion ? 0 : 1.08;
 
   return (
     <div
@@ -38,26 +42,29 @@ export function TestInvitationObject({
     >
       <LuxuryTableSurface />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_22%,rgba(255,255,255,.34),transparent_38%),linear-gradient(115deg,rgba(255,240,199,.2)_0_12%,transparent_12%_50%,rgba(255,240,199,.15)_50%_62%,transparent_62%)]" />
+      <AmbientGoldDust />
 
       <motion.div
         initial={false}
         animate={isOpen ? "open" : "closed"}
-        className={`absolute left-1/2 top-1/2 h-[610px] w-[440px] max-w-none -translate-x-1/2 -translate-y-1/2 ${compact ? "scale-[.62] sm:scale-[.72] md:scale-[.82]" : "scale-[.66] sm:scale-[.78] md:scale-[.9] lg:scale-100"}`}
+        className={`absolute left-1/2 top-1/2 h-[610px] w-[440px] max-w-none -translate-x-1/2 -translate-y-1/2 will-change-transform ${compact ? "scale-[.62] sm:scale-[.72] md:scale-[.82]" : "scale-[.7] sm:scale-[.8] md:scale-[.9] lg:scale-100"}`}
         style={{ transformStyle: "preserve-3d", perspective: "1800px" }}
       >
         <motion.div
           variants={{
-            closed: { rotateX: 8, rotateZ: -4, y: 12 },
-            open: { rotateX: 5, rotateZ: -2, y: 0 }
+            closed: { rotateX: 8, rotateZ: -4, y: 14, scale: 0.995 },
+            open: { rotateX: 4, rotateZ: -1.8, y: -4, scale: 1 }
           }}
-          transition={{ duration: 1.9, ease: [0.2, 0.82, 0.18, 1] }}
+          transition={{ duration: mainDuration, ease: [0.2, 0.82, 0.18, 1] }}
           className="absolute inset-0"
           style={{ transformStyle: "preserve-3d" }}
         >
-          <div className="absolute left-1/2 top-[92%] h-28 w-[520px] -translate-x-1/2 rounded-full bg-black/30 blur-3xl" />
+          <div className="absolute left-1/2 top-[92%] h-32 w-[540px] -translate-x-1/2 rounded-full bg-black/34 blur-3xl" />
+          <div className="absolute left-1/2 top-[86%] h-16 w-[390px] -translate-x-1/2 rounded-full bg-[#2a1508]/24 blur-2xl" />
 
-          <div className="absolute inset-x-[36px] top-[58px] h-[504px] rounded-[1.15rem] bg-[#061e19] shadow-[0_36px_105px_rgba(0,0,0,.36),inset_0_0_0_1px_rgba(255,255,255,.08)]">
+          <div className="absolute inset-x-[36px] top-[58px] h-[504px] rounded-[1.15rem] bg-[#061e19] shadow-[0_40px_120px_rgba(0,0,0,.42),inset_0_0_0_1px_rgba(255,255,255,.08)]">
             <EmeraldMaterial />
+            <EnvelopeLowerFlap />
           </div>
 
           <InvitationPaper
@@ -68,14 +75,16 @@ export function TestInvitationObject({
             message={message}
             initials={initials}
             isOpen={isOpen}
+            revealDelay={revealDelay}
+            motionDuration={secondaryDuration}
           />
 
           <motion.div
             variants={{
               closed: { rotateY: 0, x: 0, z: 42 },
-              open: { rotateY: -118, x: -16, z: 32 }
+              open: { rotateY: -126, x: -24, z: 48 }
             }}
-            transition={{ duration: 1.85, ease: [0.2, 0.82, 0.18, 1] }}
+            transition={{ duration: mainDuration, ease: [0.18, 0.78, 0.16, 1] }}
             className="absolute left-[36px] top-[58px] z-30 h-[504px] w-[184px] origin-left rounded-l-[1.15rem]"
             style={{ transformStyle: "preserve-3d" }}
           >
@@ -85,9 +94,9 @@ export function TestInvitationObject({
           <motion.div
             variants={{
               closed: { rotateY: 0, x: 0, z: 42 },
-              open: { rotateY: 118, x: 16, z: 32 }
+              open: { rotateY: 126, x: 24, z: 48 }
             }}
-            transition={{ duration: 1.85, ease: [0.2, 0.82, 0.18, 1] }}
+            transition={{ duration: mainDuration, ease: [0.18, 0.78, 0.16, 1] }}
             className="absolute right-[36px] top-[58px] z-30 h-[504px] w-[184px] origin-right rounded-r-[1.15rem]"
             style={{ transformStyle: "preserve-3d" }}
           >
@@ -97,14 +106,15 @@ export function TestInvitationObject({
           <motion.div
             variants={{
               closed: { rotateX: 0, y: 0, opacity: 1 },
-              open: { rotateX: -112, y: -26, opacity: 0.92 }
+              open: { rotateX: -126, y: -36, opacity: 0.96 }
             }}
-            transition={{ duration: 1.7, ease: [0.2, 0.82, 0.18, 1] }}
+            transition={{ duration: mainDuration, ease: [0.18, 0.78, 0.16, 1] }}
             className="absolute left-[36px] top-[58px] z-40 h-[168px] w-[368px] origin-top overflow-hidden rounded-t-[1.15rem]"
             style={{ transformStyle: "preserve-3d" }}
           >
             <div className="absolute inset-0 bg-[#08241e] shadow-[inset_0_-30px_60px_rgba(0,0,0,.28)]">
               <EmeraldMaterial />
+              <div className="absolute inset-x-10 top-6 h-px bg-[#f0d18a]/30" />
               <div className="absolute inset-x-6 bottom-0 h-px bg-[#d8b15f]/45" />
             </div>
           </motion.div>
@@ -112,18 +122,18 @@ export function TestInvitationObject({
           <motion.div
             variants={{
               closed: { scaleX: 1, opacity: 1 },
-              open: { scaleX: 0.16, opacity: 0 }
+              open: { scaleX: 0.18, y: 74, opacity: 0 }
             }}
-            transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: secondaryDuration, ease: [0.22, 1, 0.36, 1] }}
             className="absolute left-[50px] top-[294px] z-50 h-4 w-[340px] origin-center rounded-full bg-[linear-gradient(90deg,#8c6427,#f3d789_42%,#956723)] shadow-[0_10px_26px_rgba(0,0,0,.34)]"
           />
 
           <motion.div
             variants={{
               closed: { opacity: 1, scale: 1, y: 0 },
-              open: { opacity: 0, scale: 0.72, y: 88 }
+              open: { opacity: 0, scale: 0.74, y: 102, rotate: 10 }
             }}
-            transition={{ duration: 1.15, ease: [0.2, 0.82, 0.18, 1] }}
+            transition={{ duration: secondaryDuration, ease: [0.2, 0.82, 0.18, 1] }}
             className="absolute left-1/2 top-[256px] z-[60] h-32 w-32 -translate-x-1/2"
           >
             <WaxSeal initials={initials} />
@@ -134,7 +144,7 @@ export function TestInvitationObject({
               closed: { opacity: 0, y: 14 },
               open: { opacity: 1, y: 0 }
             }}
-            transition={{ duration: 0.9, delay: isOpen ? 1.15 : 0, ease: [0.2, 0.82, 0.18, 1] }}
+            transition={{ duration: shouldReduceMotion ? 0.01 : 0.9, delay: isOpen ? revealDelay : 0, ease: [0.2, 0.82, 0.18, 1] }}
             className="absolute bottom-[10px] left-1/2 z-10 -translate-x-1/2 text-center text-[10px] font-bold uppercase tracking-[0.24em] text-[#6f4d25]/75"
           >
             Domus Aurea / TEST
@@ -187,7 +197,9 @@ function InvitationPaper({
   venue,
   message,
   initials,
-  isOpen
+  isOpen,
+  revealDelay,
+  motionDuration
 }: {
   brideName: string;
   groomName: string;
@@ -196,23 +208,29 @@ function InvitationPaper({
   message: string;
   initials: string;
   isOpen: boolean;
+  revealDelay: number;
+  motionDuration: number;
 }) {
   return (
     <motion.div
       variants={{
-        closed: { opacity: 0.18, y: 28, scale: 0.96 },
-        open: { opacity: 1, y: -18, scale: 1 }
+        closed: { opacity: 0.08, y: 34, scale: 0.955, rotateX: 4 },
+        open: { opacity: 1, y: -18, scale: 1, rotateX: 0 }
       }}
-      transition={{ duration: 1.7, delay: isOpen ? 0.2 : 0, ease: [0.2, 0.82, 0.18, 1] }}
-      className="absolute left-[82px] top-[82px] z-20 h-[456px] w-[276px] bg-[#f9f0dd] p-7 text-center text-[#1f1710] shadow-[0_28px_70px_rgba(0,0,0,.24),inset_0_0_0_1px_rgba(95,57,22,.12)]"
+      transition={{ duration: motionDuration, delay: isOpen ? 0.18 : 0, ease: [0.2, 0.82, 0.18, 1] }}
+      className="absolute left-[82px] top-[82px] z-20 h-[456px] w-[276px] overflow-hidden bg-[#fbf2df] p-7 text-center text-[#1f1710] shadow-[0_34px_82px_rgba(0,0,0,.28),inset_0_0_0_1px_rgba(95,57,22,.12),inset_0_18px_28px_rgba(255,255,255,.34)]"
+      style={{ transformStyle: "preserve-3d" }}
     >
-      <div className="absolute inset-0 opacity-[.22] [background-image:radial-gradient(circle_at_9px_9px,rgba(104,74,38,.35)_1px,transparent_1px)] [background-size:18px_18px]" />
-      <div className="absolute inset-4 border border-[#b8894b]/48" />
-      <div className="absolute inset-6 border border-[#b8894b]/18" />
+      <PaperFibers />
+      <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,.38),transparent_34%,rgba(113,76,32,.08)_70%,transparent)]" />
+      <div className="absolute inset-4 border border-[#b8894b]/52" />
+      <div className="absolute inset-6 border border-[#b8894b]/20" />
+      <div className="absolute inset-x-10 top-8 h-px bg-[#d6aa5d]/28" />
+      <div className="absolute inset-x-10 bottom-8 h-px bg-[#d6aa5d]/28" />
       <CornerOrnaments />
       <motion.div
         animate={isOpen ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0, y: 10, filter: "blur(2px)" }}
-        transition={{ duration: 0.9, delay: isOpen ? 1.05 : 0, ease: [0.2, 0.82, 0.18, 1] }}
+        transition={{ duration: motionDuration * 0.72, delay: isOpen ? revealDelay : 0, ease: [0.2, 0.82, 0.18, 1] }}
         className="relative z-10 flex h-full flex-col items-center justify-center"
       >
         <p className="text-[9px] font-bold uppercase tracking-[0.26em] text-[#9b7330]">Domus Aurea</p>
@@ -222,12 +240,58 @@ function InvitationPaper({
           <span className="block py-1 text-base text-[#b8894b]">و</span>
           {groomName}
         </h2>
-        <p className="mt-4 max-w-[220px] text-[11px] leading-5 text-[#423329]/72">{message}</p>
-        <div className="my-4 h-px w-24 bg-[#b8894b]/45" />
+        <p className="mt-4 max-w-[220px] text-[11px] leading-5 text-[#423329]/76">{message}</p>
+        <div className="my-4 h-px w-24 bg-[linear-gradient(90deg,transparent,#b8894b,transparent)]" />
         <p className="text-[10px] font-bold uppercase leading-5 tracking-[0.12em] text-[#2f251e]/78">{date}</p>
         <p className="mt-3 font-display text-2xl leading-tight text-[#9b7330]">{venue}</p>
       </motion.div>
     </motion.div>
+  );
+}
+
+function AmbientGoldDust() {
+  return (
+    <div className="pointer-events-none absolute inset-0 hidden opacity-70 sm:block" aria-hidden="true">
+      {Array.from({ length: 11 }).map((_, index) => (
+        <motion.span
+          key={index}
+          className="absolute h-1 w-1 rounded-full bg-[#e2bd69] shadow-[0_0_16px_rgba(226,189,105,.75)]"
+          style={{
+            left: `${12 + ((index * 17) % 76)}%`,
+            top: `${10 + ((index * 23) % 72)}%`
+          }}
+          animate={{
+            y: [0, -10, 0],
+            opacity: [0.16, 0.58, 0.16],
+            scale: [0.75, 1.15, 0.75]
+          }}
+          transition={{
+            duration: 7 + index * 0.38,
+            delay: index * 0.32,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function EnvelopeLowerFlap() {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden="true">
+      <div className="absolute inset-x-8 bottom-0 h-[47%] origin-bottom rounded-t-[42%] bg-[linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.18)),radial-gradient(circle_at_50%_0%,rgba(229,196,121,.16),transparent_58%)] shadow-[inset_0_18px_34px_rgba(255,255,255,.04),inset_0_-24px_44px_rgba(0,0,0,.22)]" />
+      <div className="absolute bottom-[47%] left-1/2 h-px w-[72%] -translate-x-1/2 bg-[#d9b66f]/24" />
+    </div>
+  );
+}
+
+function PaperFibers() {
+  return (
+    <>
+      <div className="absolute inset-0 opacity-[.2] [background-image:radial-gradient(circle_at_9px_9px,rgba(104,74,38,.32)_1px,transparent_1px)] [background-size:18px_18px]" />
+      <div className="absolute inset-0 opacity-[.16] [background-image:repeating-linear-gradient(98deg,rgba(92,67,36,.2)_0_1px,transparent_1px_9px),repeating-linear-gradient(7deg,rgba(255,255,255,.55)_0_1px,transparent_1px_14px)]" />
+    </>
   );
 }
 

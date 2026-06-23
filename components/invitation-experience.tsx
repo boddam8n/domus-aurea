@@ -31,9 +31,14 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
     "بكل الحب والفرحة، نتشرف بدعوتكم لمشاركتنا بداية حكايتنا الجديدة في ليلة صممت لتبقى في الذاكرة.";
 
   useEffect(() => {
-    if (!isOpen || invitation.id === "demo") return;
+    if (invitation.id === "demo") return;
     fetch(`/api/invitations/${invitation.slug}/view`, { method: "POST" }).catch(() => undefined);
-  }, [invitation.id, invitation.slug, isOpen]);
+  }, [invitation.id, invitation.slug]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsOpen(true), 520);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -59,7 +64,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
   }
 
   return (
-    <section className="relative min-h-screen overflow-x-hidden bg-[#080705] px-4 pb-20 pt-24 text-[#f7efe2] md:px-8 md:pt-28">
+    <section dir="rtl" className="relative min-h-screen overflow-x-hidden bg-[#080705] px-4 pb-20 pt-20 text-[#f7efe2] md:px-8 md:pt-24">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(218,179,103,.16),transparent_34%),radial-gradient(circle_at_88%_24%,rgba(6,47,39,.48),transparent_34%),linear-gradient(145deg,#080705_0%,#17110c_48%,#031d18_100%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-[linear-gradient(to_bottom,rgba(255,238,192,.12),transparent)]" />
 
@@ -83,7 +88,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
             <button
               type="button"
               onClick={() => setIsOpen((current) => !current)}
-              className="rounded-full border border-[#c89b46]/45 bg-[#c89b46] px-6 py-3 text-sm font-bold text-[#120d08] shadow-[0_18px_48px_rgba(200,155,70,.22)] transition hover:-translate-y-0.5 hover:bg-[#f0cf84]"
+              className="rounded-full border border-[#c89b46]/45 bg-[#c89b46] px-6 py-3 text-sm font-bold text-[#120d08] shadow-[0_18px_48px_rgba(200,155,70,.22)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#f0cf84]"
             >
               {isOpen ? "إغلاق الدعوة" : "فتح الدعوة"}
             </button>
@@ -101,7 +106,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
 
         <aside className="grid gap-5 xl:sticky xl:top-28">
           <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.06] p-5 shadow-[0_24px_80px_rgba(0,0,0,.22)] backdrop-blur-xl">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#c89b46]">Wedding countdown</p>
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#c89b46]">العد التنازلي</p>
             <div className="mt-4">
               <Countdown target={invitation.wedding_date} />
             </div>
