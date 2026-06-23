@@ -16,6 +16,9 @@ create table if not exists public.invitations (
   groom_name text not null,
   wedding_date text not null,
   venue text not null,
+  venue_address text,
+  venue_lat double precision,
+  venue_lng double precision,
   phone text not null,
   template_name text not null,
   package_name text not null,
@@ -24,6 +27,10 @@ create table if not exists public.invitations (
   public_url text,
   created_at timestamptz not null default now()
 );
+
+alter table if exists public.invitations add column if not exists venue_address text;
+alter table if exists public.invitations add column if not exists venue_lat double precision;
+alter table if exists public.invitations add column if not exists venue_lng double precision;
 
 create table if not exists public.guest_responses (
   id uuid primary key default gen_random_uuid(),

@@ -8,6 +8,7 @@ import { PageShell } from "@/components/page-shell";
 import { SafeImage } from "@/components/safe-image";
 import { PlayPreviewButton, TemplatePreviewModal } from "@/components/template-preview-experience";
 import { TestInvitationMiniature } from "@/components/test-invitation-object";
+import { VenueAutocomplete } from "@/components/venue-autocomplete";
 import { countdownStyles, invitationTemplates, pricingPlans } from "@/lib/data";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { invitationRequestSchema } from "@/lib/validation";
@@ -24,6 +25,9 @@ export default function DesignInvitationPage() {
     groomName: "",
     weddingDate: "",
     venue: "",
+    venueAddress: "",
+    venueLat: undefined as number | undefined,
+    venueLng: undefined as number | undefined,
     phone: ""
   });
   const [publicUrl, setPublicUrl] = useState("");
@@ -154,7 +158,6 @@ export default function DesignInvitationPage() {
                     ["brideName", "اسم العروسة"],
                     ["groomName", "اسم العريس"],
                     ["weddingDate", "تاريخ ووقت الفرح"],
-                    ["venue", "المكان"],
                     ["phone", "رقم واتساب"]
                   ].map(([key, label]) => (
                     <label key={key} className={key === "phone" ? "md:col-span-2" : ""}>
@@ -167,6 +170,23 @@ export default function DesignInvitationPage() {
                       />
                     </label>
                   ))}
+                  <VenueAutocomplete
+                    value={{
+                      name: form.venue,
+                      address: form.venueAddress,
+                      lat: form.venueLat,
+                      lng: form.venueLng
+                    }}
+                    onChange={(venue) =>
+                      setForm((current) => ({
+                        ...current,
+                        venue: venue.name,
+                        venueAddress: venue.address || "",
+                        venueLat: venue.lat,
+                        venueLng: venue.lng
+                      }))
+                    }
+                  />
                 </div>
               </section>
 

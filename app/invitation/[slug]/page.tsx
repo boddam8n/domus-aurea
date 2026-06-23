@@ -11,12 +11,22 @@ export default async function InvitationPage({ params }: { params: { slug: strin
 
   try {
     const supabase = createServiceSupabaseClient();
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("invitations")
-      .select("id, slug, bride_name, groom_name, wedding_date, venue, template_name, package_name, countdown_style, music_file_name, public_url")
+      .select("id, slug, bride_name, groom_name, wedding_date, venue, venue_address, venue_lat, venue_lng, template_name, package_name, countdown_style, music_file_name, public_url")
       .eq("slug", params.slug)
       .single();
-    invitation = data;
+
+    if (error && /venue_(address|lat|lng)|column .* does not exist/i.test(error.message)) {
+      const legacy = await supabase
+        .from("invitations")
+        .select("id, slug, bride_name, groom_name, wedding_date, venue, template_name, package_name, countdown_style, music_file_name, public_url")
+        .eq("slug", params.slug)
+        .single();
+      invitation = legacy.data;
+    } else {
+      invitation = data;
+    }
   } catch {
     if (params.slug === "layan-yassin") {
       invitation = {
@@ -26,6 +36,9 @@ export default async function InvitationPage({ params }: { params: { slug: strin
         groom_name: "ياسين",
         wedding_date: "2026-12-12T20:00:00+02:00",
         venue: "قصر الزمرد - القاهرة",
+        venue_address: null,
+        venue_lat: null,
+        venue_lng: null,
         template_name: "TEST",
         package_name: "Royal Package",
         countdown_style: "Luxury Gold",

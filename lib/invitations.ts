@@ -5,6 +5,9 @@ export type PublicInvitation = {
   groom_name: string;
   wedding_date: string;
   venue: string;
+  venue_address?: string | null;
+  venue_lat?: number | null;
+  venue_lng?: number | null;
   template_name: string;
   package_name: string;
   countdown_style: string;

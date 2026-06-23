@@ -29,28 +29,48 @@ export async function POST(request: NextRequest) {
     const slug = createInvitationSlug(parsed.data.brideName, parsed.data.groomName);
     const publicUrl = `${siteUrl.replace(/\/$/, "")}/invitation/${slug}`;
     const service = createServiceSupabaseClient();
+    const insertPayload = {
+      user_id: userData.user.id,
+      slug,
+      bride_name: parsed.data.brideName,
+      groom_name: parsed.data.groomName,
+      wedding_date: parsed.data.weddingDate,
+      venue: parsed.data.venue,
+      venue_address: parsed.data.venueAddress || null,
+      venue_lat: parsed.data.venueLat ?? null,
+      venue_lng: parsed.data.venueLng ?? null,
+      phone: parsed.data.phone,
+      template_name: parsed.data.templateName,
+      package_name: parsed.data.packageName,
+      countdown_style: parsed.data.countdownStyle,
+      music_file_name: parsed.data.musicFileName ?? null,
+      public_url: publicUrl
+    };
 
     const { data, error } = await service
       .from("invitations")
-      .insert({
-        user_id: userData.user.id,
-        slug,
-        bride_name: parsed.data.brideName,
-        groom_name: parsed.data.groomName,
-        wedding_date: parsed.data.weddingDate,
-        venue: parsed.data.venue,
-        phone: parsed.data.phone,
-        template_name: parsed.data.templateName,
-        package_name: parsed.data.packageName,
-        countdown_style: parsed.data.countdownStyle,
-        music_file_name: parsed.data.musicFileName ?? null,
-        public_url: publicUrl
-      })
+      .insert(insertPayload)
       .select("*")
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      const isVenueMigrationMissing = /venue_(address|lat|lng)|column .* does not exist/i.test(error.message);
+
+      if (!isVenueMigrationMissing) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      const { venue_address, venue_lat, venue_lng, ...legacyPayload } = insertPayload;
+      const retry = await service.from("invitations").insert(legacyPayload).select("*").single();
+      if (retry.error) {
+        return NextResponse.json({ error: retry.error.message }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        invitation: retry.data,
+        publicUrl,
+        warning: "Invitation was created before venue coordinate columns were available."
+      });
     }
 
     return NextResponse.json({ invitation: data, publicUrl });
