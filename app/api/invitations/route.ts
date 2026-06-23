@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid invitation data.", issues: parsed.error.flatten().fieldErrors }, { status: 400 });
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
+    const siteUrl = request.nextUrl.origin || process.env.NEXT_PUBLIC_SITE_URL || "";
     const slug = createInvitationSlug(parsed.data.brideName, parsed.data.groomName);
     const publicUrl = `${siteUrl.replace(/\/$/, "")}/invitation/${slug}`;
     const service = createServiceSupabaseClient();
