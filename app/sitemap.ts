@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { getSiteUrl } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || "https://domus-aurea.vercel.app").replace(/\/$/, "");
+  const base = getSiteUrl();
   return ["", "/templates", "/design", "/pricing", "/gallery", "/about", "/contact"].map((path) => ({
     url: `${base}${path}`,
     lastModified: new Date()

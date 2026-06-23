@@ -3,6 +3,7 @@ import { Tajawal } from "next/font/google";
 import { LanguageProvider } from "@/components/language-provider";
 import { LuxuryAudioPlayer } from "@/components/luxury-audio-player";
 import { ThemeProvider } from "@/components/theme-provider";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const tajawal = Tajawal({
@@ -13,7 +14,7 @@ const tajawal = Tajawal({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://domus-aurea.vercel.app"),
+  metadataBase: new URL(getSiteUrl()),
   title: "Domus Aurea | Luxury Wedding Invitations",
   description:
     "A premium Arabic-inspired digital wedding invitation platform with RSVP, guest management, gallery, stories, QR sharing and luxury themes.",
