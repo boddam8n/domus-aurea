@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { PageShell } from "@/components/page-shell";
 import { InvitationExperience } from "@/components/invitation-experience";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import type { PublicInvitation } from "@/lib/invitations";
@@ -50,9 +49,5 @@ export default async function InvitationPage({ params }: { params: { slug: strin
 
   if (!invitation) notFound();
 
-  return (
-    <PageShell>
-      <InvitationExperience invitation={invitation} />
-    </PageShell>
-  );
+  return <InvitationExperience invitation={invitation} />;
 }
