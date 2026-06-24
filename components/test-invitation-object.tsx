@@ -80,10 +80,8 @@ export function TestInvitationObject({
           />
 
           <motion.div
-            variants={{
-              closed: { rotateY: 0, x: 0, z: 42 },
-              open: { rotateY: -126, x: -24, z: 48 }
-            }}
+            initial={false}
+            animate={isOpen ? { rotateY: -78, x: -158, z: 24, opacity: 0.12 } : { rotateY: 0, x: 0, z: 42, opacity: 1 }}
             transition={{ duration: mainDuration, ease: [0.18, 0.78, 0.16, 1] }}
             className="absolute left-[36px] top-[58px] z-30 h-[504px] w-[184px] origin-left rounded-l-[1.15rem]"
             style={{ transformStyle: "preserve-3d" }}
@@ -92,10 +90,8 @@ export function TestInvitationObject({
           </motion.div>
 
           <motion.div
-            variants={{
-              closed: { rotateY: 0, x: 0, z: 42 },
-              open: { rotateY: 126, x: 24, z: 48 }
-            }}
+            initial={false}
+            animate={isOpen ? { rotateY: 78, x: 158, z: 24, opacity: 0.12 } : { rotateY: 0, x: 0, z: 42, opacity: 1 }}
             transition={{ duration: mainDuration, ease: [0.18, 0.78, 0.16, 1] }}
             className="absolute right-[36px] top-[58px] z-30 h-[504px] w-[184px] origin-right rounded-r-[1.15rem]"
             style={{ transformStyle: "preserve-3d" }}
@@ -104,10 +100,8 @@ export function TestInvitationObject({
           </motion.div>
 
           <motion.div
-            variants={{
-              closed: { rotateX: 0, y: 0, opacity: 1 },
-              open: { rotateX: -126, y: -36, opacity: 0.96 }
-            }}
+            initial={false}
+            animate={isOpen ? { rotateX: -78, y: -128, opacity: 0 } : { rotateX: 0, y: 0, opacity: 1 }}
             transition={{ duration: mainDuration, ease: [0.18, 0.78, 0.16, 1] }}
             className="absolute left-[36px] top-[58px] z-40 h-[168px] w-[368px] origin-top overflow-hidden rounded-t-[1.15rem]"
             style={{ transformStyle: "preserve-3d" }}
@@ -120,19 +114,15 @@ export function TestInvitationObject({
           </motion.div>
 
           <motion.div
-            variants={{
-              closed: { scaleX: 1, opacity: 1 },
-              open: { scaleX: 0.18, y: 74, opacity: 0 }
-            }}
+            initial={false}
+            animate={isOpen ? { scaleX: 0.18, y: 74, opacity: 0 } : { scaleX: 1, y: 0, opacity: 1 }}
             transition={{ duration: secondaryDuration, ease: [0.22, 1, 0.36, 1] }}
             className="absolute left-[50px] top-[294px] z-50 h-4 w-[340px] origin-center rounded-full bg-[linear-gradient(90deg,#8c6427,#f3d789_42%,#956723)] shadow-[0_10px_26px_rgba(0,0,0,.34)]"
           />
 
           <motion.div
-            variants={{
-              closed: { opacity: 1, scale: 1, y: 0 },
-              open: { opacity: 0, scale: 0.74, y: 102, rotate: 10 }
-            }}
+            initial={false}
+            animate={isOpen ? { opacity: 0, scale: 0.74, y: 102, rotate: 10 } : { opacity: 1, scale: 1, y: 0, rotate: 0 }}
             transition={{ duration: secondaryDuration, ease: [0.2, 0.82, 0.18, 1] }}
             className="absolute left-1/2 top-[256px] z-[60] h-32 w-32 -translate-x-1/2"
           >
@@ -140,10 +130,8 @@ export function TestInvitationObject({
           </motion.div>
 
           <motion.div
-            variants={{
-              closed: { opacity: 0, y: 14 },
-              open: { opacity: 1, y: 0 }
-            }}
+            initial={false}
+            animate={isOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
             transition={{ duration: shouldReduceMotion ? 0.01 : 0.9, delay: isOpen ? revealDelay : 0, ease: [0.2, 0.82, 0.18, 1] }}
             className="absolute bottom-[10px] left-1/2 z-10 -translate-x-1/2 text-center text-[10px] font-bold uppercase tracking-[0.24em] text-[#6f4d25]/75"
           >
@@ -213,10 +201,8 @@ function InvitationPaper({
 }) {
   return (
     <motion.div
-      variants={{
-        closed: { opacity: 0.08, y: 34, scale: 0.955, rotateX: 4 },
-        open: { opacity: 1, y: -18, scale: 1, rotateX: 0 }
-      }}
+      initial={false}
+      animate={isOpen ? { opacity: 1, y: -18, scale: 1, rotateX: 0 } : { opacity: 0.08, y: 34, scale: 0.955, rotateX: 4 }}
       transition={{ duration: motionDuration, delay: isOpen ? 0.18 : 0, ease: [0.2, 0.82, 0.18, 1] }}
       className="absolute left-[82px] top-[82px] z-20 h-[456px] w-[276px] overflow-hidden bg-[#fbf2df] p-7 text-center text-[#1f1710] shadow-[0_34px_82px_rgba(0,0,0,.28),inset_0_0_0_1px_rgba(95,57,22,.12),inset_0_18px_28px_rgba(255,255,255,.34)]"
       style={{ transformStyle: "preserve-3d" }}

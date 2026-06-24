@@ -101,6 +101,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
             date={readableDate}
             venue={invitation.venue}
             message={invitationText}
+            compact
           />
         </div>
 
