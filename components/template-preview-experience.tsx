@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Play, X } from "lucide-react";
-import { TestInvitationObject } from "@/components/test-invitation-object";
+import { LuxuryInvitationArtifact } from "@/components/invitation-experience";
 
 export type TemplatePreviewSample = {
   brideName: string;
@@ -29,6 +29,10 @@ const defaultSample: TemplatePreviewSample = {
   venue: "Emerald Palace, Cairo",
   message: "With love and joy, we invite you to celebrate a night made for family, friends, and memory."
 };
+
+function getPreviewInitials(brideName: string, groomName: string) {
+  return `${brideName.trim().charAt(0)}${groomName.trim().charAt(0)}`.toUpperCase() || "DA";
+}
 
 export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = defaultSample }: TemplatePreviewModalProps) {
   const [isMounted, setIsMounted] = useState(false);
@@ -106,14 +110,18 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
             </div>
 
             {isTest ? (
-              <TestInvitationObject
-                isOpen={isInvitationOpen}
-                brideName={data.brideName}
-                groomName={data.groomName}
-                date={data.date}
-                venue={data.venue}
-                message={data.message || defaultSample.message || ""}
-              />
+              <div className="mx-auto w-full max-w-5xl">
+                <LuxuryInvitationArtifact
+                  isOpen={isInvitationOpen}
+                  onOpen={() => setIsInvitationOpen(true)}
+                  brideName={data.brideName}
+                  groomName={data.groomName}
+                  initials={getPreviewInitials(data.brideName, data.groomName)}
+                  date={data.date}
+                  venue={data.venue}
+                  message={data.message || defaultSample.message || ""}
+                />
+              </div>
             ) : (
               <div className="mx-auto grid min-h-[420px] w-full max-w-3xl place-items-center rounded-[2rem] border border-[#c89b46]/20 bg-white/[0.06] p-8 text-center shadow-[0_36px_120px_rgba(0,0,0,.32)]">
                 <div>

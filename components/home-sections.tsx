@@ -7,7 +7,7 @@ import { ArrowLeft, Check, CheckCircle2, Gem, PenLine } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { SafeImage } from "@/components/safe-image";
 import { SectionHeading } from "@/components/section-heading";
-import { TestInvitationMiniature } from "@/components/test-invitation-object";
+import { LuxuryInvitationMiniature } from "@/components/invitation-experience";
 import { comparison, faqs, features, gallery, invitationTemplates, pricingPlans, processSteps, testimonials, themes } from "@/lib/data";
 import { fadeUp, stagger } from "@/components/motion-presets";
 
@@ -67,7 +67,7 @@ export function TemplateShowcase() {
         />
         <div className="mt-16 grid gap-8 lg:grid-cols-[0.9fr_1fr] lg:items-center">
           <div className="relative min-h-[560px] overflow-hidden rounded-[1.5rem] border border-gold/20 bg-black/10 shadow-[0_34px_110px_rgba(0,0,0,.2)]">
-            <TestInvitationMiniature />
+            <LuxuryInvitationMiniature />
           </div>
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.26em] text-gold">{launchTemplate.badge}</p>

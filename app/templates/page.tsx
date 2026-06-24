@@ -7,7 +7,7 @@ import { useLanguage } from "@/components/language-provider";
 import { PageShell } from "@/components/page-shell";
 import { SafeImage } from "@/components/safe-image";
 import { PlayPreviewButton, TemplatePreviewModal } from "@/components/template-preview-experience";
-import { TestInvitationMiniature } from "@/components/test-invitation-object";
+import { LuxuryInvitationMiniature } from "@/components/invitation-experience";
 import { invitationTemplates, type InvitationTemplate } from "@/lib/data";
 
 const styleNotes = [
@@ -125,7 +125,7 @@ function LaunchTemplateCard({ template, isArabic, onPreview }: { template: Invit
       <div className="absolute -inset-3 rounded-[2.25rem] bg-gold/12 blur-3xl" />
       <div className="relative grid overflow-hidden rounded-[2.25rem] border border-gold/25 bg-[var(--color-surface)] shadow-[0_34px_110px_rgba(0,0,0,.24)] lg:grid-cols-[0.95fr_1fr]">
         <div className="relative min-h-[560px] overflow-hidden bg-[#e8dfcf]">
-          <TestInvitationMiniature />
+          <LuxuryInvitationMiniature />
           <div className="absolute left-5 top-5 rounded-full border border-[#d8b15f]/35 bg-black/40 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-[#f7efe2] backdrop-blur-md">
             {isArabic ? template.badgeAr : template.badge}
           </div>

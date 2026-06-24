@@ -7,7 +7,7 @@ import { CheckCircle2, Copy, Lock, Music } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { SafeImage } from "@/components/safe-image";
 import { PlayPreviewButton, TemplatePreviewModal } from "@/components/template-preview-experience";
-import { TestInvitationMiniature } from "@/components/test-invitation-object";
+import { LuxuryInvitationMiniature } from "@/components/invitation-experience";
 import { VenueAutocomplete } from "@/components/venue-autocomplete";
 import { countdownStyles, invitationTemplates, pricingPlans } from "@/lib/data";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
@@ -117,7 +117,7 @@ export default function DesignInvitationPage() {
                       <div key={item.name} className="group overflow-hidden rounded-[1.5rem] border border-gold shadow-glow text-right">
                         <button type="button" onClick={() => setPreviewOpen(true)} className="block w-full text-right">
                           <span className="relative block aspect-[4/3] overflow-hidden bg-[#e8dfcf]">
-                            <TestInvitationMiniature />
+                            <LuxuryInvitationMiniature />
                           </span>
                           <span className="block p-4">
                             <span className="flex items-center justify-between gap-3">
@@ -229,7 +229,7 @@ export default function DesignInvitationPage() {
             <aside className="lg:sticky lg:top-28 lg:self-start">
               <div className="paper-card rounded-[2.25rem] p-7 text-night">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-[#e8dfcf]">
-                  <TestInvitationMiniature />
+                  <LuxuryInvitationMiniature />
                 </div>
                 <p className="mt-6 text-sm font-bold uppercase tracking-[0.22em] text-[#9b7330]">مراجعة الدعوة</p>
                 <h2 className="mt-3 font-display text-4xl text-[#24170f]">{launchTemplate.nameAr}</h2>
