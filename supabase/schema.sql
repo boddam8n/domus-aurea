@@ -24,6 +24,7 @@ create table if not exists public.invitations (
   package_name text not null,
   countdown_style text not null,
   music_file_name text,
+  seal_image_url text,
   public_url text,
   created_at timestamptz not null default now()
 );
@@ -31,6 +32,7 @@ create table if not exists public.invitations (
 alter table if exists public.invitations add column if not exists venue_address text;
 alter table if exists public.invitations add column if not exists venue_lat double precision;
 alter table if exists public.invitations add column if not exists venue_lng double precision;
+alter table if exists public.invitations add column if not exists seal_image_url text;
 
 create table if not exists public.guest_responses (
   id uuid primary key default gen_random_uuid(),

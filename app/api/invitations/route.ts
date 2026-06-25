@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
       package_name: parsed.data.packageName,
       countdown_style: parsed.data.countdownStyle,
       music_file_name: parsed.data.musicFileName ?? null,
+      seal_image_url: parsed.data.sealImageUrl || null,
       public_url: publicUrl
     };
 
@@ -54,13 +55,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      const isVenueMigrationMissing = /venue_(address|lat|lng)|column .* does not exist/i.test(error.message);
+      const isOptionalMigrationMissing = /venue_(address|lat|lng)|seal_image_url|column .* does not exist/i.test(error.message);
 
-      if (!isVenueMigrationMissing) {
+      if (!isOptionalMigrationMissing) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      const { venue_address, venue_lat, venue_lng, ...legacyPayload } = insertPayload;
+      const { venue_address, venue_lat, venue_lng, seal_image_url, ...legacyPayload } = insertPayload;
       const retry = await service.from("invitations").insert(legacyPayload).select("*").single();
       if (retry.error) {
         return NextResponse.json({ error: retry.error.message }, { status: 500 });
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         invitation: retry.data,
         publicUrl,
-        warning: "Invitation was created before venue coordinate columns were available."
+        warning: "Invitation was created before all optional invitation columns were available."
       });
     }
 

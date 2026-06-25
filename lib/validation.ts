@@ -9,10 +9,19 @@ export const invitationRequestSchema = z.object({
   venueLat: z.number().min(-90).max(90).optional(),
   venueLng: z.number().min(-180).max(180).optional(),
   phone: z.string().trim().min(7, "WhatsApp number is required").max(32),
-  templateName: z.string().trim().refine((value) => value === "TEST", "TEST is the only launch-ready template."),
+  templateName: z
+    .string()
+    .trim()
+    .refine((value) => value === "TEST INVITATION", "TEST INVITATION is the only launch-ready template."),
   packageName: z.string().trim().min(2).max(80),
   countdownStyle: z.string().trim().min(2).max(80),
-  musicFileName: z.string().trim().max(160).optional()
+  musicFileName: z.string().trim().max(160).optional(),
+  sealImageUrl: z
+    .string()
+    .trim()
+    .max(750000, "Seal image is too large")
+    .refine((value) => !value || value.startsWith("data:image/png;base64,"), "Seal image must be a transparent PNG data URL.")
+    .optional()
 });
 
 export const rsvpSchema = z.object({

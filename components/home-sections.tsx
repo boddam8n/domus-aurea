@@ -5,10 +5,9 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Check, CheckCircle2, Gem, PenLine } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
-import { SafeImage } from "@/components/safe-image";
 import { SectionHeading } from "@/components/section-heading";
 import { LuxuryInvitationMiniature } from "@/components/invitation-experience";
-import { comparison, faqs, features, gallery, invitationTemplates, pricingPlans, processSteps, testimonials, themes } from "@/lib/data";
+import { comparison, faqs, features, invitationTemplates, pricingPlans, processSteps, testimonials, themes } from "@/lib/data";
 import { fadeUp, stagger } from "@/components/motion-presets";
 
 export function HeroSection() {
@@ -192,24 +191,6 @@ export function ThemesSection() {
               </div>
               <h3 className="mt-6 font-display text-3xl text-[var(--color-text)]">{theme.name}</h3>
               <p className="mt-3 leading-7 text-[var(--color-muted)]">{theme.description}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function GalleryPreview() {
-  return (
-    <section className="px-4 py-24 md:px-8">
-      <div className="mx-auto max-w-7xl">
-        <SectionHeading eyebrow="Visual library" title="Luxury references that feel real." body="Wedding halls, candlelight, floral aisles and sunset venues composed with editorial rhythm." />
-        <div className="mt-14 grid auto-rows-[240px] gap-4 md:grid-cols-5">
-          {gallery.map((src, index) => (
-            <motion.div key={src} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55 }} className={`relative overflow-hidden rounded-[2rem] ${index === 0 ? "md:col-span-2 md:row-span-2" : ""} ${index === 3 ? "md:col-span-2" : ""}`}>
-              <SafeImage src={src} alt="" fill fallbackLabel="Gallery" sizes="(min-width: 768px) 33vw, 100vw" className="object-cover transition duration-700 hover:scale-[1.03]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-night/55 to-transparent" />
             </motion.div>
           ))}
         </div>

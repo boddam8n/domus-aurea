@@ -14,6 +14,7 @@ export type PublicInvitation = {
   music_file_name: string | null;
   public_url: string | null;
   invitation_text?: string | null;
+  seal_image_url?: string | null;
 };
 
 export type DashboardInvitation = PublicInvitation & {

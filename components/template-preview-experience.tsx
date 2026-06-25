@@ -13,6 +13,7 @@ export type TemplatePreviewSample = {
   venue: string;
   message?: string;
   musicSrc?: string;
+  sealImageUrl?: string;
 };
 
 type TemplatePreviewModalProps = {
@@ -38,7 +39,7 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
   const [isMounted, setIsMounted] = useState(false);
   const [isInvitationOpen, setIsInvitationOpen] = useState(false);
   const data = { ...defaultSample, ...sample };
-  const isTest = templateName.toLowerCase() === "test";
+  const isTest = ["test", "test invitation"].includes(templateName.toLowerCase());
 
   useEffect(() => setIsMounted(true), []);
 
@@ -100,7 +101,7 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
                 {isTest ? "Launch-ready template" : "Under development"}
               </p>
               <h2 className="mt-4 font-display text-4xl leading-tight md:text-6xl">
-                {isTest ? "TEST" : templateName}
+                {isTest ? "TEST INVITATION" : templateName}
               </h2>
               <p className="mx-auto mt-4 max-w-2xl leading-8 text-[#f7efe2]/68">
                 {isTest
@@ -120,6 +121,7 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
                   date={data.date}
                   venue={data.venue}
                   message={data.message || defaultSample.message || ""}
+                  sealImageUrl={data.sealImageUrl}
                 />
               </div>
             ) : (

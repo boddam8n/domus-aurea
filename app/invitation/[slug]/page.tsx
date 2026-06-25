@@ -5,6 +5,29 @@ import type { PublicInvitation } from "@/lib/invitations";
 
 export const dynamic = "force-dynamic";
 
+function getDemoInvitation(slug: string): PublicInvitation | null {
+  if (slug !== "test-invitation" && slug !== "layan-yassin") return null;
+
+  return {
+    id: "demo",
+    slug,
+    bride_name: slug === "test-invitation" ? "مايار" : "ليان",
+    groom_name: slug === "test-invitation" ? "أحمد" : "ياسين",
+    wedding_date: "2026-12-12T20:00:00+02:00",
+    venue: slug === "test-invitation" ? "فندق ريتز كارلتون - القاهرة" : "قصر الزمرد - القاهرة",
+    venue_address: null,
+    venue_lat: null,
+    venue_lng: null,
+    template_name: "TEST INVITATION",
+    package_name: "Royal Package",
+    countdown_style: "Luxury Gold",
+    music_file_name: "wedding-music.mp3",
+    public_url: null,
+    invitation_text: "بكل الحب والفرحة، ندعوكم لحضور حفل زفافنا ومشاركتنا أجمل لحظات العمر.",
+    seal_image_url: null
+  };
+}
+
 export default async function InvitationPage({ params }: { params: { slug: string } }) {
   let invitation: PublicInvitation | null = null;
 
@@ -12,11 +35,11 @@ export default async function InvitationPage({ params }: { params: { slug: strin
     const supabase = createServiceSupabaseClient();
     const { data, error } = await supabase
       .from("invitations")
-      .select("id, slug, bride_name, groom_name, wedding_date, venue, venue_address, venue_lat, venue_lng, template_name, package_name, countdown_style, music_file_name, public_url")
+      .select("id, slug, bride_name, groom_name, wedding_date, venue, venue_address, venue_lat, venue_lng, template_name, package_name, countdown_style, music_file_name, seal_image_url, public_url, invitation_text")
       .eq("slug", params.slug)
       .single();
 
-    if (error && /venue_(address|lat|lng)|column .* does not exist/i.test(error.message)) {
+    if (error && /venue_(address|lat|lng)|seal_image_url|invitation_text|column .* does not exist/i.test(error.message)) {
       const legacy = await supabase
         .from("invitations")
         .select("id, slug, bride_name, groom_name, wedding_date, venue, template_name, package_name, countdown_style, music_file_name, public_url")
@@ -27,25 +50,10 @@ export default async function InvitationPage({ params }: { params: { slug: strin
       invitation = data;
     }
   } catch {
-    if (params.slug === "layan-yassin") {
-      invitation = {
-        id: "demo",
-        slug: "layan-yassin",
-        bride_name: "ليان",
-        groom_name: "ياسين",
-        wedding_date: "2026-12-12T20:00:00+02:00",
-        venue: "قصر الزمرد - القاهرة",
-        venue_address: null,
-        venue_lat: null,
-        venue_lng: null,
-        template_name: "TEST",
-        package_name: "Royal Package",
-        countdown_style: "Luxury Gold",
-        music_file_name: "wedding-music.mp3",
-        public_url: null
-      };
-    }
+    invitation = getDemoInvitation(params.slug);
   }
+
+  invitation = invitation ?? getDemoInvitation(params.slug);
 
   if (!invitation) notFound();
 

@@ -1,6 +1,5 @@
 import {
   CalendarDays,
-  Camera,
   CheckCircle2,
   Clock,
   Gem,
@@ -43,7 +42,6 @@ export const navItems = [
   { href: "/templates", label: "Templates", ar: "القوالب" },
   { href: "/design", label: "Design Invitation", ar: "صمم دعوتك" },
   { href: "/pricing", label: "Pricing", ar: "الأسعار" },
-  { href: "/gallery", label: "Gallery", ar: "المعرض" },
   { href: "/#faq", label: "FAQ", ar: "الأسئلة" }
 ];
 
@@ -71,7 +69,7 @@ export const features = [
   {
     icon: Music,
     title: "Cinematic Extras",
-    body: "Optional music, video backgrounds, gallery moments, intro animations and premium micro-interactions."
+    body: "Optional music, video backgrounds, opening scenes, intro animations and premium micro-interactions."
   },
   {
     icon: ShieldCheck,
@@ -157,8 +155,8 @@ export const invitationTemplates: InvitationTemplate[] = [
     ...developmentBadge
   },
   {
-    name: "TEST",
-    nameAr: "TEST",
+    name: "TEST INVITATION",
+    nameAr: "TEST INVITATION",
     image: "",
     description: "The launch-ready Domus Aurea invitation: a cinematic ivory card revealed from an emerald and gold luxury envelope.",
     status: "available",
@@ -247,19 +245,10 @@ export const story = [
   { date: "2026", title: "The Celebration", body: "A cinematic night crafted for family, friends and memory." }
 ];
 
-export const gallery = [
-  "/assets/luxury-hall.webp",
-  "/assets/candle-table.webp",
-  "/assets/floral-aisle-luxury.webp",
-  "/assets/sunset-venue.webp",
-  "/assets/wedding-aisle.webp",
-  "/assets/wedding-hero.webp"
-];
-
 export const adminStats = [
   { label: "Invitations", value: "128", icon: CalendarDays },
   { label: "Confirmed Guests", value: "342", icon: Users },
-  { label: "Gallery Uploads", value: "64", icon: Camera },
+  { label: "Public Links", value: "64", icon: QrCode },
   { label: "Luxury Themes", value: "18", icon: Gem }
 ];
 

@@ -1,8 +1,10 @@
 "use client";
 
-import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { CalendarDays, Check, Clock3, MapPin, Send, Sparkles, X } from "lucide-react";
+import Image from "next/image";
+import { FormEvent, ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { gsap } from "gsap";
+import { CalendarDays, Check, Clock3, MapPin, Send, X } from "lucide-react";
 import type { PublicInvitation } from "@/lib/invitations";
 
 type RsvpResponse = "accepted" | "declined";
@@ -12,8 +14,10 @@ type InvitationDateParts = {
   time: string;
 };
 
-const arabicFallbackMessage =
+const fallbackMessage =
   "بكل الحب والفرحة، نتشرف بدعوتكم لمشاركتنا ليلة صممت لتبقى في الذاكرة، بحضوركم تكتمل البهجة وتبدأ الحكاية.";
+
+const demoBackground = "/assets/generated/royal-emerald-stage.webp";
 
 function getInvitationDateParts(value: string): InvitationDateParts {
   const date = new Date(value);
@@ -50,16 +54,17 @@ function playSealBreakSound() {
     if (!AudioContextClass) return;
 
     const context = new AudioContextClass();
-    const duration = 0.34;
+    const duration = 0.42;
     const sampleCount = Math.floor(context.sampleRate * duration);
     const buffer = context.createBuffer(1, sampleCount, context.sampleRate);
     const data = buffer.getChannelData(0);
 
     for (let index = 0; index < sampleCount; index += 1) {
-      const fade = 1 - index / sampleCount;
-      const dryCrack = (Math.random() * 2 - 1) * Math.pow(fade, 3.1);
-      const brittleSnap = Math.sin(index * 0.19) * Math.pow(fade, 5) * 0.36;
-      data[index] = (dryCrack + brittleSnap) * 0.18;
+      const progress = index / sampleCount;
+      const fade = 1 - progress;
+      const snap = Math.sin(index * 0.23) * Math.pow(fade, 6) * 0.28;
+      const grain = (Math.random() * 2 - 1) * Math.pow(fade, 3.4) * 0.2;
+      data[index] = snap + grain;
     }
 
     const source = context.createBufferSource();
@@ -67,10 +72,10 @@ function playSealBreakSound() {
     const gain = context.createGain();
 
     filter.type = "bandpass";
-    filter.frequency.value = 1350;
-    filter.Q.value = 1.2;
+    filter.frequency.value = 1180;
+    filter.Q.value = 1.35;
     gain.gain.setValueAtTime(0.0001, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.11, context.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.12, context.currentTime + 0.018);
     gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
 
     source.buffer = buffer;
@@ -78,9 +83,9 @@ function playSealBreakSound() {
     filter.connect(gain);
     gain.connect(context.destination);
     source.start();
-    window.setTimeout(() => void context.close(), 700);
+    window.setTimeout(() => void context.close(), 800);
   } catch {
-    // Browsers may block audio contexts until a gesture is fully trusted.
+    // Some browsers delay AudioContext playback until the click gesture fully resolves.
   }
 }
 
@@ -94,7 +99,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
 
   const dateParts = useMemo(() => getInvitationDateParts(invitation.wedding_date), [invitation.wedding_date]);
   const initials = useMemo(() => getInitials(invitation.bride_name, invitation.groom_name), [invitation.bride_name, invitation.groom_name]);
-  const invitationText = invitation.invitation_text || arabicFallbackMessage;
+  const invitationText = invitation.invitation_text || fallbackMessage;
 
   useEffect(() => {
     if (invitation.id === "demo") return;
@@ -140,29 +145,28 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
   }
 
   return (
-    <section dir="rtl" className="relative min-h-[100svh] overflow-x-hidden bg-[#030604] text-[#fbf2df]">
-      <InvitationTopBar />
+    <section dir="rtl" className="relative min-h-[100svh] overflow-x-hidden bg-[#020504] text-[#fbf2df]">
+      <Image src={demoBackground} alt="" fill priority sizes="100vw" className="object-cover opacity-80" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(238,202,122,.22),transparent_30%),linear-gradient(180deg,rgba(2,5,4,.2),#020504_96%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(1,7,6,.76),transparent_32%,transparent_68%,rgba(1,7,6,.76))]" />
       <LuxuryAmbientParticles />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(217,171,82,.22),transparent_34%),radial-gradient(circle_at_12%_34%,rgba(14,74,58,.55),transparent_35%),radial-gradient(circle_at_86%_46%,rgba(6,54,43,.48),transparent_36%),linear-gradient(180deg,#020302_0%,#06100d_46%,#020302_100%)]" />
-      <div className="absolute inset-x-0 top-0 h-44 bg-[linear-gradient(180deg,rgba(245,213,145,.16),transparent)]" />
-      <div className="absolute inset-x-[-10%] bottom-0 h-40 bg-[radial-gradient(ellipse_at_center,rgba(217,171,82,.18),transparent_62%)] blur-2xl" />
 
       <main className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-7xl flex-col items-center justify-center px-4 pb-24 pt-24 sm:px-6 lg:px-8">
         <motion.header
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: [0.2, 0.82, 0.18, 1] }}
-          className="mb-2 text-center sm:mb-4"
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          className="mb-3 text-center sm:mb-5"
         >
-          <div className="mx-auto mb-2 flex items-center justify-center gap-3 text-[#d9ab52]">
-            <span className="h-px w-16 bg-[linear-gradient(90deg,transparent,#d9ab52)]" />
-            <span className="rounded-full border border-[#d9ab52]/35 px-3 py-1 text-[10px] font-extrabold tracking-[0.24em]">DA</span>
-            <span className="h-px w-16 bg-[linear-gradient(90deg,#d9ab52,transparent)]" />
+          <div className="mx-auto mb-2 flex items-center justify-center gap-3 text-[#e6bd67]">
+            <span className="h-px w-16 bg-[linear-gradient(90deg,transparent,#e6bd67)]" />
+            <span className="grid h-8 w-8 place-items-center rounded-full border border-[#e6bd67]/40 text-[10px] font-black tracking-[0.16em]">DA</span>
+            <span className="h-px w-16 bg-[linear-gradient(90deg,#e6bd67,transparent)]" />
           </div>
-          <p className="font-display text-[clamp(1.85rem,4.7vw,4.2rem)] leading-none tracking-[0.14em] text-[#d9ab52] [text-shadow:0_0_34px_rgba(217,171,82,.24)]">
+          <p className="font-display text-[clamp(1.9rem,4.8vw,4.3rem)] leading-none tracking-[0.14em] text-[#e6bd67] [text-shadow:0_0_38px_rgba(230,189,103,.28)]">
             DOMUS AUREA
           </p>
-          <p className="mt-2 text-[11px] font-extrabold uppercase tracking-[0.36em] text-[#f9e7b4]/78">PRIVATE INVITATION</p>
+          <p className="mt-2 text-[11px] font-extrabold uppercase tracking-[0.38em] text-[#fff1c8]/78">PRIVATE INVITATION</p>
         </motion.header>
 
         <LuxuryInvitationArtifact
@@ -175,6 +179,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
           time={dateParts.time}
           venue={invitation.venue}
           message={invitationText}
+          sealImageUrl={invitation.seal_image_url}
         />
 
         <AnimatePresence>
@@ -186,7 +191,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.55 }}
               onClick={openInvitation}
-              className="mt-5 rounded-full border border-[#d9ab52]/20 bg-black/18 px-6 py-3 text-sm font-bold text-[#d9ab52] shadow-[0_16px_60px_rgba(0,0,0,.28)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-[#f1cf84] hover:bg-[#d9ab52] hover:text-[#120d08]"
+              className="mt-5 rounded-full border border-[#e6bd67]/25 bg-black/24 px-6 py-3 text-sm font-bold text-[#e6bd67] shadow-[0_16px_60px_rgba(0,0,0,.32)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-[#f6d98f] hover:bg-[#e6bd67] hover:text-[#130d07]"
             >
               Click the seal to open the invitation
             </motion.button>
@@ -196,11 +201,11 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
         <motion.div
           initial={false}
           animate={isOpen ? { opacity: 1, y: 0, height: "auto" } : { opacity: 0, y: 18, height: 0 }}
-          transition={{ duration: 0.85, delay: isOpen ? 1.2 : 0, ease: [0.2, 0.82, 0.18, 1] }}
+          transition={{ duration: 0.85, delay: isOpen ? 1.2 : 0, ease: [0.22, 1, 0.36, 1] }}
           className="w-full max-w-4xl overflow-hidden"
         >
-          <div className="mt-6 rounded-[1.4rem] border border-[#d9ab52]/20 bg-black/24 p-4 shadow-[0_24px_90px_rgba(0,0,0,.28)] backdrop-blur-xl sm:p-5">
-            <p className="text-center text-sm font-extrabold tracking-[0.16em] text-[#d9ab52]">الوقت المتبقي</p>
+          <div className="mt-6 rounded-[1.35rem] border border-[#e6bd67]/22 bg-[#020504]/50 p-4 shadow-[0_24px_90px_rgba(0,0,0,.34)] backdrop-blur-xl sm:p-5">
+            <p className="text-center text-sm font-extrabold tracking-[0.16em] text-[#e6bd67]">الوقت المتبقي</p>
             <LuxuryCountdown target={invitation.wedding_date} />
           </div>
         </motion.div>
@@ -209,17 +214,17 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
           onSubmit={submitRsvp}
           initial={false}
           animate={isOpen ? { opacity: 1, y: 0, height: "auto" } : { opacity: 0, y: 22, height: 0 }}
-          transition={{ duration: 0.85, delay: isOpen ? 1.35 : 0, ease: [0.2, 0.82, 0.18, 1] }}
+          transition={{ duration: 0.85, delay: isOpen ? 1.35 : 0, ease: [0.22, 1, 0.36, 1] }}
           className="w-full max-w-4xl overflow-hidden"
         >
-          <div className="mt-5 rounded-[1.5rem] border border-[#d9ab52]/18 bg-white/[0.055] p-4 shadow-[0_24px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5">
+          <div className="mt-5 rounded-[1.5rem] border border-[#e6bd67]/18 bg-white/[0.06] p-4 shadow-[0_24px_90px_rgba(0,0,0,.26)] backdrop-blur-xl sm:p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-end">
               <label className="flex-1">
                 <span className="mb-2 block text-sm font-bold text-[#fbf2df]/72">اسم الضيف</span>
                 <input
                   value={guestName}
                   onChange={(event) => setGuestName(event.target.value)}
-                  className="w-full rounded-2xl border border-[#d9ab52]/16 bg-black/32 px-5 py-4 text-[#fbf2df] outline-none transition placeholder:text-[#fbf2df]/35 focus:border-[#d9ab52] focus:bg-black/44"
+                  className="w-full rounded-2xl border border-[#e6bd67]/16 bg-black/32 px-5 py-4 text-[#fbf2df] outline-none transition placeholder:text-[#fbf2df]/35 focus:border-[#e6bd67] focus:bg-black/44"
                   placeholder="اكتب اسمك هنا"
                   required
                 />
@@ -230,7 +235,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
               </div>
               <button
                 disabled={loading}
-                className="rounded-full bg-[#d9ab52] px-7 py-4 font-extrabold text-[#120d08] shadow-[0_18px_48px_rgba(217,171,82,.22)] transition hover:-translate-y-0.5 hover:bg-[#f3d88f] disabled:translate-y-0 disabled:opacity-55 md:w-[170px]"
+                className="rounded-full bg-[#e6bd67] px-7 py-4 font-extrabold text-[#120d08] shadow-[0_18px_48px_rgba(230,189,103,.22)] transition hover:-translate-y-0.5 hover:bg-[#f6d98f] disabled:translate-y-0 disabled:opacity-55 md:w-[170px]"
               >
                 <Send className="ml-2 inline h-4 w-4" />
                 {loading ? "جار الحفظ..." : "إرسال"}
@@ -245,34 +250,17 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
   );
 }
 
-function InvitationTopBar() {
-  return (
-    <div className="pointer-events-none fixed inset-x-0 top-0 z-50">
-      <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-4 sm:px-6 lg:px-8">
-        <div className="rounded-full border border-[#d9ab52]/20 bg-black/26 px-4 py-2 text-center shadow-[0_16px_55px_rgba(0,0,0,.25)] backdrop-blur-xl">
-          <p className="font-display text-lg leading-none tracking-[0.16em] text-[#d9ab52]">DOMUS AUREA</p>
-          <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.32em] text-[#fbf2df]/56">Private Invitation</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function LuxuryInvitationMiniature({ className = "" }: { className?: string }) {
   return (
-    <div className={`relative h-full w-full overflow-hidden bg-[#050806] ${className}`}>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(217,171,82,.22),transparent_34%),radial-gradient(circle_at_14%_46%,rgba(6,67,52,.55),transparent_36%),linear-gradient(180deg,#030504,#07130f_58%,#030504)]" />
-      <LuxuryAmbientParticles compact />
-      <div className="absolute left-1/2 top-1/2 h-[72%] w-[82%] -translate-x-1/2 -translate-y-1/2">
-        <div className="absolute inset-x-0 bottom-0 h-12 rounded-full bg-black/50 blur-2xl" />
-        <div className="absolute inset-0 rounded-[1.4rem] border border-[#d9ab52]/35 bg-[#eadcc1] shadow-[0_32px_90px_rgba(0,0,0,.48),inset_0_0_0_1px_rgba(255,255,255,.45)]">
-          <PaperTexture />
-          <EmbossedFlorals />
-          <div className="absolute inset-3 rounded-[1rem] border border-[#c89742]/28" />
-          <div className="absolute inset-x-0 top-0 h-[48%] [clip-path:polygon(0_0,100%_0,50%_100%)] bg-[linear-gradient(180deg,#fff6df,#d7bd8e)] shadow-[0_18px_40px_rgba(77,49,18,.22)]" />
-          <div className="absolute left-1/2 top-[52%] grid h-20 w-20 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-[#f5d98c]/50 bg-[radial-gradient(circle_at_30%_24%,#fff0b6,#d5a04a_42%,#6b381c_88%)] text-xl font-black text-[#34200f] shadow-[0_18px_40px_rgba(48,25,8,.36),inset_0_3px_9px_rgba(255,255,255,.45)]">
-            DA
-          </div>
+    <div className={`relative h-full w-full overflow-hidden bg-[#030604] ${className}`}>
+      <Image src={demoBackground} alt="" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover opacity-80" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,rgba(230,189,103,.2),transparent_36%),linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.58))]" />
+      <div className="absolute left-1/2 top-1/2 h-[58%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-[1rem] border border-[#d9ab52]/38 bg-[#efe0c4] shadow-[0_28px_90px_rgba(0,0,0,.54),inset_0_0_0_1px_rgba(255,255,255,.6)]">
+        <PaperTexture />
+        <EmbossedFlorals />
+        <div className="absolute inset-x-0 top-0 h-[48%] origin-top rounded-t-[1rem] bg-[linear-gradient(180deg,#fff2d7,#dbc092)] [clip-path:polygon(0_0,100%_0,50%_100%)]" />
+        <div className="absolute left-1/2 top-[52%] grid h-20 w-20 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-[radial-gradient(circle_at_30%_24%,#fff0b6,#d7a453_38%,#805025_72%,#3d1d0e)] text-[#fff0b6] shadow-[0_18px_44px_rgba(48,25,8,.42),inset_0_3px_10px_rgba(255,255,255,.5)]">
+          <span className="font-display text-2xl">DA</span>
         </div>
       </div>
     </div>
@@ -288,7 +276,8 @@ export function LuxuryInvitationArtifact({
   date,
   time = "",
   venue,
-  message
+  message,
+  sealImageUrl
 }: {
   isOpen: boolean;
   onOpen: () => void;
@@ -299,85 +288,118 @@ export function LuxuryInvitationArtifact({
   time?: string;
   venue: string;
   message: string;
+  sealImageUrl?: string | null;
 }) {
   const reduceMotion = useReducedMotion();
-  const duration = reduceMotion ? 0.01 : 1.85;
-  const cardDelay = reduceMotion ? 0 : 0.82;
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const leftDoorRef = useRef<HTMLDivElement | null>(null);
+  const rightDoorRef = useRef<HTMLDivElement | null>(null);
+  const topFlapRef = useRef<HTMLDivElement | null>(null);
+  const lightRef = useRef<HTMLDivElement | null>(null);
+  const cardRef = useRef<HTMLElement | null>(null);
+  const sealRef = useRef<HTMLButtonElement | null>(null);
+
+  useLayoutEffect(() => {
+    const nodes = [leftDoorRef.current, rightDoorRef.current, topFlapRef.current, lightRef.current, cardRef.current, sealRef.current].filter(Boolean);
+    const stage = stageRef.current;
+    const sealCracks = stage ? Array.from(stage.querySelectorAll(".seal-crack")) : [];
+    const sealPieces = stage ? Array.from(stage.querySelectorAll(".seal-piece")) : [];
+    const sealFace = stage?.querySelector(".seal-face") ? [stage.querySelector(".seal-face") as Element] : [];
+    const sealPieceLeft = stage?.querySelector(".seal-piece-left") ? [stage.querySelector(".seal-piece-left") as Element] : [];
+    const sealPieceRight = stage?.querySelector(".seal-piece-right") ? [stage.querySelector(".seal-piece-right") as Element] : [];
+
+    if (!isOpen) {
+      gsap.set(nodes, { clearProps: "all" });
+      gsap.set(lightRef.current, { autoAlpha: 0, scale: 0.62 });
+      gsap.set(cardRef.current, { autoAlpha: 0, y: 34, scale: 0.9, filter: "blur(8px)" });
+      gsap.set(sealCracks, { autoAlpha: 0, scale: 0.7 });
+      gsap.set(sealPieces, { x: 0, y: 0, rotate: 0, autoAlpha: 0 });
+      gsap.set(sealFace, { autoAlpha: 1, scale: 1 });
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      if (reduceMotion) {
+        gsap.set(leftDoorRef.current, { xPercent: -98, rotateY: -8 });
+        gsap.set(rightDoorRef.current, { xPercent: 98, rotateY: 8 });
+        gsap.set(topFlapRef.current, { y: -60, rotateX: -58, autoAlpha: 0.25 });
+        gsap.set(lightRef.current, { autoAlpha: 1, scale: 1.1 });
+        gsap.set(cardRef.current, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)" });
+        gsap.set(sealRef.current, { pointerEvents: "none" });
+        return;
+      }
+
+      const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+      timeline
+        .to(sealCracks, { autoAlpha: 1, scale: 1, duration: 0.18, stagger: 0.035 }, 0)
+        .to(sealFace, { autoAlpha: 0, scale: 0.82, duration: 0.42 }, 0.12)
+        .to(sealPieceLeft, { autoAlpha: 1, x: -34, y: 24, rotate: -18, duration: 0.5 }, 0.12)
+        .to(sealPieceRight, { autoAlpha: 1, x: 34, y: 24, rotate: 16, duration: 0.5 }, 0.12)
+        .to(sealCracks, { autoAlpha: 0, scale: 0.84, duration: 0.55 }, 0.52)
+        .to(sealPieceLeft, { autoAlpha: 0, x: -78, y: 138, rotate: -34, scale: 0.62, duration: 1.05 }, 0.55)
+        .to(sealPieceRight, { autoAlpha: 0, x: 78, y: 138, rotate: 32, scale: 0.62, duration: 1.05 }, 0.55)
+        .to(topFlapRef.current, { y: -74, rotateX: -64, autoAlpha: 0.32, duration: 1.35 }, 0.28)
+        .to(leftDoorRef.current, { xPercent: -98, rotateY: -11, duration: 1.55 }, 0.46)
+        .to(rightDoorRef.current, { xPercent: 98, rotateY: 11, duration: 1.55 }, 0.46)
+        .to(lightRef.current, { autoAlpha: 1, scale: 1.12, duration: 1.35 }, 0.64)
+        .to(cardRef.current, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 1.15 }, 0.9)
+        .set(sealRef.current, { pointerEvents: "none" }, 0);
+    }, stageRef);
+
+    return () => ctx.revert();
+  }, [isOpen, reduceMotion]);
 
   function handleSealClick() {
-    if (!isOpen) playSealBreakSound();
     onOpen();
   }
 
   return (
     <div className="relative w-full">
-      <div className="relative mx-auto grid min-h-[clamp(340px,58svh,530px)] w-full max-w-[1000px] place-items-center">
-        <motion.div
-          initial={false}
-          animate={isOpen ? { y: -6, scale: 0.99, rotateX: 0 } : { y: 0, scale: 1, rotateX: 2 }}
-          transition={{ duration, ease: [0.2, 0.82, 0.18, 1] }}
-          className="relative h-[clamp(300px,52svh,520px)] w-[min(94vw,980px)] [perspective:1800px]"
-        >
-          <div className="absolute left-1/2 top-[91%] h-20 w-[82%] -translate-x-1/2 rounded-full bg-black/55 blur-3xl" />
+      <div className="relative mx-auto grid min-h-[clamp(340px,58svh,540px)] w-full max-w-[1020px] place-items-center">
+        <div ref={stageRef} className="relative h-[clamp(300px,52svh,530px)] w-[min(94vw,1000px)] [perspective:1800px]">
+          <div className="absolute left-1/2 top-[92%] h-20 w-[82%] -translate-x-1/2 rounded-full bg-black/60 blur-3xl" />
 
-          <motion.div
-            initial={false}
-            animate={isOpen ? { opacity: 1, scale: 1.08 } : { opacity: 0, scale: 0.62 }}
-            transition={{ duration: reduceMotion ? 0.01 : 1.5, delay: isOpen ? 0.35 : 0, ease: "easeOut" }}
-            className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle,rgba(255,225,149,.7),rgba(217,171,82,.2)_36%,transparent_70%)] blur-2xl"
-          />
+          <div ref={lightRef} className="absolute inset-[6%] rounded-full bg-[radial-gradient(circle,rgba(255,224,142,.68),rgba(224,181,89,.2)_38%,transparent_72%)] opacity-0 blur-2xl" />
 
-          <div className="absolute inset-x-[3%] bottom-[7%] top-[13%] overflow-hidden rounded-[1.6rem] border border-[#d9ab52]/28 bg-[#ecdec3] shadow-[0_42px_120px_rgba(0,0,0,.5),inset_0_0_0_1px_rgba(255,255,255,.5)]">
+          <div className="absolute inset-x-[3%] bottom-[7%] top-[13%] overflow-hidden rounded-[1.5rem] border border-[#d9ab52]/32 bg-[#efdfc1] shadow-[0_44px_130px_rgba(0,0,0,.58),inset_0_0_0_1px_rgba(255,255,255,.58)]">
             <PaperTexture />
             <EmbossedFlorals />
-            <div className="absolute inset-4 rounded-[1.15rem] border border-[#c89742]/20" />
+            <div className="absolute inset-4 rounded-[1.05rem] border border-[#bd8e3c]/22" />
             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(180deg,transparent,rgba(78,44,18,.16))]" />
           </div>
 
-          <motion.div
-            initial={false}
-            animate={isOpen ? { y: -66, rotateX: -62, opacity: 0.24 } : { y: 0, rotateX: 0, opacity: 1 }}
-            transition={{ duration, ease: [0.2, 0.82, 0.18, 1] }}
-            className="absolute inset-x-[3%] top-[13%] z-20 h-[39%] origin-top rounded-t-[1.6rem] border-x border-t border-[#d9ab52]/30 bg-[linear-gradient(180deg,#fff6df,#dfc393)] shadow-[0_22px_52px_rgba(68,41,18,.28)] [clip-path:polygon(0_0,100%_0,50%_100%)]"
+          <div
+            ref={topFlapRef}
+            className="absolute inset-x-[3%] top-[13%] z-20 h-[40%] origin-top rounded-t-[1.5rem] border-x border-t border-[#d9ab52]/30 bg-[linear-gradient(180deg,#fff6df,#dfc293)] shadow-[0_22px_58px_rgba(68,41,18,.34)] [clip-path:polygon(0_0,100%_0,50%_100%)]"
             style={{ transformStyle: "preserve-3d" }}
           >
             <PaperTexture />
             <EmbossedFlorals />
-          </motion.div>
+          </div>
 
-          <EnvelopeDoor side="left" isOpen={isOpen} duration={duration} />
-          <EnvelopeDoor side="right" isOpen={isOpen} duration={duration} />
+          <EnvelopeDoor refNode={leftDoorRef} side="left" />
+          <EnvelopeDoor refNode={rightDoorRef} side="right" />
 
-          <div className="absolute left-1/2 top-1/2 z-30 h-full w-[min(92%,630px)] -translate-x-1/2 -translate-y-1/2 sm:w-[min(80%,630px)]">
-            <motion.article
-              initial={false}
-              animate={
-                isOpen
-                  ? { opacity: 1, y: 0, scale: 1, rotateX: 0, filter: "blur(0px)" }
-                  : { opacity: 0, y: 34, scale: 0.87, rotateX: 5, filter: "blur(5px)" }
-              }
-              transition={{ duration: reduceMotion ? 0.01 : 1.18, delay: isOpen ? cardDelay : 0, ease: [0.2, 0.82, 0.18, 1] }}
-              className="relative flex h-full w-full flex-col justify-center overflow-hidden rounded-[1.25rem] border border-[#d1a255]/35 bg-[#fbefd8] px-5 py-5 text-center text-[#23170e] shadow-[0_34px_100px_rgba(0,0,0,.42),inset_0_0_0_1px_rgba(255,255,255,.64),inset_0_22px_50px_rgba(255,255,255,.45)] sm:px-7 sm:py-6"
+          <div className="absolute left-1/2 top-1/2 z-30 h-full w-[min(92%,640px)] -translate-x-1/2 -translate-y-1/2 sm:w-[min(80%,640px)]">
+            <article
+              ref={cardRef}
+              className="relative flex h-full w-full flex-col justify-center overflow-hidden rounded-[1.2rem] border border-[#d1a255]/36 bg-[#fbefd8] px-5 py-5 text-center text-[#23170e] opacity-0 shadow-[0_36px_110px_rgba(0,0,0,.46),inset_0_0_0_1px_rgba(255,255,255,.66),inset_0_22px_50px_rgba(255,255,255,.46)] sm:px-7 sm:py-6"
             >
               <PaperTexture />
-              <div className="absolute inset-3 rounded-[.95rem] border border-[#c89742]/42" />
-              <div className="absolute inset-6 rounded-[.7rem] border border-[#c89742]/14" />
-              <FloralCorner className="right-5 top-5 rotate-90" />
-              <FloralCorner className="bottom-5 left-5 -rotate-90" />
+              <GoldWash />
+              <div className="absolute inset-3 rounded-[.92rem] border border-[#c89742]/44" />
+              <div className="absolute inset-6 rounded-[.66rem] border border-[#c89742]/14" />
+              <FloralCorner className="right-4 top-4 rotate-90" />
+              <FloralCorner className="bottom-4 left-4 -rotate-90" />
 
-              <motion.div
-                initial={false}
-                animate={isOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
-                transition={{ duration: 0.9, delay: isOpen ? cardDelay + 0.22 : 0, ease: [0.2, 0.82, 0.18, 1] }}
-                className="relative z-10 mx-auto flex w-full max-w-[470px] flex-col items-center"
-              >
+              <div className="relative z-10 mx-auto flex w-full max-w-[485px] flex-col items-center">
                 <p className="text-xs font-extrabold tracking-[0.18em] text-[#9d7634] sm:text-sm">دعوة خاصة</p>
                 <div className="my-2 flex items-center gap-3 text-[#b88736] sm:my-3">
                   <span className="h-px w-16 bg-[linear-gradient(90deg,transparent,#b88736)]" />
                   <span className="text-lg">✦</span>
                   <span className="h-px w-16 bg-[linear-gradient(90deg,#b88736,transparent)]" />
                 </div>
-                <h2 className="font-display text-[clamp(1.9rem,5.4vw,3.8rem)] leading-tight text-[#9d7634] [text-shadow:0_10px_26px_rgba(82,48,18,.1)]">
+                <h2 className="font-display text-[clamp(1.9rem,5.4vw,3.9rem)] leading-tight text-[#9d7634] [text-shadow:0_10px_26px_rgba(82,48,18,.1)]">
                   {groomName} & {brideName}
                 </h2>
                 <p className="mt-1 max-w-sm text-sm font-bold leading-6 text-[#4b3928]/76 sm:text-[15px]">{message}</p>
@@ -390,92 +412,98 @@ export function LuxuryInvitationArtifact({
 
                 <div className="mt-3 h-px w-full bg-[linear-gradient(90deg,transparent,rgba(184,135,54,.55),transparent)] sm:mt-4" />
                 <p className="mt-2 text-sm font-extrabold text-[#9d7634]">نتشرف بحضوركم</p>
-              </motion.div>
-            </motion.article>
+              </div>
+            </article>
           </div>
 
-          <WaxSeal initials={initials || "DA"} isOpen={isOpen} onOpen={handleSealClick} />
-        </motion.div>
+          <WaxSeal refNode={sealRef} initials={initials || "DA"} isOpen={isOpen} onOpen={handleSealClick} sealImageUrl={sealImageUrl} />
+        </div>
       </div>
     </div>
   );
 }
 
-function EnvelopeDoor({ side, isOpen, duration }: { side: "left" | "right"; isOpen: boolean; duration: number }) {
+function EnvelopeDoor({ side, refNode }: { side: "left" | "right"; refNode: React.RefObject<HTMLDivElement> }) {
   const isLeft = side === "left";
 
   return (
-    <motion.div
-      initial={false}
-      animate={
-        isOpen
-          ? {
-              x: isLeft ? "-63%" : "63%",
-              rotateY: isLeft ? -12 : 12,
-              opacity: 0.98
-            }
-          : { x: "0%", rotateY: 0, opacity: 1 }
-      }
-      transition={{ duration, ease: [0.2, 0.82, 0.18, 1] }}
-      className={`absolute top-[13%] z-25 h-[80%] w-[49%] overflow-hidden border-y border-[#d9ab52]/28 bg-[#e9dac1] shadow-[0_28px_72px_rgba(43,25,10,.24),inset_0_0_0_1px_rgba(255,255,255,.42)] ${
-        isLeft ? "left-[3%] origin-right rounded-l-[1.6rem] border-l" : "right-[3%] origin-left rounded-r-[1.6rem] border-r"
+    <div
+      ref={refNode}
+      className={`absolute top-[13%] z-[25] h-[80%] w-[49%] overflow-hidden border-y border-[#d9ab52]/30 bg-[#ead9ba] shadow-[0_28px_78px_rgba(43,25,10,.28),inset_0_0_0_1px_rgba(255,255,255,.46)] ${
+        isLeft ? "left-[3%] origin-right rounded-l-[1.5rem] border-l" : "right-[3%] origin-left rounded-r-[1.5rem] border-r"
       }`}
       style={{ transformStyle: "preserve-3d" }}
     >
       <PaperTexture />
       <EmbossedFlorals />
       <div className={`absolute inset-y-0 ${isLeft ? "right-0" : "left-0"} w-px bg-[#8f6425]/24`} />
-      <div className={`absolute top-0 h-full w-[130%] ${isLeft ? "right-0" : "left-0"} bg-[linear-gradient(140deg,rgba(255,255,255,.35),transparent_42%,rgba(93,61,23,.16))]`} />
-      <div className="absolute inset-4 rounded-[1.1rem] border border-[#c89742]/16" />
-    </motion.div>
+      <div className={`absolute top-0 h-full w-[130%] ${isLeft ? "right-0" : "left-0"} bg-[linear-gradient(140deg,rgba(255,255,255,.34),transparent_42%,rgba(93,61,23,.16))]`} />
+      <div className="absolute inset-4 rounded-[1rem] border border-[#c89742]/16" />
+    </div>
   );
 }
 
-function WaxSeal({ initials, isOpen, onOpen }: { initials: string; isOpen: boolean; onOpen: () => void }) {
+function WaxSeal({
+  refNode,
+  initials,
+  isOpen,
+  onOpen,
+  sealImageUrl
+}: {
+  refNode: React.RefObject<HTMLButtonElement>;
+  initials: string;
+  isOpen: boolean;
+  onOpen: () => void;
+  sealImageUrl?: string | null;
+}) {
+  const sealContent = sealImageUrl ? (
+    <img src={sealImageUrl} alt="" className="h-[68%] w-[68%] rounded-full object-contain drop-shadow-[0_4px_10px_rgba(42,20,5,.35)]" />
+  ) : (
+    <span className="font-display text-[clamp(1.45rem,3.8vw,2.8rem)] text-[#fff0b6] [text-shadow:0_2px_8px_rgba(42,20,5,.45)]">{initials}</span>
+  );
+
   return (
     <button
+      ref={refNode}
       type="button"
       disabled={isOpen}
       onClick={onOpen}
       aria-label="Open invitation seal"
-      className="absolute left-1/2 top-[52%] z-40 grid h-[clamp(82px,11vw,128px)] w-[clamp(82px,11vw,128px)] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full outline-none"
+      className="absolute left-1/2 top-[52%] z-40 grid h-[clamp(86px,11vw,132px)] w-[clamp(86px,11vw,132px)] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full outline-none"
     >
-      <motion.span
-        initial={false}
-        animate={isOpen ? { opacity: 0, scale: 0.78, filter: "blur(1px)" } : { opacity: 1, scale: 1, filter: "blur(0px)" }}
-        transition={{ duration: 0.45, ease: "easeOut" }}
-        className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_24%,#fff0b6,#d9a957_32%,#925626_68%,#4c2413_100%)] shadow-[0_22px_56px_rgba(42,20,5,.42),inset_0_4px_10px_rgba(255,255,255,.48),inset_0_-14px_22px_rgba(58,26,8,.38)]"
-      >
+      <span className="seal-face absolute inset-0 grid place-items-center rounded-full bg-[radial-gradient(circle_at_30%_24%,#fff0b6,#d9a957_32%,#915426_68%,#4c2413_100%)] shadow-[0_22px_56px_rgba(42,20,5,.44),inset_0_4px_10px_rgba(255,255,255,.48),inset_0_-14px_22px_rgba(58,26,8,.38)]">
         <span className="absolute inset-[13%] rounded-full border border-[#ffe29a]/38" />
-        <span className="absolute inset-[23%] rounded-full border border-[#5b2d16]/24" />
-        <span className="absolute inset-[30%] grid place-items-center rounded-full bg-black/8 font-display text-[clamp(1.45rem,3.8vw,2.8rem)] text-[#f8dda0] [text-shadow:0_2px_8px_rgba(42,20,5,.45)]">
-          {initials}
-        </span>
-        <svg className="absolute inset-[18%] h-[64%] w-[64%] text-[#f8dda0]/75" viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 5" />
-          <path d="M28 64c10 10 34 10 44 0M30 36c10-10 30-10 40 0" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-        </svg>
-      </motion.span>
+        <span className="absolute inset-[24%] rounded-full border border-[#5b2d16]/24" />
+        {sealContent}
+        <SealLaurel />
+      </span>
 
-      <motion.span
-        initial={false}
-        animate={isOpen ? { opacity: 1, x: -34, y: 26, rotate: -18, scale: 0.9 } : { opacity: 0, x: 0, y: 0, rotate: 0, scale: 1 }}
-        transition={{ duration: 0.82, ease: [0.2, 0.82, 0.18, 1] }}
-        className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_24%,#fff0b6,#d9a957_32%,#925626_68%,#4c2413_100%)] shadow-[0_18px_45px_rgba(42,20,5,.36)] [clip-path:polygon(0_0,55%_0,44%_40%,58%_62%,46%_100%,0_100%)]"
-      />
-      <motion.span
-        initial={false}
-        animate={isOpen ? { opacity: 1, x: 36, y: 25, rotate: 16, scale: 0.92 } : { opacity: 0, x: 0, y: 0, rotate: 0, scale: 1 }}
-        transition={{ duration: 0.82, ease: [0.2, 0.82, 0.18, 1] }}
-        className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_24%,#fff0b6,#d9a957_32%,#925626_68%,#4c2413_100%)] shadow-[0_18px_45px_rgba(42,20,5,.36)] [clip-path:polygon(55%_0,100%_0,100%_100%,48%_100%,60%_62%,45%_40%)]"
-      />
+      <span className="seal-piece seal-piece-left absolute inset-0 grid place-items-center rounded-full bg-[radial-gradient(circle_at_30%_24%,#fff0b6,#d9a957_32%,#915426_68%,#4c2413_100%)] opacity-0 shadow-[0_18px_45px_rgba(42,20,5,.36)] [clip-path:polygon(0_0,55%_0,44%_40%,58%_62%,46%_100%,0_100%)]">
+        {sealContent}
+      </span>
+      <span className="seal-piece seal-piece-right absolute inset-0 grid place-items-center rounded-full bg-[radial-gradient(circle_at_30%_24%,#fff0b6,#d9a957_32%,#915426_68%,#4c2413_100%)] opacity-0 shadow-[0_18px_45px_rgba(42,20,5,.36)] [clip-path:polygon(55%_0,100%_0,100%_100%,48%_100%,60%_62%,45%_40%)]">
+        {sealContent}
+      </span>
+      <svg className="seal-crack pointer-events-none absolute inset-[18%] h-[64%] w-[64%] opacity-0 text-[#3d1d0e]" viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M52 4 45 24l11 16-13 18 10 15-7 23" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M46 42 26 50M54 58l21 9" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      </svg>
     </button>
+  );
+}
+
+function SealLaurel() {
+  return (
+    <svg className="pointer-events-none absolute inset-[19%] h-[62%] w-[62%] text-[#fff0b6]/72" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="1.4" strokeDasharray="2 5" />
+      <path d="M28 64c10 10 34 10 44 0M30 36c10-10 30-10 40 0" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+    </svg>
   );
 }
 
 function InvitationInfo({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-[#b88736]/18 bg-white/30 px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.35)]">
+    <div className="rounded-2xl border border-[#b88736]/18 bg-white/30 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.35)] sm:px-3">
       <div className="mx-auto mb-1 grid h-7 w-7 place-items-center rounded-full bg-[#b88736]/10 text-[#a1752c]">{icon}</div>
       <p className="text-[10px] font-extrabold text-[#9d7634]">{label}</p>
       <p className="mt-0.5 text-[11px] font-bold leading-4 text-[#2f2419]/82">{value}</p>
@@ -490,8 +518,8 @@ function RsvpChoice({ active, onClick, label, icon }: { active: boolean; onClick
       onClick={onClick}
       className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-4 text-sm font-extrabold transition ${
         active
-          ? "border-[#d9ab52]/55 bg-[#d9ab52] text-[#120d08] shadow-[0_14px_40px_rgba(217,171,82,.2)]"
-          : "border-[#d9ab52]/14 bg-black/26 text-[#fbf2df]/70 hover:border-[#d9ab52]/40 hover:text-[#fbf2df]"
+          ? "border-[#e6bd67]/55 bg-[#e6bd67] text-[#120d08] shadow-[0_14px_40px_rgba(230,189,103,.2)]"
+          : "border-[#e6bd67]/14 bg-black/26 text-[#fbf2df]/70 hover:border-[#e6bd67]/40 hover:text-[#fbf2df]"
       }`}
     >
       {icon}
@@ -529,10 +557,10 @@ function LuxuryCountdown({ target }: { target: string }) {
       {units.map((unit) => (
         <div
           key={unit.label}
-          className="relative overflow-hidden rounded-[1.1rem] border border-[#d9ab52]/32 bg-[#07100d]/70 px-4 py-4 text-center shadow-[0_18px_55px_rgba(0,0,0,.25),inset_0_0_0_1px_rgba(255,255,255,.03)]"
+          className="relative overflow-hidden rounded-[1.05rem] border border-[#e6bd67]/32 bg-[#06100d]/78 px-4 py-4 text-center shadow-[0_18px_55px_rgba(0,0,0,.25),inset_0_0_0_1px_rgba(255,255,255,.03)]"
         >
-          <span className="absolute inset-x-3 top-0 h-px bg-[linear-gradient(90deg,transparent,#f4d587,transparent)]" />
-          <p className="font-display text-3xl leading-none text-[#f4d587] sm:text-4xl">{String(unit.value).padStart(2, "0")}</p>
+          <span className="absolute inset-x-3 top-0 h-px bg-[linear-gradient(90deg,transparent,#f6d98f,transparent)]" />
+          <p className="font-display text-3xl leading-none text-[#f6d98f] sm:text-4xl">{String(unit.value).padStart(2, "0")}</p>
           <p className="mt-2 text-xs font-bold text-[#fbf2df]/62">{unit.label}</p>
         </div>
       ))}
@@ -540,19 +568,19 @@ function LuxuryCountdown({ target }: { target: string }) {
   );
 }
 
-function LuxuryAmbientParticles({ compact = false }: { compact?: boolean }) {
+function LuxuryAmbientParticles() {
   const reduceMotion = useReducedMotion();
   const particles = useMemo(
     () =>
-      Array.from({ length: compact ? 14 : 32 }, (_, index) => ({
+      Array.from({ length: 28 }, (_, index) => ({
         id: index,
         left: (index * 37) % 100,
-        delay: (index % 9) * 0.7,
+        delay: (index % 9) * 0.72,
         size: 2 + (index % 4),
-        duration: 10 + (index % 7) * 1.4,
-        drift: index % 2 === 0 ? 22 : -18
+        duration: 10 + (index % 7) * 1.35,
+        drift: index % 2 === 0 ? 18 : -16
       })),
-    [compact]
+    []
   );
 
   return (
@@ -560,30 +588,16 @@ function LuxuryAmbientParticles({ compact = false }: { compact?: boolean }) {
       {particles.map((particle) => (
         <motion.span
           key={particle.id}
-          className={`absolute top-[-8%] rounded-full bg-[#f4d587] shadow-[0_0_18px_rgba(244,213,135,.5)] ${
+          className={`absolute top-[-8%] rounded-full bg-[#f6d98f] shadow-[0_0_18px_rgba(246,217,143,.52)] ${
             particle.id % 3 === 0 ? "hidden sm:block" : ""
           }`}
-          style={{
-            left: `${particle.left}%`,
-            width: particle.size,
-            height: particle.size,
-            opacity: 0.42
-          }}
+          style={{ left: `${particle.left}%`, width: particle.size, height: particle.size, opacity: 0.38 }}
           animate={
             reduceMotion
               ? { opacity: [0.18, 0.32, 0.18] }
-              : {
-                  y: ["0vh", "112vh"],
-                  x: [0, particle.drift, -particle.drift / 2],
-                  opacity: [0, 0.48, 0.16, 0]
-                }
+              : { y: ["0vh", "112vh"], x: [0, particle.drift, -particle.drift / 2], opacity: [0, 0.48, 0.16, 0] }
           }
-          transition={{
-            duration: particle.duration,
-            repeat: Infinity,
-            delay: particle.delay,
-            ease: "linear"
-          }}
+          transition={{ duration: particle.duration, repeat: Infinity, delay: particle.delay, ease: "linear" }}
         />
       ))}
     </div>
@@ -594,11 +608,24 @@ function PaperTexture() {
   return (
     <span
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 opacity-[0.42] mix-blend-multiply"
+      className="pointer-events-none absolute inset-0 opacity-[0.46] mix-blend-multiply"
       style={{
         backgroundImage:
           "radial-gradient(circle at 20% 20%, rgba(126,84,35,.13) 0 1px, transparent 1.5px), radial-gradient(circle at 78% 34%, rgba(255,255,255,.36) 0 1px, transparent 1.5px), linear-gradient(115deg, transparent 0 38%, rgba(104,70,30,.08) 39%, transparent 41% 100%)",
         backgroundSize: "18px 18px, 24px 24px, 100% 100%"
+      }}
+    />
+  );
+}
+
+function GoldWash() {
+  return (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 opacity-70"
+      style={{
+        backgroundImage:
+          "radial-gradient(circle at 8% 12%, rgba(185,139,60,.2), transparent 22%), radial-gradient(circle at 92% 82%, rgba(185,139,60,.18), transparent 24%), linear-gradient(135deg, transparent, rgba(255,255,255,.38) 48%, transparent 52%)"
       }}
     />
   );

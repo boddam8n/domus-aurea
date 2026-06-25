@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
-import { CheckCircle2, Copy, Lock, Music } from "lucide-react";
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { CheckCircle2, Copy, ImagePlus, Lock, Music, Trash2 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { SafeImage } from "@/components/safe-image";
 import { PlayPreviewButton, TemplatePreviewModal } from "@/components/template-preview-experience";
@@ -28,7 +28,8 @@ export default function DesignInvitationPage() {
     venueAddress: "",
     venueLat: undefined as number | undefined,
     venueLng: undefined as number | undefined,
-    phone: ""
+    phone: "",
+    sealImageUrl: ""
   });
   const [publicUrl, setPublicUrl] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -91,6 +92,32 @@ export default function DesignInvitationPage() {
     await navigator.clipboard.writeText(publicUrl);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
+  }
+
+  function handleSealUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setError("");
+
+    if (file.type !== "image/png") {
+      setError("من فضلك ارفع صورة ختم بصيغة PNG فقط، ويفضل بخلفية شفافة.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 620 * 1024) {
+      setError("صورة الختم كبيرة جدًا. الأفضل أن تكون أقل من 620KB للحفاظ على سرعة الدعوة.");
+      event.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((current) => ({ ...current, sealImageUrl: typeof reader.result === "string" ? reader.result : "" }));
+    };
+    reader.onerror = () => setError("لم نتمكن من قراءة صورة الختم. جرّب صورة PNG أخرى.");
+    reader.readAsDataURL(file);
   }
 
   return (
@@ -223,6 +250,41 @@ export default function DesignInvitationPage() {
                   </span>
                   <input value={musicName} onChange={(event) => setMusicName(event.target.value)} className="rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-4 text-[var(--color-text)] outline-none" />
                 </label>
+
+                <div className="mt-6 rounded-[1.5rem] border border-gold/20 bg-black/10 p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <span className="block text-sm font-bold uppercase tracking-[0.16em] text-gold">Wax Seal / Stamp</span>
+                      <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">ارفع ختم مخصص بصيغة PNG بخلفية شفافة ليظهر على ظرف الدعوة.</p>
+                    </div>
+                    <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full border border-gold/40 bg-[radial-gradient(circle_at_30%_25%,#fff1bd,#d1a14b_42%,#6e3a18)] shadow-[0_14px_38px_rgba(0,0,0,.22)]">
+                      {form.sealImageUrl ? (
+                        <img src={form.sealImageUrl} alt="Wax seal preview" className="h-full w-full object-contain p-1.5" />
+                      ) : (
+                        <span className="font-display text-xl text-[#fff1bd]">DA</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
+                    <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-[1.2rem] border border-dashed border-gold/40 bg-white/[0.035] px-5 py-5 text-center transition hover:border-gold hover:bg-gold/10">
+                      <input type="file" accept="image/png" onChange={handleSealUpload} className="sr-only" />
+                      <ImagePlus className="h-6 w-6 text-gold" />
+                      <span className="mt-2 text-sm font-bold text-[var(--color-text)]">Upload custom stamp</span>
+                      <span className="mt-1 text-xs text-[var(--color-muted)]">PNG transparent background, max 620KB</span>
+                    </label>
+                    {form.sealImageUrl ? (
+                      <button
+                        type="button"
+                        onClick={() => setForm((current) => ({ ...current, sealImageUrl: "" }))}
+                        className="inline-flex items-center justify-center gap-2 rounded-[1.2rem] border border-red-300/30 px-5 py-4 text-sm font-bold text-red-200 transition hover:bg-red-500/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        إزالة الختم
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
               </section>
             </div>
 
@@ -277,7 +339,8 @@ export default function DesignInvitationPage() {
           groomName: form.groomName || "Yassin",
           date: form.weddingDate || "12 December 2026",
           venue: form.venue || "Emerald Palace, Cairo",
-          musicSrc: musicName ? `/audio/${musicName}` : "/audio/wedding-music.mp3"
+          musicSrc: musicName ? `/audio/${musicName}` : "/audio/wedding-music.mp3",
+          sealImageUrl: form.sealImageUrl
         }}
       />
     </PageShell>

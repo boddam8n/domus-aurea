@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: "Domus Aurea | Luxury Wedding Invitations",
   description:
-    "A premium Arabic-inspired digital wedding invitation platform with RSVP, guest management, gallery, stories, QR sharing and luxury themes.",
+    "A premium Arabic-inspired digital wedding invitation platform with RSVP, guest management, stories, QR sharing and luxury themes.",
   keywords: ["wedding invitation", "digital invitation", "Arabic wedding", "RSVP", "luxury wedding"],
   openGraph: {
     title: "Domus Aurea | Luxury Wedding Invitations",
