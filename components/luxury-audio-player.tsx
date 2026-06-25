@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Pause, Play, Volume1, Volume2, VolumeX } from "lucide-react";
 
 type Speed = 1 | 0.9 | 0.8;
@@ -42,6 +43,8 @@ export function LuxuryAudioPlayer({
   startDelayMs?: number;
   variant?: "full" | "nav";
 }) {
+  const pathname = usePathname();
+  const isInvitationPage = pathname?.startsWith("/invitation/");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const graphRef = useRef<AudioGraph | null>(null);
   const fadeRef = useRef<number | null>(null);
@@ -200,7 +203,13 @@ export function LuxuryAudioPlayer({
 
   if (variant === "nav") {
     return (
-      <div className="fixed left-4 top-[5.25rem] z-[60] md:left-auto md:right-8 md:top-5">
+      <div
+        className={
+          isInvitationPage
+            ? "fixed right-4 top-4 z-[60]"
+            : "fixed left-4 top-[5.25rem] z-[60] md:left-auto md:right-8 md:top-5"
+        }
+      >
         <audio ref={audioRef} src={src} preload="metadata" loop playsInline />
         <div className="flex items-center gap-1 rounded-full border border-gold/25 bg-black/35 p-1.5 text-pearl shadow-[0_18px_60px_rgba(0,0,0,.22)] backdrop-blur-xl">
           <button
