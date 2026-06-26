@@ -40,7 +40,7 @@ export const wedding = {
 export const navItems = [
   { href: "/", label: "Home", ar: "الرئيسية" },
   { href: "/templates", label: "Templates", ar: "القوالب" },
-  { href: "/design", label: "Design Invitation", ar: "صمم دعوتك" },
+  { href: "/design", label: "Design Invitation", ar: "صمّم دعوتك" },
   { href: "/pricing", label: "Pricing", ar: "الأسعار" },
   { href: "/#faq", label: "FAQ", ar: "الأسئلة" }
 ];
@@ -157,8 +157,8 @@ export const invitationTemplates: InvitationTemplate[] = [
   {
     name: "TEST INVITATION",
     nameAr: "TEST INVITATION",
-    image: "",
-    description: "The launch-ready Domus Aurea invitation: a cinematic ivory card revealed from an emerald and gold luxury envelope.",
+    image: "/assets/invitation-blush/doors-closed.webp",
+    description: "A launch-ready blush royal invitation with ivory sliding doors, a rose wax seal, and a full-screen floral card reveal.",
     status: "available",
     badge: "Launch Ready",
     badgeAr: "جاهز للإطلاق"

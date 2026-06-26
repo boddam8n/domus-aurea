@@ -24,11 +24,11 @@ type TemplatePreviewModalProps = {
 };
 
 const defaultSample: TemplatePreviewSample = {
-  brideName: "Layan",
-  groomName: "Yassin",
+  brideName: "مايار",
+  groomName: "أحمد",
   date: "12 December 2026",
-  venue: "Emerald Palace, Cairo",
-  message: "With love and joy, we invite you to celebrate a night made for family, friends, and memory."
+  venue: "فندق ريتز كارلتون - القاهرة",
+  message: "بكل الحب والفرحة، ندعوكم لحضور حفل زفافنا ومشاركتنا أجمل لحظات العمر."
 };
 
 function getPreviewInitials(brideName: string, groomName: string) {
@@ -76,14 +76,14 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[120] overflow-y-auto bg-[#070604]/92 px-4 py-5 text-[#f7efe2] backdrop-blur-xl md:px-8"
+          className="fixed inset-0 z-[120] overflow-y-auto bg-[#fff6f2]/94 px-4 py-5 text-[#432819] backdrop-blur-xl md:px-8"
           role="dialog"
           aria-modal="true"
         >
           <button
             type="button"
             onClick={onClose}
-            className="fixed right-5 top-5 z-20 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-xl transition hover:bg-white hover:text-[#120d08]"
+            className="fixed right-5 top-5 z-20 grid h-11 w-11 place-items-center rounded-full border border-[#d9a681]/30 bg-white/65 text-[#432819] backdrop-blur-xl transition hover:bg-[#f2c4c0]"
             aria-label="Close preview"
           >
             <X className="h-5 w-5" />
@@ -97,21 +97,21 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
             className="mx-auto grid min-h-[calc(100vh-2.5rem)] max-w-7xl content-center gap-7 py-12"
           >
             <div className="mx-auto max-w-3xl text-center">
-              <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#c89b46]">
+              <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#b77a5a]">
                 {isTest ? "Launch-ready template" : "Under development"}
               </p>
               <h2 className="mt-4 font-display text-4xl leading-tight md:text-6xl">
                 {isTest ? "TEST INVITATION" : templateName}
               </h2>
-              <p className="mx-auto mt-4 max-w-2xl leading-8 text-[#f7efe2]/68">
+              <p className="mx-auto mt-4 max-w-2xl leading-8 text-[#6e4a35]/70">
                 {isTest
-                  ? "A single refined production template with one smooth physical opening state and one fully readable final state."
-                  : "This template is still being refined and is not available for customer selection yet."}
+                  ? "قالب الإنتاج الحالي بتجربة أبواب ملكية، ختم وردي، وحالة نهائية كاملة القراءة."
+                  : "هذا القالب ما زال تحت التطوير وغير متاح للاختيار الآن."}
               </p>
             </div>
 
             {isTest ? (
-              <div className="mx-auto w-full max-w-5xl">
+              <div className="mx-auto w-full max-w-6xl">
                 <LuxuryInvitationArtifact
                   isOpen={isInvitationOpen}
                   onOpen={() => setIsInvitationOpen(true)}
@@ -125,11 +125,11 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
                 />
               </div>
             ) : (
-              <div className="mx-auto grid min-h-[420px] w-full max-w-3xl place-items-center rounded-[2rem] border border-[#c89b46]/20 bg-white/[0.06] p-8 text-center shadow-[0_36px_120px_rgba(0,0,0,.32)]">
+              <div className="mx-auto grid min-h-[420px] w-full max-w-3xl place-items-center rounded-[2rem] border border-[#d9a681]/26 bg-white/60 p-8 text-center shadow-[0_36px_120px_rgba(173,99,82,.16)]">
                 <div>
-                  <span className="mx-auto block h-px w-24 bg-[#c89b46]/70" />
+                  <span className="mx-auto block h-px w-24 bg-[#b77a5a]/70" />
                   <p className="mt-6 font-display text-4xl">Coming Soon</p>
-                  <p className="mt-3 text-[#f7efe2]/62">Under Development</p>
+                  <p className="mt-3 text-[#6e4a35]/62">Under Development</p>
                 </div>
               </div>
             )}

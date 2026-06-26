@@ -6,8 +6,8 @@ import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import { CheckCircle2, Copy, ImagePlus, Lock, Music, Trash2 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { SafeImage } from "@/components/safe-image";
-import { PlayPreviewButton, TemplatePreviewModal } from "@/components/template-preview-experience";
 import { LuxuryInvitationMiniature } from "@/components/invitation-experience";
+import { PlayPreviewButton, TemplatePreviewModal } from "@/components/template-preview-experience";
 import { VenueAutocomplete } from "@/components/venue-autocomplete";
 import { countdownStyles, invitationTemplates, pricingPlans } from "@/lib/data";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
@@ -38,7 +38,6 @@ export default function DesignInvitationPage() {
   const [copied, setCopied] = useState(false);
 
   const selectedPackage = pricingPlans.find((item) => item.name === pkg) ?? pricingPlans[1];
-
   const payload = useMemo(
     () => ({
       ...form,
@@ -127,23 +126,23 @@ export default function DesignInvitationPage() {
           <div className="max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-[0.24em] text-gold">إنشاء دعوة</p>
             <h1 className="mt-5 font-display text-5xl leading-tight text-[var(--color-text)] md:text-7xl">
-              صمم دعوتك باستخدام قالب TEST الجاهز للإطلاق.
+              صمّم دعوة زفاف ملكية جاهزة للإطلاق.
             </h1>
             <p className="mt-5 leading-8 text-[var(--color-muted)]">
-              لتجهيز الإطلاق بثبات، أوقفنا اختيار القوالب التجريبية مؤقتًا. قالب TEST فقط هو المتاح الآن، وكل دعوة تحفظ في حسابك ويظهر رابط عام جاهز للمشاركة.
+              أدخل بيانات الزفاف، اختر الباقة، وارفع ختمًا مخصصًا إن أردت. بعد الحفظ سيظهر رابط عام جاهز للمشاركة فورًا.
             </p>
           </div>
 
           <form onSubmit={submit} className="mt-12 grid gap-8 lg:grid-cols-[1fr_.82fr]">
             <div className="grid gap-8">
               <section className="glass rounded-[2.25rem] p-6">
-                <h2 className="font-display text-3xl text-[var(--color-text)]">١. اختر شكل الدعوة</h2>
+                <h2 className="font-display text-3xl text-[var(--color-text)]">١. قالب الدعوة</h2>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {invitationTemplates.map((item) =>
                     item.status === "available" ? (
                       <div key={item.name} className="group overflow-hidden rounded-[1.5rem] border border-gold shadow-glow text-right">
                         <button type="button" onClick={() => setPreviewOpen(true)} className="block w-full text-right">
-                          <span className="relative block aspect-[4/3] overflow-hidden bg-[#e8dfcf]">
+                          <span className="relative block aspect-[4/3] overflow-hidden bg-[#fff2ee]">
                             <LuxuryInvitationMiniature />
                           </span>
                           <span className="block p-4">
@@ -181,22 +180,10 @@ export default function DesignInvitationPage() {
               <section className="glass rounded-[2.25rem] p-6">
                 <h2 className="font-display text-3xl text-[var(--color-text)]">٢. بيانات الزفاف</h2>
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  {[
-                    ["brideName", "اسم العروسة"],
-                    ["groomName", "اسم العريس"],
-                    ["weddingDate", "تاريخ ووقت الفرح"],
-                    ["phone", "رقم واتساب"]
-                  ].map(([key, label]) => (
-                    <label key={key} className={key === "phone" ? "md:col-span-2" : ""}>
-                      <span className="mb-2 block text-sm font-bold text-[var(--color-muted)]">{label}</span>
-                      <input
-                        value={form[key as keyof typeof form]}
-                        onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
-                        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-4 text-[var(--color-text)] outline-none transition focus:border-gold"
-                        required
-                      />
-                    </label>
-                  ))}
+                  <TextField label="اسم العروسة" value={form.brideName} onChange={(value) => setForm((current) => ({ ...current, brideName: value }))} />
+                  <TextField label="اسم العريس" value={form.groomName} onChange={(value) => setForm((current) => ({ ...current, groomName: value }))} />
+                  <TextField label="تاريخ ووقت الفرح" type="datetime-local" value={form.weddingDate} onChange={(value) => setForm((current) => ({ ...current, weddingDate: value }))} />
+                  <TextField label="رقم واتساب" value={form.phone} onChange={(value) => setForm((current) => ({ ...current, phone: value }))} />
                   <VenueAutocomplete
                     value={{
                       name: form.venue,
@@ -218,7 +205,7 @@ export default function DesignInvitationPage() {
               </section>
 
               <section className="glass rounded-[2.25rem] p-6">
-                <h2 className="font-display text-3xl text-[var(--color-text)]">٣. الباقة والتفاصيل</h2>
+                <h2 className="font-display text-3xl text-[var(--color-text)]">٣. الختم والتفاصيل</h2>
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
                   <div>
                     <span className="mb-2 block text-sm font-bold text-[var(--color-muted)]">الباقة</span>
@@ -243,6 +230,7 @@ export default function DesignInvitationPage() {
                     </div>
                   </div>
                 </div>
+
                 <label className="mt-6 grid gap-2 rounded-[1.5rem] border border-gold/20 bg-black/10 p-5">
                   <span className="flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
                     <Music className="h-4 w-4 text-gold" />
@@ -254,14 +242,14 @@ export default function DesignInvitationPage() {
                 <div className="mt-6 rounded-[1.5rem] border border-gold/20 bg-black/10 p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <span className="block text-sm font-bold uppercase tracking-[0.16em] text-gold">Wax Seal / Stamp</span>
-                      <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">ارفع ختم مخصص بصيغة PNG بخلفية شفافة ليظهر على ظرف الدعوة.</p>
+                      <span className="block text-sm font-bold uppercase tracking-[0.16em] text-gold">Wax Seal</span>
+                      <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">ارفع ختمًا مخصصًا بصيغة PNG بخلفية شفافة ليظهر في منتصف أبواب الدعوة.</p>
                     </div>
-                    <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full border border-gold/40 bg-[radial-gradient(circle_at_30%_25%,#fff1bd,#d1a14b_42%,#6e3a18)] shadow-[0_14px_38px_rgba(0,0,0,.22)]">
+                    <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full border border-gold/40 bg-[radial-gradient(circle_at_30%_25%,#fff1f0,#d89588_48%,#8f5d55)] shadow-[0_14px_38px_rgba(0,0,0,.18)]">
                       {form.sealImageUrl ? (
                         <img src={form.sealImageUrl} alt="Wax seal preview" className="h-full w-full object-contain p-1.5" />
                       ) : (
-                        <span className="font-display text-xl text-[#fff1bd]">DA</span>
+                        <span className="font-display text-xl text-[#fff7ee]">DA</span>
                       )}
                     </div>
                   </div>
@@ -290,7 +278,7 @@ export default function DesignInvitationPage() {
 
             <aside className="lg:sticky lg:top-28 lg:self-start">
               <div className="paper-card rounded-[2.25rem] p-7 text-night">
-                <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-[#e8dfcf]">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-[#fff2ee]">
                   <LuxuryInvitationMiniature />
                 </div>
                 <p className="mt-6 text-sm font-bold uppercase tracking-[0.22em] text-[#9b7330]">مراجعة الدعوة</p>
@@ -330,19 +318,46 @@ export default function DesignInvitationPage() {
           </form>
         </div>
       </section>
+
       <TemplatePreviewModal
         isOpen={previewOpen}
         templateName={launchTemplate.name}
         onClose={() => setPreviewOpen(false)}
         sample={{
-          brideName: form.brideName || "Layan",
-          groomName: form.groomName || "Yassin",
+          brideName: form.brideName || "مايار",
+          groomName: form.groomName || "أحمد",
           date: form.weddingDate || "12 December 2026",
-          venue: form.venue || "Emerald Palace, Cairo",
+          venue: form.venue || "فندق ريتز كارلتون - القاهرة",
+          message: "بكل الحب والفرحة، ندعوكم لحضور حفل زفافنا ومشاركتنا أجمل لحظات العمر.",
           musicSrc: musicName ? `/audio/${musicName}` : "/audio/wedding-music.mp3",
           sealImageUrl: form.sealImageUrl
         }}
       />
     </PageShell>
+  );
+}
+
+function TextField({
+  label,
+  value,
+  onChange,
+  type = "text"
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+}) {
+  return (
+    <label>
+      <span className="mb-2 block text-sm font-bold text-[var(--color-muted)]">{label}</span>
+      <input
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-4 text-[var(--color-text)] outline-none transition focus:border-gold"
+        required
+      />
+    </label>
   );
 }

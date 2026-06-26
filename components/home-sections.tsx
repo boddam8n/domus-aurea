@@ -29,11 +29,11 @@ export function HeroSection() {
             Domus Aurea
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-5 max-w-2xl font-display text-2xl text-[#f7efe2] md:text-4xl">
-            {isArabic ? "اصنع دعوة زفاف لا تنسى." : "Craft unforgettable wedding invitations."}
+            {isArabic ? "اصنع دعوة زفاف لا تُنسى." : "Craft unforgettable wedding invitations."}
           </motion.p>
           <motion.p variants={fadeUp} className="mt-4 max-w-2xl text-lg leading-9 text-[#f7efe2]/70">
             {isArabic
-              ? "نصمم دعوات زفاف رقمية راقية تحول تفاصيل يومكم إلى تجربة هادئة، دافئة، ولا تنسى."
+              ? "تجربة طلب راقية لدعوات زفاف رقمية رومانسية، بهوية ملكية، رابط عام، RSVP، وعدّاد فاخر."
               : "A refined ordering experience for couples who want calm, romantic, premium digital invitations."}
           </motion.p>
           <motion.div variants={fadeUp} className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -61,19 +61,19 @@ export function TemplateShowcase() {
       <div className="mx-auto max-w-7xl">
         <SectionHeading
           eyebrow={isArabic ? "قالب الإنتاج" : "Production invitation"}
-          title={isArabic ? "قالب TEST هو التجربة الجاهزة للإطلاق الآن." : "TEST is the launch-ready invitation experience."}
+          title={isArabic ? "قالب TEST هو تجربة الإطلاق الجاهزة الآن." : "TEST is the launch-ready invitation experience."}
           body={isArabic ? `لدقة الإطلاق، ${developmentCount} قوالب مرجعية تحت التطوير حاليًا. العميل يطلب قالب TEST فقط.` : `${developmentCount} reference templates are under development. Customers can order TEST only for now.`}
         />
         <div className="mt-16 grid gap-8 lg:grid-cols-[0.9fr_1fr] lg:items-center">
-          <div className="relative min-h-[560px] overflow-hidden rounded-[1.5rem] border border-gold/20 bg-black/10 shadow-[0_34px_110px_rgba(0,0,0,.2)]">
+          <div className="relative min-h-[560px] overflow-hidden rounded-[1.5rem] border border-gold/20 bg-[#fff4f0] shadow-[0_34px_110px_rgba(173,99,82,.18)]">
             <LuxuryInvitationMiniature />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.26em] text-gold">{launchTemplate.badge}</p>
+            <p className="text-xs font-bold uppercase tracking-[0.26em] text-gold">{isArabic ? launchTemplate.badgeAr : launchTemplate.badge}</p>
             <h3 className="mt-5 font-display text-5xl leading-tight text-[var(--color-text)] md:text-6xl">{launchTemplate.name}</h3>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-muted)]">
               {isArabic
-                ? "دعوة فاخرة بظرف زمردي، ختم ذهبي، ورقة عاجية، وحركة فتح واحدة بطيئة تكشف كل البيانات بوضوح."
+                ? "دعوة فاخرة بأبواب عاجية وردية، ختم شمع وردي، وفتح سينمائي يكشف بطاقة زفاف كاملة القراءة."
                 : launchTemplate.description}
             </p>
             <Link href="/design?template=TEST" className="mt-8 inline-flex rounded-full bg-[var(--color-text)] px-7 py-4 font-bold text-[var(--color-bg)] transition hover:-translate-y-0.5 hover:bg-gold">
@@ -87,16 +87,10 @@ export function TemplateShowcase() {
 }
 
 export function FeatureSection() {
-  const { isArabic } = useLanguage();
-
   return (
     <section className="px-4 py-24 md:px-8">
       <div className="mx-auto max-w-7xl">
-        <SectionHeading
-          eyebrow={isArabic ? "ماذا تطلب" : "What customers order"}
-          title={isArabic ? "نظام دعوة كامل، وليس صفحة واحدة." : "A complete invitation system, not a single page."}
-          body={isArabic ? "التجربة العامة مبنية حول الاختيار والطلب، بينما تبقى أدوات الإدارة داخل حساب العميل." : "The public experience is built around choosing, briefing and ordering. Private operations stay behind the client portal."}
-        />
+        <SectionHeading eyebrow="Features" title="A complete invitation system." body="Guest-ready invitations, RSVP, sharing, music and a protected customer portal." />
         <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-120px" }} className="mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {features.map((feature, index) => (
             <motion.article key={feature.title} variants={fadeUp} whileHover={{ y: -5 }} className={`glass rounded-[2rem] p-6 ${index === 1 ? "xl:translate-y-8" : ""}`}>
@@ -121,7 +115,7 @@ export function ProcessSection() {
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-gold">{isArabic ? "خطوات الطلب" : "Ordering flow"}</p>
           <h2 className="font-display text-4xl text-[var(--color-text)] md:text-6xl">{isArabic ? "مصممة كموعد خاص داخل دار فاخرة." : "Designed like a private atelier appointment."}</h2>
           <p className="mt-6 text-lg leading-8 text-[var(--color-muted)]">
-            {isArabic ? "نرشد العميل لاختيار الباقة والقالب والتفاصيل بدون تعقيد أو أدوات مشتتة." : "Customers are guided through package, theme, content and launch details without exposing backend tools."}
+            {isArabic ? "نرشد العميل لاختيار الباقة والقالب والتفاصيل بدون تعقيد أو أدوات مشتتة." : "Customers are guided through package, template and launch details without exposing backend tools."}
           </p>
         </div>
         <div className="grid gap-4">
@@ -149,7 +143,7 @@ export function PricingSection() {
         <SectionHeading
           eyebrow={isArabic ? "الأسعار" : "Pricing"}
           title={isArabic ? "ثلاث طرق راقية للبدء." : "Three elegant ways to begin."}
-          body={isArabic ? "أسعار واضحة بالجنيه المصري لطلب دعوة مخصصة، ويتم استكمال التفاصيل مع فريق دوموس أوريا." : "Simple Egyptian pound pricing for a custom invitation request. The final delivery is completed with the Domus Aurea team."}
+          body={isArabic ? "أسعار واضحة بالجنيه المصري لطلب دعوة مخصصة، ويتم استكمال التفاصيل مع فريق دوموس أوريا." : "Simple Egyptian pound pricing for a custom invitation request."}
         />
         <div className="mt-14 grid gap-5 lg:grid-cols-3">
           {pricingPlans.map((plan) => (
@@ -180,7 +174,7 @@ export function ThemesSection() {
   return (
     <section className="px-4 py-24 md:px-8">
       <div className="mx-auto max-w-7xl">
-        <SectionHeading eyebrow="Themes" title="Visual directions with editorial restraint." body="No generic templates. Each direction is a starting point for a crafted invitation identity." />
+        <SectionHeading eyebrow="Themes" title="Visual directions with editorial restraint." body="Each direction is a starting point for a crafted invitation identity." />
         <div className="mt-14 grid gap-6 md:grid-cols-3">
           {themes.map((theme, index) => (
             <motion.div key={theme.name} whileHover={{ scale: 1.015 }} className={`glass rounded-[2rem] p-5 ${index === 1 ? "md:mt-10" : ""}`}>
