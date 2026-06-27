@@ -150,9 +150,12 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
       <Image src={assets.background} alt="" fill priority sizes="100vw" className="object-cover" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_4%,rgba(255,245,236,.7),transparent_34%),linear-gradient(180deg,rgba(255,247,241,.38),rgba(255,234,226,.62)_56%,#fff8f4_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,251,246,.64),transparent_30%,transparent_70%,rgba(255,251,246,.64))]" />
+      <div className="pointer-events-none absolute inset-3 hidden rounded-[2rem] border border-[#d8a887]/20 shadow-[inset_0_0_80px_rgba(255,255,255,.22)] sm:block" />
+      <div className="pointer-events-none absolute inset-x-8 top-8 hidden h-px bg-[linear-gradient(90deg,transparent,rgba(185,124,96,.44),transparent)] md:block" />
+      <div className="pointer-events-none absolute inset-x-8 bottom-8 hidden h-px bg-[linear-gradient(90deg,transparent,rgba(185,124,96,.28),transparent)] md:block" />
       <RosePetals />
 
-      <main className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-7xl flex-col items-center px-4 pb-14 pt-6 sm:px-6 md:pt-8 lg:px-8">
+      <main className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1500px] flex-col items-center px-4 pb-14 pt-6 sm:px-6 md:pt-8 lg:px-8">
         <motion.header
           initial={{ opacity: 0, y: -14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -207,9 +210,10 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
           initial={false}
           animate={isReading ? { opacity: 1, y: 0, height: "auto" } : { opacity: 0, y: 18, height: 0 }}
           transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-5xl overflow-hidden"
+          className="w-full max-w-6xl overflow-hidden"
         >
-          <div className="mt-6 rounded-[1.35rem] border border-[#d9a681]/34 bg-white/58 p-4 shadow-[0_26px_90px_rgba(173,99,82,.16)] backdrop-blur-xl sm:p-5">
+          <div className="relative mt-6 overflow-hidden rounded-[1.6rem] border border-[#d9a681]/38 bg-[linear-gradient(135deg,rgba(255,255,255,.76),rgba(255,238,231,.58))] p-4 shadow-[0_26px_90px_rgba(173,99,82,.16),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-xl sm:p-5">
+            <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
             <p className="text-center text-sm font-extrabold tracking-[0.16em] text-[#a46a43]">الوقت المتبقي</p>
             <LuxuryCountdown target={invitation.wedding_date} />
           </div>
@@ -220,16 +224,17 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
           initial={false}
           animate={isReading ? { opacity: 1, y: 0, height: "auto" } : { opacity: 0, y: 22, height: 0 }}
           transition={{ duration: 0.78, delay: isReading ? 0.1 : 0, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-5xl overflow-hidden"
+          className="w-full max-w-6xl overflow-hidden"
         >
-          <div className="mt-5 rounded-[1.5rem] border border-[#d9a681]/28 bg-white/62 p-4 shadow-[0_24px_90px_rgba(173,99,82,.14)] backdrop-blur-xl sm:p-5">
+          <div className="relative mt-5 overflow-hidden rounded-[1.6rem] border border-[#d9a681]/30 bg-[linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,240,234,.62))] p-4 shadow-[0_24px_90px_rgba(173,99,82,.14),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-xl sm:p-5">
+            <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
             <div className="flex flex-col gap-4 md:flex-row md:items-end">
               <label className="flex-1">
                 <span className="mb-2 block text-sm font-bold text-[#6e4a35]/70">اسم الضيف</span>
                 <input
                   value={guestName}
                   onChange={(event) => setGuestName(event.target.value)}
-                  className="w-full rounded-2xl border border-[#d9a681]/30 bg-white/72 px-5 py-4 text-[#432819] outline-none transition placeholder:text-[#8f5d39]/42 focus:border-[#c98674] focus:bg-white"
+                  className="w-full rounded-2xl border border-[#d9a681]/34 bg-white/76 px-5 py-4 text-[#432819] shadow-[inset_0_1px_0_rgba(255,255,255,.72)] outline-none transition placeholder:text-[#8f5d39]/42 focus:border-[#c98674] focus:bg-white"
                   placeholder="اكتب اسمك هنا"
                   required
                 />
@@ -240,7 +245,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
               </div>
               <button
                 disabled={loading}
-                className="rounded-full bg-[#b77a5a] px-7 py-4 font-extrabold text-white shadow-[0_18px_48px_rgba(183,122,90,.22)] transition hover:-translate-y-0.5 hover:bg-[#8f5d39] disabled:translate-y-0 disabled:opacity-55 md:w-[170px]"
+                className="rounded-full bg-[linear-gradient(135deg,#c98d62,#8f5d39)] px-7 py-4 font-extrabold text-white shadow-[0_18px_48px_rgba(183,122,90,.24)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_62px_rgba(183,122,90,.28)] disabled:translate-y-0 disabled:opacity-55 md:w-[170px]"
               >
                 <Send className="ml-2 inline h-4 w-4" />
                 {loading ? "جاري الحفظ..." : "إرسال"}
@@ -352,19 +357,19 @@ function RoyalDoorStage({
       }
 
       const timeline = gsap.timeline({
-        defaults: { ease: "power3.out" },
+        defaults: { ease: "power4.out" },
         onComplete: onReading
       });
 
       timeline
-        .to(sealRef.current, { scale: 1.05, duration: 0.18, ease: "power2.out" }, 0)
-        .to(sealRef.current, { autoAlpha: 0, scale: 0.86, duration: 0.5, ease: "power2.out" }, 0.24)
-        .to(leftDoorRef.current, { xPercent: -57, rotateY: -9, autoAlpha: 0.12, duration: 1.62, ease: "power4.inOut" }, 0.44)
-        .to(rightDoorRef.current, { xPercent: 57, rotateY: 9, autoAlpha: 0.12, duration: 1.62, ease: "power4.inOut" }, 0.44)
-        .to(openDoorsRef.current, { autoAlpha: 1, scale: 1, duration: 1.28, ease: "power3.out" }, 0.64)
-        .to(lightRef.current, { autoAlpha: 0.94, scale: 1.1, duration: 1.45, ease: "power2.out" }, 0.56)
-        .to(cardRef.current, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 1.28, ease: "power4.out" }, 1.22)
-        .to(contentRef.current, { autoAlpha: 1, y: 0, duration: 0.78, ease: "power2.out" }, 1.76)
+        .to(sealRef.current, { scale: 1.06, duration: 0.28, ease: "power2.out" }, 0)
+        .to(sealRef.current, { autoAlpha: 0, scale: 0.9, duration: 0.72, ease: "power2.inOut" }, 0.3)
+        .to(leftDoorRef.current, { xPercent: -61, rotateY: -12, autoAlpha: 0.1, duration: 2.05, ease: "power4.inOut" }, 0.58)
+        .to(rightDoorRef.current, { xPercent: 61, rotateY: 12, autoAlpha: 0.1, duration: 2.05, ease: "power4.inOut" }, 0.58)
+        .to(openDoorsRef.current, { autoAlpha: 1, scale: 1.02, duration: 1.65, ease: "power3.out" }, 0.78)
+        .to(lightRef.current, { autoAlpha: 0.95, scale: 1.18, duration: 1.9, ease: "power2.out" }, 0.7)
+        .to(cardRef.current, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 1.62, ease: "expo.out" }, 1.46)
+        .to(contentRef.current, { autoAlpha: 1, y: 0, duration: 0.95, ease: "power2.out" }, 2.12)
         .set(sealRef.current, { pointerEvents: "none" }, 0.36);
     }, stageRef);
 
@@ -377,7 +382,7 @@ function RoyalDoorStage({
         ref={stageRef}
         data-reading={isReading ? "true" : "false"}
         className={`relative mx-auto grid w-full place-items-center ${
-          compact ? "min-h-[560px]" : "min-h-[clamp(560px,82svh,760px)] md:min-h-[clamp(390px,64svh,620px)]"
+          compact ? "min-h-[560px]" : "min-h-[clamp(560px,84svh,800px)] md:min-h-[clamp(560px,72svh,780px)]"
         }`}
       >
         <div className="absolute left-1/2 top-[84%] h-20 w-[min(88vw,980px)] -translate-x-1/2 rounded-full bg-[#b9796a]/16 blur-3xl" />
@@ -386,11 +391,11 @@ function RoyalDoorStage({
           <Image src={assets.light} alt="" width={1600} height={900} className="h-auto w-full mix-blend-screen" />
         </div>
 
-        <div ref={openDoorsRef} className="absolute left-1/2 top-[43%] z-20 w-[min(94vw,960px)] -translate-x-1/2 -translate-y-1/2 opacity-0">
+        <div ref={openDoorsRef} className="absolute left-1/2 top-[43%] z-20 w-[min(96vw,1120px)] -translate-x-1/2 -translate-y-1/2 opacity-0">
           <Image src={assets.doorsOpen} alt="" width={1280} height={720} className="h-auto w-full drop-shadow-[0_34px_92px_rgba(155,88,71,.22)]" />
         </div>
 
-        <div className="absolute left-1/2 top-[43%] z-30 h-[min(78vw,520px)] w-[min(78vw,520px)] -translate-x-1/2 -translate-y-1/2 [perspective:1200px]">
+        <div className="absolute left-1/2 top-[43%] z-30 h-[min(80vw,560px)] w-[min(80vw,560px)] -translate-x-1/2 -translate-y-1/2 [perspective:1400px]">
           <div
             ref={leftDoorRef}
             className="absolute inset-y-0 left-0 w-1/2 bg-[url('/assets/invitation-blush/doors-closed.webp')] bg-[length:200%_100%] bg-left bg-no-repeat drop-shadow-[0_30px_80px_rgba(155,88,71,.28)] will-change-transform"
@@ -401,10 +406,13 @@ function RoyalDoorStage({
           />
         </div>
 
-        <div ref={cardRef} className="relative z-40 mt-2 w-[min(94vw,390px)] opacity-0 md:w-[min(88vw,940px)] 2xl:w-[min(84vw,1040px)]">
-          <div className="relative aspect-[9/16] w-full drop-shadow-[0_36px_90px_rgba(155,88,71,.24)] md:aspect-[14/8.5]">
+        <div ref={cardRef} className="relative z-40 mt-2 w-[min(94vw,410px)] opacity-0 md:-mt-2 md:w-[min(82vw,1160px)] 2xl:w-[min(82vw,1220px)]">
+          <div className="relative aspect-[9/16] w-full drop-shadow-[0_42px_110px_rgba(155,88,71,.28)] md:aspect-[14/8.5]">
             <Image src={assets.cardMobile} alt="" fill sizes="94vw" className="object-contain md:hidden" priority={isOpen} />
-            <Image src={assets.card} alt="" fill sizes="(min-width: 1024px) 940px, 88vw" className="hidden object-contain md:block" priority={isOpen} />
+            <Image src={assets.card} alt="" fill sizes="(min-width: 1280px) 82vw, (min-width: 768px) 82vw, 94vw" className="hidden object-contain md:block" priority={isOpen} />
+            <div className="pointer-events-none absolute inset-[3.2%] hidden rounded-[1.05rem] border border-[#d9a681]/24 shadow-[inset_0_0_55px_rgba(255,255,255,.34)] md:block" />
+            <div className="pointer-events-none absolute inset-x-[7%] top-[6.5%] hidden h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.62),transparent)] md:block" />
+            <div className="pointer-events-none absolute inset-x-[7%] bottom-[6.5%] hidden h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.5),transparent)] md:block" />
             <div ref={contentRef} className="absolute inset-[16%_9%_10%] flex flex-col items-center justify-center text-center text-[#432819] opacity-0 md:inset-[12%_9%_12%]">
               <p className="text-[clamp(.56rem,1vw,.9rem)] font-extrabold tracking-[0.16em] text-[#b77a5a]">دعوة زفاف</p>
               <div className="my-[2%] flex items-center gap-3 text-[#c28a67] md:my-[2%]">
@@ -412,10 +420,10 @@ function RoyalDoorStage({
                 <span className="text-xs">◆</span>
                 <span className="h-px w-16 bg-[linear-gradient(90deg,#c28a67,transparent)]" />
               </div>
-              <h1 className="font-display text-[clamp(1.35rem,7.4vw,2.05rem)] leading-[1.1] text-[#9b653f] [text-shadow:0_10px_28px_rgba(183,122,90,.12)] md:text-[clamp(2rem,5.4vw,4.85rem)]">
+              <h1 className="font-display text-[clamp(1.35rem,7.4vw,2.08rem)] leading-[1.08] text-[#9b653f] [text-shadow:0_10px_28px_rgba(183,122,90,.12)] md:text-[clamp(2.45rem,5.15vw,5.35rem)]">
                 {groomName} <span className="mx-2 text-[#c98778]">&</span> {brideName}
               </h1>
-              <p className="mt-[4%] max-w-[72%] text-[clamp(.64rem,3vw,.86rem)] font-bold leading-[1.7] text-[#5a3927]/84 md:mt-[2.2%] md:max-w-[74%] md:text-[clamp(.72rem,1.32vw,1.08rem)]">{message}</p>
+              <p className="mt-[4%] max-w-[72%] text-[clamp(.64rem,3vw,.86rem)] font-bold leading-[1.7] text-[#5a3927]/84 md:mt-[2.2%] md:max-w-[74%] md:text-[clamp(.78rem,1.24vw,1.15rem)]">{message}</p>
 
               <div className="mt-[4%] grid w-full max-w-[74%] grid-cols-1 gap-1.5 text-[#432819] md:mt-[3.4%] md:max-w-3xl md:grid-cols-3 md:gap-2">
                 <InvitationInfo icon={<MapPin className="h-4 w-4" />} label="المكان" value={venue} />
@@ -454,8 +462,8 @@ function RoyalDoorStage({
 
 function InvitationInfo({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-[#d9a681]/22 bg-white/48 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.48)] backdrop-blur">
-      <div className="mx-auto mb-1 grid h-7 w-7 place-items-center rounded-full bg-[#e7b6a8]/22 text-[#b77a5a]">{icon}</div>
+    <div className="rounded-2xl border border-[#d9a681]/28 bg-white/54 px-2 py-2 shadow-[0_10px_28px_rgba(183,122,90,.08),inset_0_1px_0_rgba(255,255,255,.58)] backdrop-blur">
+      <div className="mx-auto mb-1 grid h-7 w-7 place-items-center rounded-full border border-[#d9a681]/22 bg-[#e7b6a8]/22 text-[#b77a5a]">{icon}</div>
       <p className="text-[clamp(.5rem,1vw,.68rem)] font-extrabold text-[#b77a5a]">{label}</p>
       <p className="mt-0.5 text-[clamp(.52rem,1.05vw,.78rem)] font-bold leading-4 text-[#432819]/82">{value}</p>
     </div>
@@ -469,8 +477,8 @@ function RsvpChoice({ active, onClick, label, icon }: { active: boolean; onClick
       onClick={onClick}
       className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-4 text-sm font-extrabold transition ${
         active
-          ? "border-[#c98674]/55 bg-[#f2c4c0] text-[#432819] shadow-[0_14px_40px_rgba(201,134,116,.2)]"
-          : "border-[#d9a681]/28 bg-white/52 text-[#6e4a35]/74 hover:border-[#c98674]/60 hover:bg-white"
+          ? "border-[#c98674]/55 bg-[linear-gradient(135deg,#f4c9c2,#f0b9b4)] text-[#432819] shadow-[0_14px_40px_rgba(201,134,116,.2)]"
+          : "border-[#d9a681]/30 bg-white/58 text-[#6e4a35]/74 shadow-[inset_0_1px_0_rgba(255,255,255,.65)] hover:border-[#c98674]/60 hover:bg-white"
       }`}
     >
       {icon}
@@ -508,7 +516,7 @@ function LuxuryCountdown({ target }: { target: string }) {
       {units.map((unit) => (
         <div
           key={unit.label}
-          className="relative overflow-hidden rounded-[1.05rem] border border-[#d9a681]/42 bg-white/64 px-4 py-4 text-center shadow-[0_18px_55px_rgba(173,99,82,.14),inset_0_0_0_1px_rgba(255,255,255,.36)]"
+          className="relative overflow-hidden rounded-[1.15rem] border border-[#d9a681]/44 bg-[linear-gradient(180deg,rgba(255,255,255,.74),rgba(255,239,232,.64))] px-4 py-4 text-center shadow-[0_18px_55px_rgba(173,99,82,.14),inset_0_0_0_1px_rgba(255,255,255,.42)]"
         >
           <span className="absolute inset-x-3 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
           <p className="font-display text-3xl leading-none text-[#9b653f] sm:text-4xl">{String(unit.value).padStart(2, "0")}</p>

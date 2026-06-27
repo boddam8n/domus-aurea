@@ -157,7 +157,7 @@ export const invitationTemplates: InvitationTemplate[] = [
   {
     name: "TEST INVITATION",
     nameAr: "TEST INVITATION",
-    image: "/assets/invitation-blush/doors-closed.webp",
+    image: "/assets/templates/test-invitation-preview.webp",
     description: "A launch-ready blush royal invitation with ivory sliding doors, a rose wax seal, and a full-screen floral card reveal.",
     status: "available",
     badge: "Launch Ready",

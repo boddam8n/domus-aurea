@@ -6,8 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Check, CheckCircle2, Gem, PenLine } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { SectionHeading } from "@/components/section-heading";
-import { LuxuryInvitationMiniature } from "@/components/invitation-experience";
-import { comparison, faqs, features, invitationTemplates, pricingPlans, processSteps, testimonials, themes } from "@/lib/data";
+import { comparison, faqs, features, pricingPlans, processSteps, testimonials, themes } from "@/lib/data";
 import { fadeUp, stagger } from "@/components/motion-presets";
 
 export function HeroSection() {
@@ -47,41 +46,6 @@ export function HeroSection() {
           </motion.div>
         </div>
       </motion.div>
-    </section>
-  );
-}
-
-export function TemplateShowcase() {
-  const { isArabic } = useLanguage();
-  const launchTemplate = invitationTemplates.find((template) => template.status === "available") ?? invitationTemplates[invitationTemplates.length - 1];
-  const developmentCount = invitationTemplates.filter((template) => template.status === "development").length;
-
-  return (
-    <section className="px-5 py-28 md:px-10">
-      <div className="mx-auto max-w-7xl">
-        <SectionHeading
-          eyebrow={isArabic ? "قالب الإنتاج" : "Production invitation"}
-          title={isArabic ? "قالب TEST هو تجربة الإطلاق الجاهزة الآن." : "TEST is the launch-ready invitation experience."}
-          body={isArabic ? `لدقة الإطلاق، ${developmentCount} قوالب مرجعية تحت التطوير حاليًا. العميل يطلب قالب TEST فقط.` : `${developmentCount} reference templates are under development. Customers can order TEST only for now.`}
-        />
-        <div className="mt-16 grid gap-8 lg:grid-cols-[0.9fr_1fr] lg:items-center">
-          <div className="relative min-h-[560px] overflow-hidden rounded-[1.5rem] border border-gold/20 bg-[#fff4f0] shadow-[0_34px_110px_rgba(173,99,82,.18)]">
-            <LuxuryInvitationMiniature />
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.26em] text-gold">{isArabic ? launchTemplate.badgeAr : launchTemplate.badge}</p>
-            <h3 className="mt-5 font-display text-5xl leading-tight text-[var(--color-text)] md:text-6xl">{launchTemplate.name}</h3>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-muted)]">
-              {isArabic
-                ? "دعوة فاخرة بأبواب عاجية وردية، ختم شمع وردي، وفتح سينمائي يكشف بطاقة زفاف كاملة القراءة."
-                : launchTemplate.description}
-            </p>
-            <Link href="/design?template=TEST" className="mt-8 inline-flex rounded-full bg-[var(--color-text)] px-7 py-4 font-bold text-[var(--color-bg)] transition hover:-translate-y-0.5 hover:bg-gold">
-              {isArabic ? "اطلب قالب TEST" : "Order TEST"}
-            </Link>
-          </div>
-        </div>
-      </div>
     </section>
   );
 }

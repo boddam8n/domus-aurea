@@ -7,7 +7,6 @@ import { useLanguage } from "@/components/language-provider";
 import { PageShell } from "@/components/page-shell";
 import { SafeImage } from "@/components/safe-image";
 import { PlayPreviewButton, TemplatePreviewModal } from "@/components/template-preview-experience";
-import { LuxuryInvitationMiniature } from "@/components/invitation-experience";
 import { invitationTemplates, type InvitationTemplate } from "@/lib/data";
 
 const styleNotes = [
@@ -124,8 +123,17 @@ function LaunchTemplateCard({ template, isArabic, onPreview }: { template: Invit
     <article data-template-name={template.name} className="group relative md:col-span-2 xl:col-span-3">
       <div className="absolute -inset-3 rounded-[2.25rem] bg-gold/12 blur-3xl" />
       <div className="relative grid overflow-hidden rounded-[2.25rem] border border-gold/25 bg-[var(--color-surface)] shadow-[0_34px_110px_rgba(0,0,0,.24)] lg:grid-cols-[0.95fr_1fr]">
-        <div className="relative min-h-[560px] overflow-hidden bg-[#e8dfcf]">
-          <LuxuryInvitationMiniature />
+        <div className="relative min-h-[560px] overflow-hidden bg-[#f5dfd6]">
+          <SafeImage
+            src={template.image}
+            alt={`${template.name} production invitation preview`}
+            fill
+            fallbackLabel={template.name}
+            sizes="(min-width:1024px) 48vw, 100vw"
+            className="object-cover transition duration-700 group-hover:scale-[1.025]"
+            priority
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_52%_40%,transparent_26%,rgba(44,22,16,.12)_100%)]" />
           <div className="absolute left-5 top-5 rounded-full border border-[#d8b15f]/35 bg-black/40 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-[#f7efe2] backdrop-blur-md">
             {isArabic ? template.badgeAr : template.badge}
           </div>
