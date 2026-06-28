@@ -22,7 +22,12 @@ const assets = {
   light: "/assets/invitation-blush/light-burst.webp"
 };
 
-const fallbackMessage = "بكل الحب والفرحة، ندعوكم لحضور حفل زفافنا ومشاركتنا أجمل لحظات العمر.";
+const fallbackMessage = "يسرّنا دعوتكم لمشاركتنا حفل زفافنا، لتكتمل فرحتنا بحضوركم الكريم ودعواتكم الصادقة.";
+const openingInvitationCopy = [
+  "إلى من اختارها قلبي شريكةً للعمر...",
+  "لم تكن حكايتنا مجرد لقاء، بل كانت بداية حلمٍ كبر مع الأيام حتى آن أوان اكتماله. واليوم، وقد جمع الله بين قلبينا بالمودة والرحمة، يسعدنا أن نشارككم أجمل لحظات حياتنا، وأن تكتمل فرحتنا بحضوركم ومباركتكم.",
+  "لذا، يسرّنا أن ندعوكم لمشاركتنا حفل زفافنا، سائلين الله أن يديم الأفراح، وأن يجعل حضوركم زينةً لهذا اليوم الذي سيبقى في قلوبنا وذاكرتنا."
+];
 
 function getInvitationDateParts(value: string) {
   const date = new Date(value);
@@ -558,24 +563,25 @@ function RoyalDoorStage({
                 : "absolute left-0 right-0 top-[clamp(110px,12svh,170px)] z-40 mx-auto w-[min(96vw,430px)] opacity-0 md:w-[94vw] 2xl:w-[92vw]"
           }
         >
-          <div className="relative aspect-[864/1821] w-full drop-shadow-[0_48px_130px_rgba(155,88,71,.3)]">
-            <Image src={assets.cardTall} alt="" fill sizes={compact ? "(min-width: 768px) 86vw, 96vw" : "94vw"} className="object-contain" priority={isOpen} />
+          <div className="relative min-h-[1180px] w-full overflow-hidden rounded-[1.35rem] drop-shadow-[0_48px_130px_rgba(155,88,71,.3)] md:aspect-[864/1821] md:min-h-0">
+            <Image src={assets.cardTall} alt="" fill sizes={compact ? "(min-width: 768px) 86vw, 96vw" : "94vw"} className="object-cover md:object-contain" priority={isOpen} />
             <div className="pointer-events-none absolute inset-[3%] rounded-[1.25rem] border border-[#d9a681]/28 shadow-[inset_0_0_70px_rgba(255,255,255,.38)]" />
             <div className="pointer-events-none absolute inset-x-[8%] top-[6%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.64),transparent)]" />
             <div className="pointer-events-none absolute inset-x-[8%] bottom-[6%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.5),transparent)]" />
-            <div ref={contentRef} className="absolute inset-[9%_10%_8%] flex flex-col items-center text-center text-[#432819] opacity-0 md:inset-[10%_11%_7%]">
+            <InvitationCardDecorations />
+            <div ref={contentRef} className="absolute inset-[8%_8%_7%] z-10 flex flex-col items-center text-center text-[#432819] opacity-0 md:inset-[9%_10%_7%]">
               <p className="mt-[2%] text-[clamp(.62rem,1.05vw,1rem)] font-extrabold tracking-[0.18em] text-[#b77a5a]">دعوة زفاف</p>
-              <div className="my-[4%] flex items-center gap-3 text-[#c28a67] md:my-[3.4%]">
+              <div className="my-[3.5%] flex items-center gap-3 text-[#c28a67] md:my-[3%]">
                 <span className="h-px w-16 bg-[linear-gradient(90deg,transparent,#c28a67)]" />
                 <span className="text-xs">◆</span>
                 <span className="h-px w-16 bg-[linear-gradient(90deg,#c28a67,transparent)]" />
               </div>
-              <h1 className="font-display text-[clamp(1.75rem,8.4vw,2.55rem)] leading-[1.16] text-[#9b653f] [text-shadow:0_10px_28px_rgba(183,122,90,.12)] md:text-[clamp(3.4rem,5.7vw,7rem)]">
+              <h1 className="font-display text-[clamp(1.65rem,7.4vw,2.35rem)] leading-[1.16] text-[#9b653f] [text-shadow:0_10px_28px_rgba(183,122,90,.12)] md:text-[clamp(3.2rem,5.45vw,6.6rem)]">
                 {groomName} <span className="mx-2 text-[#c98778]">&</span> {brideName}
               </h1>
-              <p className="mt-[8%] max-w-[82%] text-[clamp(.72rem,3.15vw,1rem)] font-bold leading-[1.9] text-[#5a3927]/84 md:mt-[5.2%] md:max-w-[68%] md:text-[clamp(1rem,1.35vw,1.45rem)]">{message}</p>
+              <InvitationCopyBlock message={message} />
 
-              <div className="mt-[8%] grid w-full max-w-[82%] grid-cols-1 gap-2.5 text-[#432819] md:mt-[6.6%] md:max-w-5xl md:grid-cols-3 md:gap-4">
+              <div className="mt-[7%] grid w-full max-w-[86%] grid-cols-1 gap-2.5 text-[#432819] md:mt-[5.6%] md:max-w-5xl md:grid-cols-3 md:gap-4">
                 <InvitationInfo icon={<MapPin className="h-4 w-4" />} label="المكان" value={venue} />
                 <InvitationInfo icon={<CalendarDays className="h-4 w-4" />} label="التاريخ" value={date} />
                 <InvitationInfo icon={<Clock3 className="h-4 w-4" />} label="الساعة" value={time || "قريبًا"} />
@@ -606,6 +612,71 @@ function RoyalDoorStage({
           {sealImageUrl ? <span className="pointer-events-none absolute font-display text-[clamp(1.05rem,2.6vw,1.9rem)] text-[#fff7ec]">{initials}</span> : null}
         </button>
       </div>
+    </div>
+  );
+}
+
+function InvitationCopyBlock({ message }: { message: string }) {
+  const cleanedMessage = message.trim();
+  const shouldShowCustomMessage = Boolean(cleanedMessage && cleanedMessage !== fallbackMessage && !cleanedMessage.includes("بكل الحب والفرحة"));
+
+  return (
+    <div className="relative mt-[5.8%] w-full max-w-[90%] text-[#5a3927] md:mt-[4.6%] md:max-w-[74%]">
+      <div className="pointer-events-none absolute -inset-x-3 -inset-y-4 rounded-[2rem] bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,.6),transparent_62%)] opacity-70" />
+      <div className="relative rounded-[1.35rem] border border-[#d9a681]/18 bg-white/18 px-3 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,.5)] backdrop-blur-[1px] md:px-7 md:py-6">
+        <div className="mx-auto mb-3 flex max-w-[220px] items-center justify-center gap-3 text-[#c28a67]">
+          <span className="h-px flex-1 bg-[linear-gradient(90deg,transparent,#c28a67)]" />
+          <span className="font-display text-lg leading-none">♡</span>
+          <span className="h-px flex-1 bg-[linear-gradient(90deg,#c28a67,transparent)]" />
+        </div>
+        <div className="space-y-2 text-[clamp(.66rem,2.5vw,.9rem)] font-bold leading-[1.86] text-[#4d3124]/86 md:space-y-3 md:text-[clamp(.84rem,1.05vw,1.08rem)] md:leading-[2.05]">
+          {openingInvitationCopy.map((paragraph, index) => (
+            <p key={paragraph} className={index === 0 ? "font-display text-[clamp(.9rem,3.6vw,1.3rem)] leading-[1.55] text-[#9b653f] md:text-[clamp(1.05rem,1.45vw,1.45rem)]" : ""}>
+              {paragraph}
+            </p>
+          ))}
+          <p className="pt-2 text-[#6e4a35]">{fallbackMessage}</p>
+          {shouldShowCustomMessage ? <p className="text-[#8f5d39]/86">{cleanedMessage}</p> : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InvitationCardDecorations() {
+  const reduceMotion = useReducedMotion();
+  const sparkles = useMemo(
+    () => [
+      { left: "18%", top: "20%", delay: 0 },
+      { left: "82%", top: "24%", delay: 0.8 },
+      { left: "26%", top: "55%", delay: 1.6 },
+      { left: "74%", top: "62%", delay: 2.2 },
+      { left: "50%", top: "83%", delay: 1.1 }
+    ],
+    []
+  );
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden="true">
+      <svg className="absolute left-[7%] top-[14%] hidden h-[12%] w-[14%] text-[#c28a67] opacity-[0.16] sm:block" viewBox="0 0 140 160" fill="none">
+        <path d="M18 142C64 126 105 84 115 18" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+        <path d="M45 117c-16-14-23-30-21-49 18 9 27 22 28 40" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M76 86c-13-17-15-34-8-51 14 13 19 28 13 45" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <svg className="absolute right-[7%] top-[14%] hidden h-[12%] w-[14%] scale-x-[-1] text-[#c28a67] opacity-[0.16] sm:block" viewBox="0 0 140 160" fill="none">
+        <path d="M18 142C64 126 105 84 115 18" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+        <path d="M45 117c-16-14-23-30-21-49 18 9 27 22 28 40" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M76 86c-13-17-15-34-8-51 14 13 19 28 13 45" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      {sparkles.map((sparkle) => (
+        <motion.span
+          key={`${sparkle.left}-${sparkle.top}`}
+          className="absolute h-1.5 w-1.5 rotate-45 rounded-[2px] bg-[#d9a681] shadow-[0_0_16px_rgba(217,166,129,.5)]"
+          style={{ left: sparkle.left, top: sparkle.top, opacity: 0.18 }}
+          animate={reduceMotion ? { opacity: 0.16 } : { opacity: [0.08, 0.42, 0.12], scale: [0.85, 1.25, 0.9], y: [0, -6, 0] }}
+          transition={{ duration: 4.8, repeat: Infinity, delay: sparkle.delay, ease: "easeInOut" }}
+        />
+      ))}
     </div>
   );
 }
