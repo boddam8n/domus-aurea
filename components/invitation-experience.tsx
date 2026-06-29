@@ -1,49 +1,46 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { gsap } from "gsap";
-import { CalendarDays, Check, Clock3, MapPin, Music2, Send, X } from "lucide-react";
+import { Music2 } from "lucide-react";
 import type { PublicInvitation } from "@/lib/invitations";
 
 type RsvpResponse = "accepted" | "declined";
+type InvitationLanguage = "ar" | "en";
 
 const assets = {
-  prelude: "/assets/invitation-blush/immersive-prelude.webp",
   background: "/assets/invitation-blush/background.webp",
   doorsClosed: "/assets/invitation-blush/doors-closed-wide.webp",
-  doorsOpen: "/assets/invitation-blush/doors-open.webp",
-  card: "/assets/invitation-blush/invitation-card.webp",
   cardTall: "/assets/invitation-blush/invitation-card-tall.webp",
-  cardMobile: "/assets/invitation-blush/invitation-card-mobile.webp",
   seal: "/assets/invitation-blush/wax-seal.webp",
   petals: "/assets/invitation-blush/petals.webp",
   light: "/assets/invitation-blush/light-burst.webp"
 };
 
 const fallbackMessage = "يسرّنا دعوتكم لمشاركتنا حفل زفافنا، لتكتمل فرحتنا بحضوركم الكريم ودعواتكم الصادقة.";
-const openingInvitationCopy = [
-  "إلى من اختارها قلبي شريكةً للعمر...",
-  "لم تكن حكايتنا مجرد لقاء، بل كانت بداية حلمٍ كبر مع الأيام حتى آن أوان اكتماله. واليوم، وقد جمع الله بين قلبينا بالمودة والرحمة، يسعدنا أن نشارككم أجمل لحظات حياتنا، وأن تكتمل فرحتنا بحضوركم ومباركتكم.",
-  "لذا، يسرّنا أن ندعوكم لمشاركتنا حفل زفافنا، سائلين الله أن يديم الأفراح، وأن يجعل حضوركم زينةً لهذا اليوم الذي سيبقى في قلوبنا وذاكرتنا."
-];
+const arabicOpening = "تشرفت حكايتنا ببدايتها... ويشرّفها أن تكونوا شهودًا على أجمل فصولها.";
+const englishOpening = "Our story was blessed by its beginning, and it would be honored by your presence as witnesses to its most beautiful chapter.";
+const englishFormalMessage = "We are delighted to invite you to share our wedding celebration, so our joy may be complete with your presence and heartfelt blessings.";
 
-function getInvitationDateParts(value: string) {
+function getInvitationDateParts(value: string, language: InvitationLanguage) {
   const date = new Date(value);
 
   if (!Number.isFinite(date.getTime())) {
-    return { date: value || "قريبًا", time: "" };
+    return { date: value || (language === "ar" ? "قريبًا" : "Soon"), time: "" };
   }
 
+  const locale = language === "ar" ? "ar-EG" : "en-US";
+
   return {
-    date: new Intl.DateTimeFormat("ar-EG", {
+    date: new Intl.DateTimeFormat(locale, {
       weekday: "long",
       day: "numeric",
       month: "long",
       year: "numeric"
     }).format(date),
-    time: new Intl.DateTimeFormat("ar-EG", {
+    time: new Intl.DateTimeFormat(locale, {
       hour: "2-digit",
       minute: "2-digit"
     }).format(date)
@@ -98,13 +95,15 @@ function playRoyalOpenSound() {
 export function InvitationExperience({ invitation }: { invitation: PublicInvitation }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isReading, setIsReading] = useState(false);
+  const [language, setLanguage] = useState<InvitationLanguage>("ar");
   const [guestName, setGuestName] = useState("");
   const [response, setResponse] = useState<RsvpResponse>("accepted");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const dateParts = useMemo(() => getInvitationDateParts(invitation.wedding_date), [invitation.wedding_date]);
+  const direction = language === "ar" ? "rtl" : "ltr";
+  const dateParts = useMemo(() => getInvitationDateParts(invitation.wedding_date, language), [invitation.wedding_date, language]);
   const initials = useMemo(() => getInitials(invitation.bride_name, invitation.groom_name), [invitation.bride_name, invitation.groom_name]);
   const invitationText = invitation.invitation_text || fallbackMessage;
   const handleReading = useCallback(() => setIsReading(true), []);
@@ -128,7 +127,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
 
     if (invitation.id === "demo") {
       window.setTimeout(() => {
-        setStatus("تم تسجيل ردك بنجاح. شكرًا لمشاركتك.");
+        setStatus(language === "ar" ? "تم تسجيل ردك بنجاح. شكرًا لمشاركتك." : "Your reply has been saved. Thank you for sharing this moment.");
         setGuestName("");
         setLoading(false);
       }, 520);
@@ -142,55 +141,35 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
         body: JSON.stringify({ guestName, response })
       });
       const json = await result.json();
-      if (!result.ok) throw new Error(json.error || "لم يتم حفظ الرد.");
-      setStatus("تم تسجيل ردك بنجاح. شكرًا لمشاركتك.");
+      if (!result.ok) throw new Error(json.error || (language === "ar" ? "لم يتم حفظ الرد." : "Your reply could not be saved."));
+      setStatus(language === "ar" ? "تم تسجيل ردك بنجاح. شكرًا لمشاركتك." : "Your reply has been saved. Thank you for sharing this moment.");
       setGuestName("");
     } catch (rsvpError) {
-      setError(rsvpError instanceof Error ? rsvpError.message : "حدث خطأ غير متوقع.");
+      setError(rsvpError instanceof Error ? rsvpError.message : language === "ar" ? "حدث خطأ غير متوقع." : "Something went wrong.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <section dir="rtl" className="relative overflow-x-hidden bg-[#fff5f1] text-[#432819]">
-      <ImmersivePrelude />
-
+    <section dir={direction} className="relative min-h-[100svh] overflow-x-hidden bg-[#fff5f1] text-[#432819]">
       <div className="relative min-h-[100svh]">
         <Image src={assets.background} alt="" fill priority sizes="100vw" className="object-cover" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_4%,rgba(255,245,236,.78),transparent_34%),linear-gradient(180deg,rgba(255,247,241,.45),rgba(255,234,226,.68)_56%,#fff8f4_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_9%,rgba(255,247,240,.82),transparent_38%),linear-gradient(180deg,rgba(255,248,244,.62),rgba(255,237,230,.76)_58%,#fff8f4_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,251,246,.68),transparent_30%,transparent_70%,rgba(255,251,246,.68))]" />
         <div className="pointer-events-none absolute inset-3 hidden rounded-[2rem] border border-[#d8a887]/20 shadow-[inset_0_0_80px_rgba(255,255,255,.22)] sm:block" />
-        <div className="pointer-events-none absolute inset-x-8 top-8 hidden h-px bg-[linear-gradient(90deg,transparent,rgba(185,124,96,.44),transparent)] md:block" />
-        <div className="pointer-events-none absolute inset-x-8 bottom-8 hidden h-px bg-[linear-gradient(90deg,transparent,rgba(185,124,96,.28),transparent)] md:block" />
         <RosePetals />
         <GoldDust />
 
-        <main className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1920px] flex-col items-center px-2 pb-16 pt-7 sm:px-5 md:pt-10 lg:px-8">
-        <motion.header
-          initial={{ opacity: 0, y: -14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-1 text-center"
-        >
-          <div className="mx-auto mb-2 flex items-center justify-center gap-3 text-[#b97c60]">
-            <span className="h-px w-14 bg-[linear-gradient(90deg,transparent,#d7a57a)]" />
-            <span className="grid h-8 w-8 place-items-center rounded-full border border-[#d8a887]/55 bg-white/40 text-[10px] font-black tracking-[0.16em] shadow-[0_10px_34px_rgba(188,116,92,.16)] backdrop-blur">
-              DA
-            </span>
-            <span className="h-px w-14 bg-[linear-gradient(90deg,#d7a57a,transparent)]" />
-          </div>
-          <p className="font-display text-[clamp(1.65rem,4.6vw,3.45rem)] leading-none tracking-[0.12em] text-[#8f5d39] [text-shadow:0_10px_40px_rgba(201,126,105,.22)]">
-            DOMUS AUREA
-          </p>
-          <p className="mt-2 text-[10px] font-extrabold uppercase tracking-[0.42em] text-[#8f5d39]/66">PRIVATE INVITATION</p>
-        </motion.header>
+        <main className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1920px] flex-col items-center justify-center px-2 py-6 sm:px-5 lg:px-8">
+        <LanguageToggle language={language} onChange={setLanguage} />
 
         <RoyalDoorStage
           isOpen={isOpen}
           isReading={isReading}
           onOpen={openInvitation}
           onReading={handleReading}
+          language={language}
           brideName={invitation.bride_name}
           groomName={invitation.groom_name}
           initials={initials}
@@ -201,22 +180,6 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
           sealImageUrl={invitation.seal_image_url}
         />
 
-        <AnimatePresence>
-          {!isOpen ? (
-            <motion.button
-              type="button"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.6 }}
-              onClick={openInvitation}
-              className="mt-4 rounded-full border border-[#d9a681]/40 bg-white/55 px-6 py-3 text-sm font-bold text-[#8f5d39] shadow-[0_18px_70px_rgba(206,134,112,.18)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-[#c98674] hover:bg-[#f2c4c0]"
-            >
-              اضغط على الختم لفتح الدعوة
-            </motion.button>
-          ) : null}
-        </AnimatePresence>
-
         <motion.div
           initial={false}
           animate={isReading ? { opacity: 1, y: 0, height: "auto" } : { opacity: 0, y: 18, height: 0 }}
@@ -225,8 +188,8 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
         >
           <div className="relative mt-6 overflow-hidden rounded-[1.6rem] border border-[#d9a681]/38 bg-[linear-gradient(135deg,rgba(255,255,255,.76),rgba(255,238,231,.58))] p-4 shadow-[0_26px_90px_rgba(173,99,82,.16),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-xl sm:p-5">
             <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
-            <p className="text-center text-sm font-extrabold tracking-[0.16em] text-[#a46a43]">الوقت المتبقي</p>
-            <LuxuryCountdown target={invitation.wedding_date} />
+            <p className="text-center text-sm font-extrabold tracking-[0.16em] text-[#a46a43]">{language === "ar" ? "الوقت المتبقي" : "Countdown"}</p>
+            <LuxuryCountdown target={invitation.wedding_date} language={language} />
           </div>
         </motion.div>
 
@@ -240,30 +203,29 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
           <div className="relative mt-5 overflow-hidden rounded-[1.6rem] border border-[#d9a681]/30 bg-[linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,240,234,.62))] p-4 shadow-[0_24px_90px_rgba(173,99,82,.14),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-xl sm:p-5">
             <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
             <div className="mb-5 text-center">
-              <p className="font-display text-2xl text-[#9b653f]">تأكيد الحضور</p>
-              <p className="mt-1 text-sm font-bold text-[#6e4a35]/62">اكتب اسمك واختر ردك بكل بساطة</p>
+              <p className="font-display text-2xl text-[#9b653f]">{language === "ar" ? "تأكيد الحضور" : "Kindly RSVP"}</p>
+              <p className="mt-1 text-sm font-bold text-[#6e4a35]/62">{language === "ar" ? "اكتب اسمك واختر ردك بكل بساطة" : "Write your name and choose your reply"}</p>
             </div>
             <div className="flex flex-col gap-4 md:flex-row md:items-end">
               <label className="flex-1">
-                <span className="mb-2 block text-sm font-bold text-[#6e4a35]/70">اسم الضيف</span>
+                <span className="mb-2 block text-sm font-bold text-[#6e4a35]/70">{language === "ar" ? "اسم الضيف" : "Guest name"}</span>
                 <input
                   value={guestName}
                   onChange={(event) => setGuestName(event.target.value)}
                   className="w-full rounded-2xl border border-[#d9a681]/34 bg-white/76 px-5 py-4 text-[#432819] shadow-[inset_0_1px_0_rgba(255,255,255,.72)] outline-none transition placeholder:text-[#8f5d39]/42 focus:border-[#c98674] focus:bg-white"
-                  placeholder="اكتب اسمك هنا"
+                  placeholder={language === "ar" ? "اكتب اسمك هنا" : "Enter your name"}
                   required
                 />
               </label>
               <div className="grid gap-3 sm:grid-cols-2 md:w-[330px]">
-                <RsvpChoice active={response === "accepted"} onClick={() => setResponse("accepted")} label="قبول الدعوة" icon={<Check className="h-4 w-4" />} />
-                <RsvpChoice active={response === "declined"} onClick={() => setResponse("declined")} label="اعتذار" icon={<X className="h-4 w-4" />} />
+                <RsvpChoice active={response === "accepted"} onClick={() => setResponse("accepted")} label={language === "ar" ? "قبول الدعوة" : "Accept"} />
+                <RsvpChoice active={response === "declined"} onClick={() => setResponse("declined")} label={language === "ar" ? "اعتذار" : "Decline"} />
               </div>
               <button
                 disabled={loading}
                 className="rounded-full bg-[linear-gradient(135deg,#c98d62,#8f5d39)] px-7 py-4 font-extrabold text-white shadow-[0_18px_48px_rgba(183,122,90,.24)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_62px_rgba(183,122,90,.28)] disabled:translate-y-0 disabled:opacity-55 md:w-[170px]"
               >
-                <Send className="ml-2 inline h-4 w-4" />
-                {loading ? "جاري الحفظ..." : "إرسال"}
+                {loading ? (language === "ar" ? "جاري الحفظ..." : "Saving...") : language === "ar" ? "إرسال" : "Send"}
               </button>
             </div>
             {error ? <p className="mt-4 rounded-2xl border border-red-400/25 bg-red-500/10 p-3 text-sm text-red-800">{error}</p> : null}
@@ -276,124 +238,22 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
   );
 }
 
-function ImmersivePrelude() {
-  const reduceMotion = useReducedMotion();
-
+function LanguageToggle({ language, onChange }: { language: InvitationLanguage; onChange: (language: InvitationLanguage) => void }) {
   return (
-    <section className="relative min-h-[112svh] overflow-hidden bg-[#fff3ef]">
-      <Image src={assets.prelude} alt="" fill priority sizes="100vw" className="object-cover object-center" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,247,243,.18),rgba(255,244,239,.08)_54%,#fff5f1_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_16%,rgba(255,255,255,.42),transparent_34%),linear-gradient(90deg,rgba(255,245,239,.58),transparent_24%,transparent_74%,rgba(255,245,239,.5))]" />
-      <GoldDust className="opacity-70" />
-      <RosePetals className="opacity-55" />
-      <AnimatedOutlineAngels />
-
-      <motion.div
-        initial={{ opacity: 0, y: 22 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 mx-auto flex min-h-[112svh] max-w-7xl flex-col items-center justify-end px-5 pb-[18svh] text-center"
-      >
-        <div className="rounded-full border border-[#d9a681]/34 bg-white/34 px-5 py-2 text-[10px] font-extrabold uppercase tracking-[0.38em] text-[#8f5d39] shadow-[0_22px_70px_rgba(183,122,90,.14)] backdrop-blur-xl">
-          Domus Aurea Private Invitation
-        </div>
-        <h1 className="mt-5 max-w-4xl font-display text-[clamp(2.6rem,8vw,7rem)] leading-[0.9] text-[#8f5d39] [text-shadow:0_18px_60px_rgba(161,92,70,.18)]">
-          دعوة ملكية تبدأ كحلم
-        </h1>
-        <p className="mt-5 max-w-2xl text-base font-bold leading-8 text-[#5a3927]/72 md:text-lg">
-          مرر بهدوء لفتح تجربة الدعوة، وسط الورود والضوء وملمس الورق الفاخر.
-        </p>
-        <motion.div
-          animate={reduceMotion ? undefined : { y: [0, 10, 0], opacity: [0.55, 1, 0.55] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-          className="mt-8 flex flex-col items-center gap-2 text-[#a46a43]"
+    <div className="absolute left-4 top-4 z-30 inline-flex rounded-full border border-[#d9a681]/34 bg-white/54 p-1 text-[11px] font-extrabold text-[#8f5d39] shadow-[0_16px_44px_rgba(183,122,90,.14)] backdrop-blur-xl sm:left-6 sm:top-6">
+      {(["ar", "en"] as const).map((item) => (
+        <button
+          key={item}
+          type="button"
+          onClick={() => onChange(item)}
+          className={`rounded-full px-3 py-2 transition ${
+            language === item ? "bg-[#d9a681] text-white shadow-[0_8px_22px_rgba(183,122,90,.18)]" : "text-[#8f5d39]/70 hover:bg-white/55"
+          }`}
         >
-          <span className="h-14 w-px bg-[linear-gradient(180deg,#c28a67,transparent)]" />
-          <span className="text-xs font-extrabold tracking-[0.25em]">SCROLL</span>
-        </motion.div>
-      </motion.div>
-    </section>
-  );
-}
-
-function AnimatedOutlineAngels() {
-  const reduceMotion = useReducedMotion();
-  const angels = [
-    {
-      key: "left",
-      className: "left-[5%] top-[15%] w-[clamp(112px,13vw,205px)] text-[#9f6b4f]/58 md:left-[9%] md:top-[18%]",
-      rotate: -7,
-      delay: 0,
-      flipped: false
-    },
-    {
-      key: "right",
-      className: "right-[4%] top-[14%] w-[clamp(118px,14vw,220px)] text-[#9f6b4f]/58 md:right-[8%] md:top-[17%]",
-      rotate: 7,
-      delay: 0.55,
-      flipped: true
-    },
-    {
-      key: "center",
-      className: "left-1/2 top-[36%] hidden w-[clamp(70px,7vw,120px)] -translate-x-1/2 text-[#b78362]/45 md:block",
-      rotate: 2,
-      delay: 1.15,
-      flipped: false
-    }
-  ];
-
-  return (
-    <div className="pointer-events-none absolute inset-0 z-[4] overflow-hidden" aria-hidden="true">
-      {angels.map((angel) => (
-        <motion.div
-          key={angel.key}
-          data-outline-angel
-          className={`absolute ${angel.className} drop-shadow-[0_18px_34px_rgba(164,106,67,.12)]`}
-          initial={{ opacity: 0, y: 14, rotate: angel.rotate }}
-          animate={
-            reduceMotion
-              ? { opacity: 0.42, y: 0, rotate: angel.rotate }
-              : { opacity: [0.2, 0.5, 0.32], y: [0, -14, 6, 0], x: [0, 8, -5, 0], rotate: [angel.rotate, angel.rotate + 2.5, angel.rotate - 1.5, angel.rotate] }
-          }
-          transition={{ duration: 7.8, repeat: Infinity, delay: angel.delay, ease: "easeInOut" }}
-        >
-          <OutlineCupid flipped={angel.flipped} />
-        </motion.div>
+          {item === "ar" ? "عربي" : "EN"}
+        </button>
       ))}
     </div>
-  );
-}
-
-function OutlineCupid({ flipped = false }: { flipped?: boolean }) {
-  return (
-    <svg viewBox="0 0 240 170" fill="none" className="h-auto w-full" aria-hidden="true">
-      <g transform={flipped ? "translate(240 0) scale(-1 1)" : undefined}>
-        <g stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="103" cy="44" r="12" strokeWidth="2" />
-          <path d="M90 38c8-9 23-10 32-2" strokeWidth="1.35" opacity="0.72" />
-          <path d="M103 58c-8 15-7 31 2 48" strokeWidth="2" />
-          <path d="M93 75c13 8 30 8 43-1" strokeWidth="1.9" />
-          <path d="M95 104c11 8 27 8 40-1" strokeWidth="1.65" opacity="0.74" />
-
-          <path d="M88 62C62 37 32 39 16 66c24-5 45 4 63 25" strokeWidth="2" />
-          <path d="M80 70C59 58 40 60 25 78" strokeWidth="1.45" opacity="0.62" />
-          <path d="M75 82C54 75 40 82 31 99" strokeWidth="1.45" opacity="0.58" />
-          <path d="M79 93c-18 0-29 8-35 24" strokeWidth="1.35" opacity="0.48" />
-
-          <path d="M116 62c28-28 61-29 82-1-27-4-50 8-70 32" strokeWidth="2" />
-          <path d="M126 71c23-14 44-13 61 5" strokeWidth="1.45" opacity="0.62" />
-          <path d="M132 84c22-8 39-1 49 16" strokeWidth="1.45" opacity="0.58" />
-          <path d="M130 96c19 1 31 10 38 27" strokeWidth="1.35" opacity="0.48" />
-
-          <path d="M133 72c16-13 34-19 56-17" strokeWidth="1.9" />
-          <path d="M181 48l14 7-13 9" strokeWidth="1.7" />
-          <path d="M154 61c8-14 20-13 29 1" strokeWidth="1.75" />
-          <path d="M154 61c4 15-1 26-15 34" strokeWidth="1.75" />
-          <path d="M154 61c11 6 17 16 17 29" strokeWidth="1.45" opacity="0.68" />
-          <path d="M72 129c23 15 60 16 86 1" strokeWidth="1.35" opacity="0.45" />
-        </g>
-      </g>
-    </svg>
   );
 }
 
@@ -410,6 +270,7 @@ export function LuxuryInvitationMiniature({ className = "" }: { className?: stri
 export function LuxuryInvitationArtifact(props: {
   isOpen: boolean;
   onOpen: () => void;
+  language?: InvitationLanguage;
   brideName: string;
   groomName: string;
   initials: string;
@@ -426,7 +287,7 @@ export function LuxuryInvitationArtifact(props: {
     setIsReading(props.isOpen);
   }, [props.isOpen]);
 
-  return <RoyalDoorStage {...props} isReading={isReading} onReading={handleReading} compact />;
+  return <RoyalDoorStage {...props} language={props.language ?? "ar"} isReading={isReading} onReading={handleReading} compact />;
 }
 
 function RoyalDoorStage({
@@ -434,6 +295,7 @@ function RoyalDoorStage({
   isReading,
   onOpen,
   onReading,
+  language,
   brideName,
   groomName,
   initials,
@@ -448,6 +310,7 @@ function RoyalDoorStage({
   isReading: boolean;
   onOpen: () => void;
   onReading: () => void;
+  language: InvitationLanguage;
   brideName: string;
   groomName: string;
   initials: string;
@@ -521,6 +384,17 @@ function RoyalDoorStage({
     return () => ctx.revert();
   }, [compact, isOpen, onReading, reduceMotion]);
 
+  const isArabic = language === "ar";
+  const labels = {
+    invite: isArabic ? "دعوة زفاف" : "Wedding Invitation",
+    venue: isArabic ? "المكان" : "Venue",
+    date: isArabic ? "التاريخ" : "Date",
+    time: isArabic ? "الساعة" : "Time",
+    soon: isArabic ? "قريبًا" : "Soon",
+    honor: isArabic ? "نتشرف بحضوركم" : "With love and joy",
+    hint: isArabic ? "اضغط على الختم لفتح الدعوة" : "Click the seal to open"
+  };
+
   return (
     <div className="relative w-full">
       <div
@@ -568,9 +442,9 @@ function RoyalDoorStage({
             <div className="pointer-events-none absolute inset-[3%] rounded-[1.25rem] border border-[#d9a681]/28 shadow-[inset_0_0_70px_rgba(255,255,255,.38)]" />
             <div className="pointer-events-none absolute inset-x-[8%] top-[6%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.64),transparent)]" />
             <div className="pointer-events-none absolute inset-x-[8%] bottom-[6%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.5),transparent)]" />
-            <InvitationCardDecorations />
-            <div ref={contentRef} className="absolute inset-[8%_8%_7%] z-10 flex flex-col items-center text-center text-[#432819] opacity-0 md:inset-[9%_10%_7%]">
-              <p className="mt-[2%] text-[clamp(.62rem,1.05vw,1rem)] font-extrabold tracking-[0.18em] text-[#b77a5a]">دعوة زفاف</p>
+            <CardSoftOverlays />
+            <div ref={contentRef} dir={isArabic ? "rtl" : "ltr"} className="absolute inset-[8%_8%_7%] z-10 flex flex-col items-center text-center text-[#432819] opacity-0 md:inset-[9%_10%_7%]">
+              <p className="mt-[2%] text-[clamp(.62rem,1.05vw,1rem)] font-extrabold tracking-[0.18em] text-[#b77a5a]">{labels.invite}</p>
               <div className="my-[3.5%] flex items-center gap-3 text-[#c28a67] md:my-[3%]">
                 <span className="h-px w-16 bg-[linear-gradient(90deg,transparent,#c28a67)]" />
                 <span className="text-xs">◆</span>
@@ -579,16 +453,16 @@ function RoyalDoorStage({
               <h1 className="font-display text-[clamp(1.65rem,7.4vw,2.35rem)] leading-[1.16] text-[#9b653f] [text-shadow:0_10px_28px_rgba(183,122,90,.12)] md:text-[clamp(3.2rem,5.45vw,6.6rem)]">
                 {groomName} <span className="mx-2 text-[#c98778]">&</span> {brideName}
               </h1>
-              <InvitationCopyBlock message={message} />
+              <InvitationCopyBlock language={language} brideName={brideName} message={message} />
 
               <div className="mt-[7%] grid w-full max-w-[86%] grid-cols-1 gap-2.5 text-[#432819] md:mt-[5.6%] md:max-w-5xl md:grid-cols-3 md:gap-4">
-                <InvitationInfo icon={<MapPin className="h-4 w-4" />} label="المكان" value={venue} />
-                <InvitationInfo icon={<CalendarDays className="h-4 w-4" />} label="التاريخ" value={date} />
-                <InvitationInfo icon={<Clock3 className="h-4 w-4" />} label="الساعة" value={time || "قريبًا"} />
+                <InvitationInfo label={labels.venue} value={venue} />
+                <InvitationInfo label={labels.date} value={date} />
+                <InvitationInfo label={labels.time} value={time || labels.soon} />
               </div>
 
               <div className="mt-auto h-px w-[64%] bg-[linear-gradient(90deg,transparent,rgba(194,138,103,.55),transparent)]" />
-              <p className="mt-[2%] text-[clamp(.68rem,1.1vw,.94rem)] font-extrabold text-[#b77a5a]">نتشرف بحضوركم</p>
+              <p className="mt-[2%] text-[clamp(.68rem,1.1vw,.94rem)] font-extrabold text-[#b77a5a]">{labels.honor}</p>
             </div>
           </div>
         </div>
@@ -611,14 +485,35 @@ function RoyalDoorStage({
           />
           {sealImageUrl ? <span className="pointer-events-none absolute font-display text-[clamp(1.05rem,2.6vw,1.9rem)] text-[#fff7ec]">{initials}</span> : null}
         </button>
+
+        <AnimatePresence>
+          {!isOpen ? (
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute bottom-[10%] z-40 rounded-full border border-[#d9a681]/28 bg-white/46 px-5 py-2 text-xs font-bold text-[#8f5d39]/76 shadow-[0_18px_48px_rgba(183,122,90,.12)] backdrop-blur-xl md:bottom-[8%]"
+            >
+              {labels.hint}
+            </motion.p>
+          ) : null}
+        </AnimatePresence>
       </div>
     </div>
   );
 }
 
-function InvitationCopyBlock({ message }: { message: string }) {
+function InvitationCopyBlock({ language, brideName, message }: { language: InvitationLanguage; brideName: string; message: string }) {
+  const isArabic = language === "ar";
   const cleanedMessage = message.trim();
   const shouldShowCustomMessage = Boolean(cleanedMessage && cleanedMessage !== fallbackMessage && !cleanedMessage.includes("بكل الحب والفرحة"));
+  const opening = isArabic ? arabicOpening : englishOpening;
+  const formalMessage = isArabic ? fallbackMessage : englishFormalMessage;
+  const groomLabel = isArabic ? "من العريس إلى عروسه" : "From the groom to his bride";
+  const groomMessage = isArabic
+    ? `إلى ${brideName}، من اختارها قلبي شريكةً للعمر... بكِ تكتمل الحكاية، وبقربك يصبح الفرح بيتًا نعود إليه.`
+    : `To ${brideName}, the one my heart chose for a lifetime... with you, every chapter becomes softer, brighter, and complete.`;
 
   return (
     <div className="relative mt-[5.8%] w-full max-w-[90%] text-[#5a3927] md:mt-[4.6%] md:max-w-[74%]">
@@ -629,13 +524,13 @@ function InvitationCopyBlock({ message }: { message: string }) {
           <span className="font-display text-lg leading-none">♡</span>
           <span className="h-px flex-1 bg-[linear-gradient(90deg,#c28a67,transparent)]" />
         </div>
-        <div className="space-y-2 text-[clamp(.66rem,2.5vw,.9rem)] font-bold leading-[1.86] text-[#4d3124]/86 md:space-y-3 md:text-[clamp(.84rem,1.05vw,1.08rem)] md:leading-[2.05]">
-          {openingInvitationCopy.map((paragraph, index) => (
-            <p key={paragraph} className={index === 0 ? "font-display text-[clamp(.9rem,3.6vw,1.3rem)] leading-[1.55] text-[#9b653f] md:text-[clamp(1.05rem,1.45vw,1.45rem)]" : ""}>
-              {paragraph}
-            </p>
-          ))}
-          <p className="pt-2 text-[#6e4a35]">{fallbackMessage}</p>
+        <div className="space-y-3 text-[clamp(.7rem,2.65vw,.94rem)] font-bold leading-[1.88] text-[#4d3124]/86 md:space-y-4 md:text-[clamp(.84rem,1.03vw,1.05rem)] md:leading-[2.02]">
+          <p className="font-display text-[clamp(.98rem,3.75vw,1.34rem)] leading-[1.55] text-[#9b653f] md:text-[clamp(1.08rem,1.5vw,1.5rem)]">{opening}</p>
+          <p className="text-[#6e4a35]">{formalMessage}</p>
+          <div className="mx-auto max-w-2xl rounded-[1.1rem] border border-[#d9a681]/18 bg-[#fff8f3]/38 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,.44)]">
+            <p className="text-[clamp(.58rem,1.85vw,.76rem)] font-black uppercase tracking-[0.2em] text-[#b77a5a]/72">{groomLabel}</p>
+            <p className="mt-2 font-display text-[clamp(.88rem,3vw,1.18rem)] leading-[1.8] text-[#8f5d39]">{groomMessage}</p>
+          </div>
           {shouldShowCustomMessage ? <p className="text-[#8f5d39]/86">{cleanedMessage}</p> : null}
         </div>
       </div>
@@ -643,7 +538,7 @@ function InvitationCopyBlock({ message }: { message: string }) {
   );
 }
 
-function InvitationCardDecorations() {
+function CardSoftOverlays() {
   const reduceMotion = useReducedMotion();
   const sparkles = useMemo(
     () => [
@@ -658,16 +553,12 @@ function InvitationCardDecorations() {
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden="true">
-      <svg className="absolute left-[7%] top-[14%] hidden h-[12%] w-[14%] text-[#c28a67] opacity-[0.16] sm:block" viewBox="0 0 140 160" fill="none">
-        <path d="M18 142C64 126 105 84 115 18" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
-        <path d="M45 117c-16-14-23-30-21-49 18 9 27 22 28 40" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M76 86c-13-17-15-34-8-51 14 13 19 28 13 45" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <svg className="absolute right-[7%] top-[14%] hidden h-[12%] w-[14%] scale-x-[-1] text-[#c28a67] opacity-[0.16] sm:block" viewBox="0 0 140 160" fill="none">
-        <path d="M18 142C64 126 105 84 115 18" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
-        <path d="M45 117c-16-14-23-30-21-49 18 9 27 22 28 40" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M76 86c-13-17-15-34-8-51 14 13 19 28 13 45" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
+      <Image src={assets.petals} alt="" fill sizes="94vw" className="object-cover opacity-[0.08] mix-blend-multiply" />
+      <motion.span
+        className="absolute inset-x-[11%] top-[7%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.7),transparent)]"
+        animate={reduceMotion ? undefined : { opacity: [0.28, 0.64, 0.3] }}
+        transition={{ duration: 5.6, repeat: Infinity, ease: "easeInOut" }}
+      />
       {sparkles.map((sparkle) => (
         <motion.span
           key={`${sparkle.left}-${sparkle.top}`}
@@ -681,17 +572,17 @@ function InvitationCardDecorations() {
   );
 }
 
-function InvitationInfo({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+function InvitationInfo({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[1.35rem] border border-[#d9a681]/30 bg-white/56 px-3 py-4 shadow-[0_14px_34px_rgba(183,122,90,.09),inset_0_1px_0_rgba(255,255,255,.62)] backdrop-blur md:px-5 md:py-5">
-      <div className="mx-auto mb-2 grid h-9 w-9 place-items-center rounded-full border border-[#d9a681]/24 bg-[#e7b6a8]/24 text-[#b77a5a] md:h-11 md:w-11">{icon}</div>
+    <div className="rounded-[1.35rem] border border-[#d9a681]/24 bg-white/46 px-3 py-4 shadow-[0_14px_34px_rgba(183,122,90,.08),inset_0_1px_0_rgba(255,255,255,.62)] backdrop-blur md:px-5 md:py-5">
+      <div className="mx-auto mb-3 h-px w-14 bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
       <p className="text-[clamp(.58rem,1vw,.8rem)] font-extrabold text-[#b77a5a]">{label}</p>
-      <p className="mt-1 text-[clamp(.62rem,1.05vw,.95rem)] font-bold leading-5 text-[#432819]/82">{value}</p>
+      <p className="mt-1 text-[clamp(.66rem,1.08vw,.98rem)] font-bold leading-6 text-[#432819]/82">{value}</p>
     </div>
   );
 }
 
-function RsvpChoice({ active, onClick, label, icon }: { active: boolean; onClick: () => void; label: string; icon: ReactNode }) {
+function RsvpChoice({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
     <button
       type="button"
@@ -702,13 +593,12 @@ function RsvpChoice({ active, onClick, label, icon }: { active: boolean; onClick
           : "border-[#d9a681]/30 bg-white/58 text-[#6e4a35]/74 shadow-[inset_0_1px_0_rgba(255,255,255,.65)] hover:border-[#c98674]/60 hover:bg-white"
       }`}
     >
-      {icon}
       {label}
     </button>
   );
 }
 
-function LuxuryCountdown({ target }: { target: string }) {
+function LuxuryCountdown({ target, language }: { target: string; language: InvitationLanguage }) {
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -725,12 +615,12 @@ function LuxuryCountdown({ target }: { target: string }) {
     const seconds = Math.floor((diff % 60_000) / 1000);
 
     return [
-      { label: "يوم", value: days },
-      { label: "ساعة", value: hours },
-      { label: "دقيقة", value: minutes },
-      { label: "ثانية", value: seconds }
+      { label: language === "ar" ? "يوم" : "Days", value: days },
+      { label: language === "ar" ? "ساعة" : "Hours", value: hours },
+      { label: language === "ar" ? "دقيقة" : "Minutes", value: minutes },
+      { label: language === "ar" ? "ثانية" : "Seconds", value: seconds }
     ];
-  }, [now, target]);
+  }, [language, now, target]);
 
   return (
     <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
