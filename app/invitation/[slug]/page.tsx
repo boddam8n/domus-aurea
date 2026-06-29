@@ -8,22 +8,24 @@ export const dynamic = "force-dynamic";
 function getDemoInvitation(slug: string): PublicInvitation | null {
   if (slug !== "test-invitation" && slug !== "layan-yassin") return null;
 
+  const isTest = slug === "test-invitation";
+
   return {
     id: "demo",
     slug,
-    bride_name: slug === "test-invitation" ? "مايار" : "ليان",
-    groom_name: slug === "test-invitation" ? "أحمد" : "ياسين",
+    bride_name: isTest ? "يوري" : "ليان",
+    groom_name: isTest ? "بودي" : "ياسين",
     wedding_date: "2026-12-12T20:00:00+02:00",
-    venue: slug === "test-invitation" ? "فندق ريتز كارلتون - القاهرة" : "قصر الزمرد - القاهرة",
+    venue: isTest ? "فندق ريتز كارلتون - القاهرة" : "قصر الزمرد - القاهرة",
     venue_address: null,
     venue_lat: null,
     venue_lng: null,
     template_name: "TEST INVITATION",
     package_name: "Royal Package",
-    countdown_style: "Luxury Gold",
+    countdown_style: "Old Money",
     music_file_name: "wedding-music.mp3",
     public_url: null,
-    invitation_text: "بكل الحب والفرحة، ندعوكم لحضور حفل زفافنا ومشاركتنا أجمل لحظات العمر.",
+    invitation_text: null,
     seal_image_url: null
   };
 }
@@ -35,7 +37,9 @@ export default async function InvitationPage({ params }: { params: { slug: strin
     const supabase = createServiceSupabaseClient();
     const { data, error } = await supabase
       .from("invitations")
-      .select("id, slug, bride_name, groom_name, wedding_date, venue, venue_address, venue_lat, venue_lng, template_name, package_name, countdown_style, music_file_name, seal_image_url, public_url, invitation_text")
+      .select(
+        "id, slug, bride_name, groom_name, wedding_date, venue, venue_address, venue_lat, venue_lng, template_name, package_name, countdown_style, music_file_name, seal_image_url, public_url, invitation_text"
+      )
       .eq("slug", params.slug)
       .single();
 

@@ -1,59 +1,115 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { gsap } from "gsap";
 import { Music2 } from "lucide-react";
 import type { PublicInvitation } from "@/lib/invitations";
 
 type RsvpResponse = "accepted" | "declined";
 type InvitationLanguage = "ar" | "en";
 
-const assets = {
-  background: "/assets/invitation-blush/background.webp",
-  doorsClosed: "/assets/invitation-blush/doors-closed-wide.webp",
-  cardPortrait: "/assets/invitation-blush/invitation-card-mobile.webp",
-  seal: "/assets/invitation-blush/wax-seal.webp",
-  petals: "/assets/invitation-blush/petals.webp",
-  light: "/assets/invitation-blush/light-burst.webp"
+type DateParts = {
+  weekday: string;
+  day: string;
+  month: string;
+  year: string;
+  time: string;
+  fullDate: string;
 };
 
-const fallbackMessage = "يسرّنا دعوتكم لمشاركتنا حفل زفافنا، لتكتمل فرحتنا بحضوركم الكريم ودعواتكم الصادقة.";
+const assets = {
+  background: "/assets/invitation/luxury-background.webp",
+  closedEnvelope: "/assets/invitation/closed-envelope.webp",
+  openedEnvelope: "/assets/invitation/opened-envelope.webp",
+  paper: "/assets/invitation/invitation-paper.webp",
+  seal: "/assets/invitation/wax-seal-gold.webp",
+  brokenSeal: "/assets/invitation/wax-seal-broken.webp",
+  petals: "/assets/invitation/petals.webp",
+  burgundy: "/assets/invitation/burgundy-card-texture.webp",
+  divider: "/assets/invitation/gold-divider.svg",
+  calligraphy: "/assets/invitation/arabic-calligraphy-initials.svg"
+};
+
+const launchDate = "2026-12-12T20:00:00+02:00";
 const arabicOpening = "تشرفت حكايتنا ببدايتها... ويشرّفها أن تكونوا شهودًا على أجمل فصولها.";
-const englishOpening = "Our story was blessed by its beginning, and it would be honored by your presence as witnesses to its most beautiful chapter.";
-const englishFormalMessage = "We are delighted to invite you to share our wedding celebration, so our joy may be complete with your presence and heartfelt blessings.";
+const arabicFormal = "يسرّنا دعوتكم لمشاركتنا حفل زفافنا، لتكتمل فرحتنا بحضوركم الكريم ودعواتكم الصادقة.";
+const englishOpening = "Our story begins with love, and it would be our honor to have you witness one of its most beautiful chapters.";
+const englishFormal = "We are delighted to invite you to celebrate our wedding day with us.";
 
-function getInvitationDateParts(value: string, language: InvitationLanguage) {
-  const date = new Date(value);
+const nameMap: Record<string, { ar: string; en: string }> = {
+  "بودي": { ar: "بودي", en: "bobi" },
+  "بدي": { ar: "بودي", en: "bobi" },
+  bobi: { ar: "بودي", en: "bobi" },
+  bobii: { ar: "بودي", en: "bobi" },
+  "يوري": { ar: "يوري", en: "yori" },
+  yori: { ar: "يوري", en: "yori" },
+  "أحمد": { ar: "أحمد", en: "Ahmed" },
+  "احمد": { ar: "أحمد", en: "Ahmed" },
+  Ahmed: { ar: "أحمد", en: "Ahmed" },
+  "مايار": { ar: "مايار", en: "Mayar" },
+  Mayar: { ar: "مايار", en: "Mayar" }
+};
 
-  if (!Number.isFinite(date.getTime())) {
-    return { date: value || (language === "ar" ? "قريبًا" : "Soon"), time: "" };
-  }
+function getSafeDate(value?: string | null) {
+  const date = new Date(value || launchDate);
+  return Number.isFinite(date.getTime()) ? date : new Date(launchDate);
+}
 
+function formatDateParts(value: string, language: InvitationLanguage): DateParts {
+  const date = getSafeDate(value);
   const locale = language === "ar" ? "ar-EG" : "en-US";
+  const weekday = new Intl.DateTimeFormat(locale, { weekday: "long" }).format(date);
+  const day = new Intl.DateTimeFormat(locale, { day: "numeric" }).format(date);
+  const month = new Intl.DateTimeFormat(locale, { month: "long" }).format(date);
+  const year = new Intl.DateTimeFormat(locale, { year: "numeric" }).format(date);
+  const rawTime = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", hour12: true }).format(date);
+  const time =
+    language === "ar"
+      ? rawTime.replace(/\s?م$/, " مساءً").replace(/\s?ص$/, " صباحًا")
+      : rawTime.replace(/\s/g, " ");
 
   return {
-    date: new Intl.DateTimeFormat(locale, {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    }).format(date),
-    time: new Intl.DateTimeFormat(locale, {
-      hour: "2-digit",
-      minute: "2-digit"
-    }).format(date)
+    weekday,
+    day,
+    month,
+    year,
+    time,
+    fullDate: language === "ar" ? `${weekday}، ${day} ${month} ${year}` : `${weekday}, ${month} ${day}, ${year}`
   };
 }
 
-function getInitials(brideName: string, groomName: string) {
-  const bride = brideName.trim().charAt(0);
-  const groom = groomName.trim().charAt(0);
-  return `${groom}${bride}`.trim().toUpperCase() || "DA";
+function displayName(value: string, language: InvitationLanguage) {
+  const cleaned = value.trim();
+  return nameMap[cleaned]?.[language] || cleaned || (language === "ar" ? "ضيفنا" : "Guest");
 }
 
-function playRoyalOpenSound() {
+function getInitialLetter(value: string) {
+  return value.trim().replace(/\s+/g, "").charAt(0);
+}
+
+function getMonogram(groom: string, bride: string, language: InvitationLanguage) {
+  const groomInitial = getInitialLetter(groom);
+  const brideInitial = getInitialLetter(bride);
+  if (!groomInitial && !brideInitial) return language === "ar" ? "د + أ" : "D & A";
+  return language === "ar" ? `${groomInitial} + ${brideInitial}` : `${groomInitial.toUpperCase()} & ${brideInitial.toUpperCase()}`;
+}
+
+function cleanCustomMessage(message?: string | null) {
+  const value = (message || "").trim();
+  const blocked = [
+    "بكل الحب والفرحة",
+    "من العريس",
+    "إلى عروسه",
+    "اختارها قلبي",
+    "heart chose",
+    "from the groom"
+  ];
+  if (!value || blocked.some((phrase) => value.toLowerCase().includes(phrase.toLowerCase()))) return "";
+  return value;
+}
+
+function playOpenSound() {
   if (typeof window === "undefined") return;
 
   try {
@@ -62,52 +118,51 @@ function playRoyalOpenSound() {
 
     const context = new AudioContextClass();
     const master = context.createGain();
-    const shimmer = context.createGain();
     const filter = context.createBiquadFilter();
-    master.gain.value = 0.045;
-    shimmer.gain.value = 0.0001;
     filter.type = "lowpass";
     filter.frequency.value = 2400;
-    filter.Q.value = 0.5;
+    master.gain.value = 0.04;
     master.connect(filter);
     filter.connect(context.destination);
 
-    [523.25, 659.25, 783.99].forEach((frequency, index) => {
+    [392, 493.88, 587.33].forEach((frequency, index) => {
       const oscillator = context.createOscillator();
       const gain = context.createGain();
       oscillator.type = "sine";
       oscillator.frequency.value = frequency;
-      gain.gain.setValueAtTime(0.0001, context.currentTime + index * 0.06);
-      gain.gain.exponentialRampToValueAtTime(0.06, context.currentTime + 0.08 + index * 0.06);
-      gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 1.2 + index * 0.08);
+      gain.gain.setValueAtTime(0.0001, context.currentTime + index * 0.07);
+      gain.gain.exponentialRampToValueAtTime(0.045, context.currentTime + 0.12 + index * 0.07);
+      gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 1.1 + index * 0.08);
       oscillator.connect(gain);
       gain.connect(master);
-      oscillator.start(context.currentTime + index * 0.06);
-      oscillator.stop(context.currentTime + 1.45 + index * 0.08);
+      oscillator.start(context.currentTime + index * 0.07);
+      oscillator.stop(context.currentTime + 1.35 + index * 0.08);
     });
 
-    window.setTimeout(() => void context.close(), 1800);
+    window.setTimeout(() => void context.close(), 1600);
   } catch {
-    // Some browsers block short gesture sounds in privacy modes.
+    // Gesture sounds are optional; the invitation still opens without audio.
   }
 }
 
 export function InvitationExperience({ invitation }: { invitation: PublicInvitation }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isReading, setIsReading] = useState(false);
   const [language, setLanguage] = useState<InvitationLanguage>("ar");
   const [guestName, setGuestName] = useState("");
   const [response, setResponse] = useState<RsvpResponse>("accepted");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [rsvpVisible, setRsvpVisible] = useState(false);
+  const reduceMotion = useReducedMotion();
 
-  const direction = language === "ar" ? "rtl" : "ltr";
-  const dateParts = useMemo(() => getInvitationDateParts(invitation.wedding_date, language), [invitation.wedding_date, language]);
-  const initials = useMemo(() => getInitials(invitation.bride_name, invitation.groom_name), [invitation.bride_name, invitation.groom_name]);
-  const invitationText = invitation.invitation_text || fallbackMessage;
-  const handleReading = useCallback(() => setIsReading(true), []);
+  const isArabic = language === "ar";
+  const direction = isArabic ? "rtl" : "ltr";
+  const dateParts = useMemo(() => formatDateParts(invitation.wedding_date, language), [invitation.wedding_date, language]);
+  const groomName = displayName(invitation.groom_name, language);
+  const brideName = displayName(invitation.bride_name, language);
+  const monogram = getMonogram(groomName, brideName, language);
+  const venue = invitation.venue || (isArabic ? "فندق ريتز كارلتون - القاهرة" : "The Ritz-Carlton, Cairo");
+  const customMessage = cleanCustomMessage(invitation.invitation_text);
 
   useEffect(() => {
     if (invitation.id === "demo") return;
@@ -116,7 +171,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
 
   function openInvitation() {
     if (isOpen) return;
-    playRoyalOpenSound();
+    playOpenSound();
     setIsOpen(true);
   }
 
@@ -128,10 +183,10 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
 
     if (invitation.id === "demo") {
       window.setTimeout(() => {
-        setStatus(language === "ar" ? "تم تسجيل ردك بنجاح. شكرًا لمشاركتك." : "Your reply has been saved. Thank you for sharing this moment.");
+        setStatus(isArabic ? "تم تسجيل ردك بنجاح. شكرًا لمشاركتكم." : "Your reply has been saved. Thank you.");
         setGuestName("");
         setLoading(false);
-      }, 520);
+      }, 420);
       return;
     }
 
@@ -142,79 +197,445 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
         body: JSON.stringify({ guestName, response })
       });
       const json = await result.json();
-      if (!result.ok) throw new Error(json.error || (language === "ar" ? "لم يتم حفظ الرد." : "Your reply could not be saved."));
-      setStatus(language === "ar" ? "تم تسجيل ردك بنجاح. شكرًا لمشاركتك." : "Your reply has been saved. Thank you for sharing this moment.");
+      if (!result.ok) throw new Error(json.error || (isArabic ? "لم يتم حفظ الرد." : "Your reply could not be saved."));
+      setStatus(isArabic ? "تم تسجيل ردك بنجاح. شكرًا لمشاركتكم." : "Your reply has been saved. Thank you.");
       setGuestName("");
     } catch (rsvpError) {
-      setError(rsvpError instanceof Error ? rsvpError.message : language === "ar" ? "حدث خطأ غير متوقع." : "Something went wrong.");
+      setError(rsvpError instanceof Error ? rsvpError.message : isArabic ? "حدث خطأ غير متوقع." : "Something went wrong.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <section dir={direction} className="relative min-h-[100svh] overflow-x-hidden bg-[#fff5f1] text-[#432819] [color-scheme:light]">
-      <div className="relative min-h-[100svh]">
-        <Image src={assets.background} alt="" fill priority sizes="100vw" className="object-cover" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_9%,rgba(255,247,240,.82),transparent_38%),linear-gradient(180deg,rgba(255,248,244,.62),rgba(255,237,230,.76)_58%,#fff8f4_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,251,246,.68),transparent_30%,transparent_70%,rgba(255,251,246,.68))]" />
-        <div className="pointer-events-none absolute inset-3 hidden rounded-[2rem] border border-[#d8a887]/20 shadow-[inset_0_0_80px_rgba(255,255,255,.22)] sm:block" />
-        <RosePetals />
-        <GoldDust />
+    <section
+      dir={direction}
+      className="relative min-h-[100svh] overflow-x-hidden bg-[#efe2cf] text-[#241812] [color-scheme:light]"
+      aria-label={isArabic ? "دعوة زفاف رقمية" : "Digital wedding invitation"}
+    >
+      <Image src={assets.background} alt="" fill priority sizes="100vw" className="fixed inset-0 object-cover" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_6%,rgba(255,248,229,.72),transparent_28%),linear-gradient(180deg,rgba(239,226,207,.78),rgba(236,218,190,.9)_56%,rgba(246,236,220,.96))]" />
+      <DriftingPetals />
+      <LanguageToggle language={language} onChange={setLanguage} />
 
-        <main className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1920px] flex-col items-center justify-center px-2 py-0 sm:px-5 lg:px-8">
-        <LanguageToggle language={language} onChange={setLanguage} />
-
-        <RoyalDoorStage
+      <main className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[480px] flex-col items-center px-3 pb-8 pt-[calc(env(safe-area-inset-top)+4.75rem)] sm:max-w-[520px] sm:px-5 lg:max-w-[560px]">
+        <ClosedInvitation
           isOpen={isOpen}
-          isReading={isReading}
-          onOpen={openInvitation}
-          onReading={handleReading}
           language={language}
-          brideName={invitation.bride_name}
-          groomName={invitation.groom_name}
-          initials={initials}
-          date={dateParts.date}
-          time={dateParts.time}
-          venue={invitation.venue}
-          message={invitationText}
-          countdownTarget={invitation.wedding_date}
+          monogram={monogram}
           sealImageUrl={invitation.seal_image_url}
-          onRsvpClick={() => setRsvpVisible(true)}
+          onOpen={openInvitation}
         />
-        </main>
-        <RsvpModal
-          open={rsvpVisible}
-          language={language}
-          guestName={guestName}
-          response={response}
-          loading={loading}
-          error={error}
-          status={status}
-          onClose={() => setRsvpVisible(false)}
-          onGuestNameChange={setGuestName}
-          onResponseChange={setResponse}
-          onSubmit={submitRsvp}
-        />
-      </div>
+
+        <AnimatePresence>
+          {isOpen ? (
+            <motion.div
+              className="w-full"
+              initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 24, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: reduceMotion ? 0 : 1.3, duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <InvitationCard
+                language={language}
+                groomName={groomName}
+                brideName={brideName}
+                monogram={monogram}
+                venue={venue}
+                dateParts={dateParts}
+                customMessage={customMessage}
+              />
+              <EditorialCountdown target={invitation.wedding_date} language={language} dateParts={dateParts} />
+              <RsvpPanel
+                language={language}
+                guestName={guestName}
+                response={response}
+                loading={loading}
+                error={error}
+                status={status}
+                onGuestNameChange={setGuestName}
+                onResponseChange={setResponse}
+                onSubmit={submitRsvp}
+              />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </main>
     </section>
   );
 }
 
 function LanguageToggle({ language, onChange }: { language: InvitationLanguage; onChange: (language: InvitationLanguage) => void }) {
   return (
-    <div className="absolute left-4 top-4 z-30 inline-flex rounded-full border border-[#d9a681]/34 bg-white/54 p-1 text-[11px] font-extrabold text-[#8f5d39] shadow-[0_16px_44px_rgba(183,122,90,.14)] backdrop-blur-xl sm:left-6 sm:top-6">
-      {(["ar", "en"] as const).map((item) => (
-        <button
-          key={item}
+    <div className="fixed left-3 top-[calc(env(safe-area-inset-top)+.75rem)] z-50 rounded-full border border-[#b58b48]/25 bg-[#fff7ea]/78 p-1 text-[11px] font-extrabold text-[#6a421d] shadow-[0_12px_34px_rgba(77,45,22,.14)] backdrop-blur-md">
+      <div className="flex gap-1">
+        {(["ar", "en"] as const).map((item) => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => onChange(item)}
+            className={`rounded-full px-3 py-1.5 transition ${
+              language === item ? "bg-[#17110d] text-[#f8e8bf] shadow-[0_8px_20px_rgba(0,0,0,.18)]" : "text-[#7b5122]/68 hover:bg-white/70"
+            }`}
+          >
+            {item === "ar" ? "عربي" : "EN"}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ClosedInvitation({
+  isOpen,
+  language,
+  monogram,
+  sealImageUrl,
+  onOpen
+}: {
+  isOpen: boolean;
+  language: InvitationLanguage;
+  monogram: string;
+  sealImageUrl?: string | null;
+  onOpen: () => void;
+}) {
+  const reduceMotion = useReducedMotion();
+  const isArabic = language === "ar";
+
+  return (
+    <motion.div
+      className={`grid min-h-[calc(100svh-7.5rem)] w-full place-items-center ${isOpen ? "pointer-events-none absolute opacity-0" : "relative"}`}
+      initial={false}
+      animate={isOpen ? { opacity: 0, y: -18, scale: 0.95 } : { opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: reduceMotion ? 0.01 : 0.85, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className="w-full">
+        <motion.button
           type="button"
-          onClick={() => onChange(item)}
-          className={`rounded-full px-3 py-2 transition ${
-            language === item ? "bg-[#d9a681] text-white shadow-[0_8px_22px_rgba(183,122,90,.18)]" : "text-[#8f5d39]/70 hover:bg-white/55"
-          }`}
+          onClick={onOpen}
+          className="group relative mx-auto block aspect-[1080/1680] w-[min(88vw,390px)] outline-none [perspective:1600px]"
+          whileTap={reduceMotion ? undefined : { scale: 0.985 }}
+          aria-label={isArabic ? "فتح الدعوة" : "Open invitation"}
         >
-          {item === "ar" ? "عربي" : "EN"}
-        </button>
+          <motion.div
+            className="relative h-full w-full overflow-visible"
+            animate={reduceMotion ? undefined : { y: [0, -5, 0] }}
+            transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Image
+              src={assets.closedEnvelope}
+              alt=""
+              fill
+              priority
+              sizes="(min-width: 520px) 390px, 88vw"
+              className="object-contain drop-shadow-[0_26px_58px_rgba(45,25,15,.34)]"
+            />
+            <div className="absolute inset-x-[19%] top-[14%] text-center">
+              <p className="font-display text-[10px] font-semibold uppercase tracking-[0.28em] text-[#d7b368]/78">
+                {isArabic ? "DOMUS AUREA" : "DOMUS AUREA"}
+              </p>
+              <p className="mt-2 font-body text-[clamp(.84rem,4vw,1.1rem)] font-extrabold tracking-[0.12em] text-[#f5e4b6]">
+                {isArabic ? "دعوة زفاف" : "Save the Date"}
+              </p>
+            </div>
+            <motion.span
+              className="absolute left-1/2 top-[65.3%] grid h-[clamp(76px,21vw,106px)] w-[clamp(76px,21vw,106px)] -translate-x-1/2 -translate-y-1/2 place-items-center"
+              animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
+            >
+              <Image
+                src={sealImageUrl || assets.seal}
+                alt=""
+                fill
+                sizes="112px"
+                className="object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,.38)] transition duration-500 group-hover:scale-[1.035]"
+                unoptimized={Boolean(sealImageUrl)}
+              />
+              <span className="relative z-10 font-display text-[clamp(1rem,5vw,1.42rem)] font-semibold tracking-[0.04em] text-[#ffe7a6]">
+                {monogram}
+              </span>
+            </motion.span>
+            <div className="absolute inset-x-[15%] bottom-[12%] h-px bg-[linear-gradient(90deg,transparent,rgba(248,220,150,.72),transparent)]" />
+          </motion.div>
+        </motion.button>
+
+        <motion.p
+          className="mx-auto mt-4 w-fit rounded-full border border-[#b58b48]/24 bg-[#fff7ea]/74 px-5 py-2 text-center text-xs font-extrabold text-[#6a421d]/74 shadow-[0_14px_34px_rgba(77,45,22,.1)] backdrop-blur-md"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.7 }}
+        >
+          {isArabic ? "اضغط على الختم لفتح الدعوة" : "Tap the seal to open the invitation"}
+        </motion.p>
+      </div>
+    </motion.div>
+  );
+}
+
+function InvitationCard({
+  language,
+  groomName,
+  brideName,
+  monogram,
+  venue,
+  dateParts,
+  customMessage
+}: {
+  language: InvitationLanguage;
+  groomName: string;
+  brideName: string;
+  monogram: string;
+  venue: string;
+  dateParts: DateParts;
+  customMessage: string;
+}) {
+  const isArabic = language === "ar";
+  const label = isArabic ? "دعوة زفاف" : "Wedding Invitation";
+  const opening = isArabic ? arabicOpening : englishOpening;
+  const formal = isArabic ? arabicFormal : englishFormal;
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  return (
+    <motion.article
+      className="relative mx-auto mt-1 aspect-[1080/1680] w-[min(94vw,430px)] overflow-hidden rounded-[1.25rem] text-center shadow-[0_30px_76px_rgba(69,38,20,.26)]"
+      initial="hidden"
+      animate="visible"
+      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12, delayChildren: 0.28 } } }}
+    >
+      <Image src={assets.paper} alt="" fill priority sizes="(min-width: 520px) 430px, 94vw" className="object-cover" />
+      <div className="absolute inset-[3.8%] rounded-[1rem] border border-[#a7792d]/22 shadow-[inset_0_0_48px_rgba(255,255,255,.45)]" />
+      <div className="absolute inset-x-[10%] top-[9.2%] h-px bg-[linear-gradient(90deg,transparent,rgba(167,121,45,.5),transparent)]" />
+      <div className="absolute inset-x-[10%] bottom-[9.2%] h-px bg-[linear-gradient(90deg,transparent,rgba(167,121,45,.46),transparent)]" />
+
+      <div className="absolute inset-[7%_7.2%_6.3%] z-10 flex flex-col items-center">
+        <motion.p variants={itemVariants} className="text-[clamp(.55rem,2.3vw,.68rem)] font-extrabold uppercase tracking-[0.24em] text-[#8d602a]/76">
+          {label}
+        </motion.p>
+
+        <motion.div variants={itemVariants} className="relative mt-[3.2%] grid place-items-center">
+          <span
+            className={`relative font-display text-[clamp(1.72rem,7.5vw,2.34rem)] font-semibold leading-none text-[#a7792d] [text-shadow:0_8px_24px_rgba(167,121,45,.18)] ${
+              isArabic ? "font-body" : ""
+            }`}
+          >
+            {monogram}
+          </span>
+        </motion.div>
+
+        <motion.h1 variants={itemVariants} className="mt-[3.6%] flex items-center justify-center gap-2 font-display text-[clamp(1.72rem,8.8vw,2.56rem)] leading-[1.08] text-[#2a1d17]">
+          <span>{groomName}</span>
+          <span className="text-[#a7792d]">&</span>
+          <span>{brideName}</span>
+        </motion.h1>
+
+        <motion.div variants={itemVariants} className="mt-[3.8%] w-full max-w-[86%]">
+          <Image src={assets.divider} alt="" width={420} height={32} className="mx-auto h-auto w-[62%]" />
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="mt-[3.6%] space-y-2.5 rounded-[.95rem] bg-[#fff8ec]/42 px-2.5 py-2 text-[clamp(.72rem,2.72vw,.9rem)] font-bold leading-[1.72] text-[#5c3c28] shadow-[inset_0_1px_0_rgba(255,255,255,.38)]">
+          <p className={`${isArabic ? "font-body" : "font-display"} text-[clamp(.83rem,3.25vw,1.04rem)] font-extrabold leading-[1.62] text-[#6a421d]`}>
+            {opening}
+          </p>
+          <p>{formal}</p>
+          {customMessage ? <p className="mx-auto mt-2 max-w-[92%] text-[#7b5122]/86">{customMessage}</p> : null}
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="mt-[5.6%] w-full rounded-[.95rem] border-y border-[#a7792d]/18 py-[3.5%]">
+          <div className="flex items-center justify-center gap-2 font-display text-[clamp(.88rem,3.8vw,1.15rem)] font-semibold uppercase tracking-[0.1em] text-[#2a1d17]">
+            <span>{dateParts.weekday}</span>
+            <span className="h-4 w-px bg-[#a7792d]/32" />
+            <span className="text-[clamp(1.55rem,7vw,2.05rem)] text-[#7a1d21]">{dateParts.day}</span>
+            <span className="h-4 w-px bg-[#a7792d]/32" />
+            <span>{dateParts.month}</span>
+          </div>
+          <p className="mt-1 font-display text-[clamp(.82rem,3vw,1rem)] font-semibold text-[#8d602a]">{dateParts.year}</p>
+          <p className="mt-1 text-[clamp(.74rem,2.6vw,.9rem)] font-extrabold text-[#4d3021]">{dateParts.time}</p>
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="mt-[4.2%] grid w-full grid-cols-1 gap-2">
+          <DetailLine label={isArabic ? "المكان" : "Venue"} value={venue} />
+        </motion.div>
+      </div>
+    </motion.article>
+  );
+}
+
+function DetailLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[.78rem] border border-[#a7792d]/12 bg-[#fff8ec]/34 px-2.5 py-2 text-center shadow-[inset_0_1px_0_rgba(255,255,255,.42)]">
+      <p className="text-[clamp(.48rem,1.75vw,.58rem)] font-extrabold uppercase tracking-[0.16em] text-[#8d602a]/70">{label}</p>
+      <p className="mt-1 text-[clamp(.64rem,2.28vw,.78rem)] font-bold leading-4 text-[#352216]">{value}</p>
+    </div>
+  );
+}
+
+function EditorialCountdown({ target, language, dateParts }: { target: string; language: InvitationLanguage; dateParts: DateParts }) {
+  const [now, setNow] = useState(() => Date.now());
+  const isArabic = language === "ar";
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const units = useMemo(() => {
+    const targetMs = getSafeDate(target).getTime();
+    const diff = Math.max(0, targetMs - now);
+    return [
+      { label: isArabic ? "يوم" : "Days", value: Math.floor(diff / 86_400_000) },
+      { label: isArabic ? "ساعة" : "Hours", value: Math.floor((diff % 86_400_000) / 3_600_000) },
+      { label: isArabic ? "دقيقة" : "Minutes", value: Math.floor((diff % 3_600_000) / 60_000) },
+      { label: isArabic ? "ثانية" : "Seconds", value: Math.floor((diff % 60_000) / 1000) }
+    ];
+  }, [isArabic, now, target]);
+
+  return (
+    <motion.section
+      className="relative mx-auto mt-5 w-[min(94vw,430px)] overflow-hidden rounded-[1.2rem] border border-[#c19446]/30 bg-[#36090c] px-4 py-5 text-center text-[#f8e8bf] shadow-[0_22px_62px_rgba(58,12,14,.22)]"
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Image src={assets.burgundy} alt="" fill sizes="430px" className="object-cover opacity-75" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,232,190,.2),transparent_56%)]" />
+      <div className="relative z-10">
+        <p className="font-display text-[.68rem] font-semibold uppercase tracking-[0.26em] text-[#e8c679]/82">
+          {isArabic ? "الوقت المتبقي" : "Until the day"}
+        </p>
+        <div className="mt-2 flex items-center justify-center gap-2 font-display text-[clamp(.78rem,3vw,.95rem)] uppercase tracking-[0.08em] text-[#fff1c9]">
+          <span>{dateParts.weekday}</span>
+          <span className="h-3 w-px bg-[#d8ad5e]/45" />
+          <span>{dateParts.day}</span>
+          <span className="h-3 w-px bg-[#d8ad5e]/45" />
+          <span>{dateParts.month}</span>
+        </div>
+        <div className="mt-4 grid grid-cols-4 divide-x divide-[#d8ad5e]/22 rtl:divide-x-reverse">
+          {units.map((unit) => (
+            <div key={unit.label} className="px-1">
+              <p className="font-display text-[clamp(1.35rem,7vw,2.1rem)] leading-none text-[#f8d88a]">{String(unit.value).padStart(2, "0")}</p>
+              <p className="mt-1 text-[clamp(.48rem,1.8vw,.6rem)] font-extrabold text-[#f8e8bf]/66">{unit.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
+function RsvpPanel({
+  language,
+  guestName,
+  response,
+  loading,
+  error,
+  status,
+  onGuestNameChange,
+  onResponseChange,
+  onSubmit
+}: {
+  language: InvitationLanguage;
+  guestName: string;
+  response: RsvpResponse;
+  loading: boolean;
+  error: string;
+  status: string;
+  onGuestNameChange: (value: string) => void;
+  onResponseChange: (value: RsvpResponse) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  const isArabic = language === "ar";
+
+  return (
+    <motion.form
+      onSubmit={onSubmit}
+      className="mx-auto mt-4 w-[min(94vw,430px)] rounded-[1.2rem] border border-[#b58b48]/22 bg-[#fff8ec]/82 p-4 text-[#2a1d17] shadow-[0_20px_54px_rgba(77,45,22,.12),inset_0_1px_0_rgba(255,255,255,.62)] backdrop-blur-sm"
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className="text-center">
+        <p className="font-display text-xl text-[#6a421d]">{isArabic ? "تأكيد الحضور" : "RSVP"}</p>
+        <Image src={assets.divider} alt="" width={260} height={20} className="mx-auto mt-2 h-auto w-40 opacity-70" />
+      </div>
+
+      <label className="mt-4 block">
+        <span className="mb-2 block text-xs font-extrabold text-[#7b5122]/72">{isArabic ? "اسم الضيف" : "Guest Name"}</span>
+        <input
+          value={guestName}
+          onChange={(event) => onGuestNameChange(event.target.value)}
+          className="w-full rounded-full border border-[#b58b48]/24 bg-white/76 px-4 py-3 text-sm font-bold text-[#2a1d17] outline-none transition placeholder:text-[#7b5122]/35 focus:border-[#a7792d] focus:bg-white"
+          placeholder={isArabic ? "اكتب اسمك هنا" : "Enter your name"}
+          required
+        />
+      </label>
+
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <RsvpChoice active={response === "accepted"} onClick={() => onResponseChange("accepted")} label={isArabic ? "قبول الدعوة" : "Accept"} />
+        <RsvpChoice active={response === "declined"} onClick={() => onResponseChange("declined")} label={isArabic ? "اعتذار" : "Apologize"} />
+      </div>
+
+      <button
+        disabled={loading}
+        className="mt-3 w-full rounded-full bg-[linear-gradient(135deg,#17110d,#3f1013)] px-5 py-3 text-sm font-extrabold text-[#f8e8bf] shadow-[0_14px_34px_rgba(58,12,14,.18)] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
+      >
+        {loading ? (isArabic ? "جاري الإرسال..." : "Sending...") : isArabic ? "إرسال" : "Send"}
+      </button>
+
+      {error ? <p className="mt-3 rounded-xl border border-red-400/25 bg-red-500/10 p-2.5 text-xs font-bold text-red-800">{error}</p> : null}
+      {status ? <p className="mt-3 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-2.5 text-xs font-bold text-emerald-800">{status}</p> : null}
+    </motion.form>
+  );
+}
+
+function RsvpChoice({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full border px-3 py-2.5 text-xs font-extrabold transition ${
+        active
+          ? "border-[#a7792d]/50 bg-[#3f1013] text-[#f8e8bf] shadow-[0_12px_26px_rgba(58,12,14,.16)]"
+          : "border-[#b58b48]/24 bg-white/62 text-[#6a421d]/72 hover:border-[#a7792d]/45 hover:bg-white"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function DriftingPetals() {
+  const reduceMotion = useReducedMotion();
+  const petals = useMemo(
+    () =>
+      Array.from({ length: 14 }, (_, index) => ({
+        id: index,
+        left: (index * 41) % 100,
+        delay: (index % 7) * 0.85,
+        duration: 14 + (index % 5) * 2,
+        size: 5 + (index % 4)
+      })),
+    []
+  );
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[1] overflow-hidden" aria-hidden="true">
+      <Image src={assets.petals} alt="" fill sizes="100vw" className="object-cover opacity-[0.16] mix-blend-multiply" />
+      {petals.map((petal) => (
+        <motion.span
+          key={petal.id}
+          className="absolute top-[-8%] rounded-full bg-[#a7792d] shadow-[0_0_14px_rgba(167,121,45,.38)]"
+          style={{ left: `${petal.left}%`, width: petal.size, height: Math.max(3, petal.size - 2), opacity: 0.24 }}
+          animate={
+            reduceMotion
+              ? { opacity: [0.12, 0.2, 0.12] }
+              : { y: ["0vh", "112vh"], x: [0, petal.id % 2 ? 18 : -16, 0], rotate: [0, 34, -18], opacity: [0, 0.3, 0.16, 0] }
+          }
+          transition={{ duration: petal.duration, repeat: Infinity, delay: petal.delay, ease: "linear" }}
+        />
       ))}
     </div>
   );
@@ -222,15 +643,41 @@ function LanguageToggle({ language, onChange }: { language: InvitationLanguage; 
 
 export function LuxuryInvitationMiniature({ className = "" }: { className?: string }) {
   return (
-    <div className={`relative h-full w-full overflow-hidden bg-[#fff4f0] ${className}`}>
+    <div className={`relative h-full w-full overflow-hidden bg-[#efe2cf] ${className}`}>
       <Image src={assets.background} alt="" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover" />
-      <div className="absolute inset-0 bg-white/22" />
-      <Image src={assets.doorsClosed} alt="" fill sizes="(min-width: 768px) 35vw, 100vw" className="object-contain p-[7%] drop-shadow-[0_22px_55px_rgba(160,90,70,.28)]" />
+      <div className="absolute inset-0 bg-[#f8ead2]/18" />
+      <Image
+        src={assets.closedEnvelope}
+        alt=""
+        fill
+        sizes="(min-width: 768px) 35vw, 100vw"
+        className="object-contain p-[8%] drop-shadow-[0_22px_55px_rgba(45,25,15,.32)]"
+      />
+      <Image
+        src={assets.seal}
+        alt=""
+        width={92}
+        height={92}
+        className="absolute left-1/2 top-[64%] h-[22%] w-auto -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_12px_28px_rgba(0,0,0,.28)]"
+      />
     </div>
   );
 }
 
-export function LuxuryInvitationArtifact(props: {
+export function LuxuryInvitationArtifact({
+  isOpen,
+  onOpen,
+  language = "ar",
+  brideName,
+  groomName,
+  initials,
+  date,
+  time = "",
+  venue,
+  message,
+  countdownTarget,
+  sealImageUrl
+}: {
   isOpen: boolean;
   onOpen: () => void;
   language?: InvitationLanguage;
@@ -245,526 +692,36 @@ export function LuxuryInvitationArtifact(props: {
   sealImageUrl?: string | null;
   onRsvpClick?: () => void;
 }) {
-  const [isReading, setIsReading] = useState(props.isOpen);
-  const handleReading = useCallback(() => setIsReading(true), []);
-
-  useEffect(() => {
-    setIsReading(props.isOpen);
-  }, [props.isOpen]);
-
-  return <RoyalDoorStage {...props} language={props.language ?? "ar"} isReading={isReading} onReading={handleReading} compact />;
-}
-
-function RoyalDoorStage({
-  isOpen,
-  isReading,
-  onOpen,
-  onReading,
-  language,
-  brideName,
-  groomName,
-  initials,
-  date,
-  time = "",
-  venue,
-  message,
-  countdownTarget,
-  sealImageUrl,
-  onRsvpClick,
-  compact = false
-}: {
-  isOpen: boolean;
-  isReading: boolean;
-  onOpen: () => void;
-  onReading: () => void;
-  language: InvitationLanguage;
-  brideName: string;
-  groomName: string;
-  initials: string;
-  date: string;
-  time?: string;
-  venue: string;
-  message: string;
-  countdownTarget?: string;
-  sealImageUrl?: string | null;
-  onRsvpClick?: () => void;
-  compact?: boolean;
-}) {
-  const reduceMotion = useReducedMotion();
-  const stageRef = useRef<HTMLDivElement | null>(null);
-  const leftDoorRef = useRef<HTMLDivElement | null>(null);
-  const rightDoorRef = useRef<HTMLDivElement | null>(null);
-  const openDoorsRef = useRef<HTMLDivElement | null>(null);
-  const cardRef = useRef<HTMLDivElement | null>(null);
-  const lightRef = useRef<HTMLDivElement | null>(null);
-  const sealRef = useRef<HTMLButtonElement | null>(null);
-  const contentRef = useRef<HTMLDivElement | null>(null);
-
-  useLayoutEffect(() => {
-    const nodes = [leftDoorRef.current, rightDoorRef.current, openDoorsRef.current, cardRef.current, lightRef.current, sealRef.current, contentRef.current].filter(Boolean);
-    const finishReveal = () => {
-      onReading();
-    };
-
-    if (!isOpen) {
-      gsap.set(nodes, { clearProps: "all" });
-      gsap.set(openDoorsRef.current, { autoAlpha: 0, scale: 0.98 });
-      gsap.set(lightRef.current, { autoAlpha: 0, scale: 0.7 });
-      gsap.set(cardRef.current, { autoAlpha: 0, y: 18, scale: 0.95, filter: "blur(4px)" });
-      gsap.set(contentRef.current, { autoAlpha: 0, y: 6 });
-      return;
-    }
-
-    const ctx = gsap.context(() => {
-      if (reduceMotion) {
-        gsap.set(leftDoorRef.current, { xPercent: -46, autoAlpha: 0 });
-        gsap.set(rightDoorRef.current, { xPercent: 46, autoAlpha: 0 });
-        gsap.set(openDoorsRef.current, { autoAlpha: 1, scale: 1 });
-        gsap.set(lightRef.current, { autoAlpha: 0.54, scale: 1 });
-        gsap.set(sealRef.current, { autoAlpha: 0, pointerEvents: "none" });
-        gsap.set(cardRef.current, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)" });
-        gsap.set(contentRef.current, { autoAlpha: 1, y: 0 });
-        finishReveal();
-        return;
-      }
-
-      const timeline = gsap.timeline({
-        defaults: { ease: "power4.out" },
-        onComplete: finishReveal
-      });
-
-      timeline
-        .to(sealRef.current, { scale: 1.04, duration: 0.38, ease: "power2.out" }, 0)
-        .to(sealRef.current, { autoAlpha: 0, scale: 0.92, duration: 0.78, ease: "power2.inOut" }, 0.3)
-        .to(leftDoorRef.current, { xPercent: -54, rotateY: -10, autoAlpha: 0.14, duration: 2.15, ease: "expo.inOut" }, 0.54)
-        .to(rightDoorRef.current, { xPercent: 54, rotateY: 10, autoAlpha: 0.14, duration: 2.15, ease: "expo.inOut" }, 0.54)
-        .to(openDoorsRef.current, { autoAlpha: 1, scale: 1.01, duration: 1.8, ease: "power3.out" }, 0.78)
-        .to(lightRef.current, { autoAlpha: 0.58, scale: 1.12, duration: 1.9, ease: "power2.out" }, 0.7)
-        .to(cardRef.current, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 1.55, ease: "expo.out" }, 1.46)
-        .to(contentRef.current, { autoAlpha: 1, y: 0, duration: 0.92, ease: "power2.out" }, 2.06)
-        .set(sealRef.current, { pointerEvents: "none" }, 0.36);
-    }, stageRef);
-
-    return () => ctx.revert();
-  }, [compact, isOpen, onReading, reduceMotion]);
-
-  const isArabic = language === "ar";
-  const labels = {
-    invite: isArabic ? "دعوة زفاف" : "Wedding Invitation",
-    venue: isArabic ? "المكان" : "Venue",
-    date: isArabic ? "التاريخ" : "Date",
-    time: isArabic ? "الساعة" : "Time",
-    soon: isArabic ? "قريبًا" : "Soon",
-    honor: isArabic ? "نتشرف بحضوركم" : "With love and joy",
-    hint: isArabic ? "اضغط على الختم لفتح الدعوة" : "Click the seal to open",
-    countdown: isArabic ? "الوقت المتبقي" : "Countdown",
-    rsvp: isArabic ? "تأكيد الحضور" : "RSVP"
+  const dateParts: DateParts = {
+    weekday: language === "ar" ? "السبت" : "Saturday",
+    day: language === "ar" ? "١٢" : "12",
+    month: language === "ar" ? "ديسمبر" : "December",
+    year: language === "ar" ? "٢٠٢٦" : "2026",
+    time,
+    fullDate: date || (language === "ar" ? "السبت، ١٢ ديسمبر ٢٠٢٦" : "Saturday, December 12, 2026")
   };
 
   return (
-    <div className="relative w-full">
-      <div
-        ref={stageRef}
-        data-reading={isReading ? "true" : "false"}
-        className={`relative mx-auto grid w-full place-items-center ${
-          compact ? "min-h-[560px]" : "min-h-[100svh]"
-        }`}
-      >
-        <div className="absolute left-1/2 top-[86%] h-16 w-[min(82vw,560px)] -translate-x-1/2 rounded-full bg-[#b9796a]/14 blur-3xl" />
-
-        <div ref={lightRef} className="pointer-events-none absolute inset-0 z-10 m-auto h-fit w-[min(132vw,1040px)] opacity-0">
-          <Image src={assets.light} alt="" width={1600} height={900} className="h-auto w-full mix-blend-screen" />
-        </div>
-
-        <div ref={openDoorsRef} className="pointer-events-none absolute inset-0 z-20 m-auto aspect-[696/1221] w-[min(94vw,47svh,540px)] opacity-0">
-          <div className="absolute inset-[2%] rounded-[1.4rem] border border-[#d9a681]/30 shadow-[0_28px_72px_rgba(155,88,71,.16),inset_0_0_70px_rgba(255,244,232,.42)]" />
-          <div className="absolute inset-y-[9%] left-1/2 w-px bg-[linear-gradient(180deg,transparent,rgba(217,166,129,.44),transparent)]" />
-        </div>
-
-        <div data-closed-invitation className="absolute inset-0 z-30 m-auto aspect-[696/1221] w-[min(94vw,47svh,540px)] [perspective:1500px]">
-          <div
-            ref={leftDoorRef}
-            className="absolute inset-y-0 left-0 w-1/2 rounded-l-[1.25rem] bg-[url('/assets/invitation-blush/invitation-card-mobile.webp')] bg-[length:200%_100%] bg-left bg-no-repeat drop-shadow-[0_26px_60px_rgba(155,88,71,.22)] will-change-transform"
-          />
-          <div
-            ref={rightDoorRef}
-            className="absolute inset-y-0 right-0 w-1/2 rounded-r-[1.25rem] bg-[url('/assets/invitation-blush/invitation-card-mobile.webp')] bg-[length:200%_100%] bg-right bg-no-repeat drop-shadow-[0_26px_60px_rgba(155,88,71,.22)] will-change-transform"
-          />
-        </div>
-
-        <div
-          ref={cardRef}
-          data-invitation-card
-          className={
-            compact
-              ? "relative z-40 mt-2 w-[min(94vw,410px)] opacity-0 md:w-[min(86vw,920px)]"
-              : isReading
-                ? "absolute inset-0 z-40 m-auto w-[min(94vw,47svh,540px)] opacity-0"
-                : "absolute inset-0 z-40 m-auto w-[min(94vw,47svh,540px)] opacity-0"
-          }
-        >
-          <div className="relative aspect-[696/1221] w-full overflow-hidden rounded-[1.25rem] drop-shadow-[0_34px_92px_rgba(155,88,71,.22)]">
-            <Image src={assets.cardPortrait} alt="" fill sizes={compact ? "(min-width: 768px) 48vw, 94vw" : "94vw"} className="object-cover" priority={isOpen} />
-            <div className="pointer-events-none absolute inset-[3%] rounded-[1.05rem] border border-[#d9a681]/24 shadow-[inset_0_0_46px_rgba(255,255,255,.34)]" />
-            <div className="pointer-events-none absolute inset-x-[10%] top-[7%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.54),transparent)]" />
-            <div className="pointer-events-none absolute inset-x-[10%] bottom-[7%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.45),transparent)]" />
-            <CardSoftOverlays />
-            <div ref={contentRef} dir={isArabic ? "rtl" : "ltr"} className="absolute inset-[8.5%_8.5%_6.8%] z-10 flex flex-col items-center text-center text-[#432819] opacity-0">
-              <p className="mt-[1%] text-[clamp(.52rem,2.1vw,.72rem)] font-extrabold tracking-[0.16em] text-[#b77a5a] sm:text-[clamp(.62rem,1vw,.9rem)]">{labels.invite}</p>
-              <div className="my-[3%] flex items-center gap-2 text-[#c28a67]">
-                <span className="h-px w-12 bg-[linear-gradient(90deg,transparent,#c28a67)]" />
-                <span className="text-[.58rem]">◆</span>
-                <span className="h-px w-12 bg-[linear-gradient(90deg,#c28a67,transparent)]" />
-              </div>
-              <h1 className={`${isArabic ? "font-body" : "font-display"} text-[clamp(1.75rem,8vw,2.45rem)] font-extrabold leading-[1.12] text-[#9b653f] [text-shadow:0_8px_22px_rgba(183,122,90,.1)] sm:text-[clamp(2.3rem,4.2vw,4rem)]`}>
-                {groomName} <span className="mx-2 text-[#c98778]">&</span> {brideName}
-              </h1>
-              <InvitationCopyBlock language={language} message={message} />
-
-              <div className="mt-[5%] grid w-full grid-cols-3 gap-1.5 text-[#432819] sm:mt-[5.8%] sm:gap-3">
-                <InvitationInfo label={labels.venue} value={venue} />
-                <InvitationInfo label={labels.date} value={date} />
-                <InvitationInfo label={labels.time} value={time || labels.soon} />
-              </div>
-
-              {countdownTarget ? <InlineCountdown target={countdownTarget} language={language} label={labels.countdown} /> : null}
-
-              <div className="mt-auto h-px w-[58%] bg-[linear-gradient(90deg,transparent,rgba(194,138,103,.5),transparent)]" />
-              <p className="mt-[2%] text-[clamp(.58rem,2vw,.72rem)] font-extrabold text-[#b77a5a] sm:text-[clamp(.7rem,1vw,.9rem)]">{labels.honor}</p>
-              {onRsvpClick ? (
-                <button
-                  type="button"
-                  onClick={onRsvpClick}
-                  className="mt-[2.4%] rounded-full border border-[#c98674]/36 bg-[linear-gradient(135deg,rgba(255,255,255,.72),rgba(246,204,196,.62))] px-5 py-2 text-[clamp(.62rem,2.2vw,.78rem)] font-extrabold text-[#8f5d39] shadow-[0_10px_26px_rgba(183,122,90,.13)] transition hover:-translate-y-0.5 hover:border-[#c98674]/55"
-                >
-                  {labels.rsvp}
-                </button>
-              ) : null}
-            </div>
-          </div>
-        </div>
-
-        <button
-          ref={sealRef}
-          type="button"
-          disabled={isOpen}
-          onClick={onOpen}
-          aria-label="Open invitation seal"
-          className="absolute inset-0 z-50 m-auto grid h-[clamp(72px,18vw,118px)] w-[clamp(72px,18vw,118px)] place-items-center rounded-full outline-none transition duration-500 hover:scale-105 focus-visible:ring-2 focus-visible:ring-[#d89688]"
-        >
-          <Image
-            src={sealImageUrl || assets.seal}
-            alt=""
-            fill
-            sizes="132px"
-            className="object-contain drop-shadow-[0_18px_42px_rgba(156,79,71,.3)]"
-            unoptimized={Boolean(sealImageUrl)}
-          />
-          {sealImageUrl ? <span className="pointer-events-none absolute font-display text-[clamp(1.05rem,2.6vw,1.9rem)] text-[#fff7ec]">{initials}</span> : null}
+    <div className="relative grid min-h-[560px] w-full place-items-center overflow-hidden rounded-[1.5rem] bg-[#efe2cf] p-4">
+      <Image src={assets.background} alt="" fill sizes="100vw" className="object-cover" />
+      {!isOpen ? (
+        <button type="button" onClick={onOpen} className="relative aspect-[1080/1680] w-[min(78vw,330px)]">
+          <Image src={assets.closedEnvelope} alt="" fill sizes="330px" className="object-contain" />
+          <Image src={sealImageUrl || assets.seal} alt="" width={92} height={92} className="absolute left-1/2 top-[65%] -translate-x-1/2 -translate-y-1/2" />
+          <span className="absolute left-1/2 top-[65%] -translate-x-1/2 -translate-y-1/2 font-display text-[#ffe7a6]">{initials}</span>
         </button>
-
-        <AnimatePresence>
-          {!isOpen ? (
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute bottom-[4.5%] z-40 rounded-full border border-[#d9a681]/28 bg-white/72 px-5 py-2 text-xs font-bold text-[#8f5d39]/76 shadow-[0_14px_36px_rgba(183,122,90,.12)] backdrop-blur-xl"
-            >
-              {labels.hint}
-            </motion.p>
-          ) : null}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
-
-function InvitationCopyBlock({ language, message }: { language: InvitationLanguage; message: string }) {
-  const isArabic = language === "ar";
-  const cleanedMessage = message.trim();
-  const blockedGeneratedPhrases = ["بكل الحب والفرحة", "من العريس إلى عروسه", "اختارها قلبي", "From the groom to his bride", "the one my heart chose"];
-  const shouldShowCustomMessage = Boolean(
-    cleanedMessage && cleanedMessage !== fallbackMessage && !blockedGeneratedPhrases.some((phrase) => cleanedMessage.includes(phrase))
-  );
-  const opening = isArabic ? arabicOpening : englishOpening;
-  const formalMessage = isArabic ? fallbackMessage : englishFormalMessage;
-  const customLabel = isArabic ? "رسالة الدعوة" : "Invitation note";
-
-  return (
-    <div className="relative mt-[5%] w-full max-w-[92%] text-[#5a3927] sm:mt-[5.5%]">
-      <div className="pointer-events-none absolute -inset-x-2 -inset-y-3 rounded-[1.4rem] bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,.5),transparent_62%)] opacity-60" />
-      <div className="relative rounded-[1.1rem] border border-[#d9a681]/16 bg-white/20 px-3 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,.46)] sm:px-5 sm:py-5">
-        <div className="mx-auto mb-2.5 flex max-w-[180px] items-center justify-center gap-3 text-[#c28a67]">
-          <span className="h-px flex-1 bg-[linear-gradient(90deg,transparent,#c28a67)]" />
-          <span className="font-display text-sm leading-none">♡</span>
-          <span className="h-px flex-1 bg-[linear-gradient(90deg,#c28a67,transparent)]" />
-        </div>
-        <div className="space-y-2.5 text-[clamp(.68rem,2.55vw,.86rem)] font-bold leading-[1.78] text-[#4d3124]/86 sm:text-[clamp(.84rem,1.05vw,1rem)] sm:leading-[1.9]">
-          <p className={`${isArabic ? "font-body" : "font-display"} text-[clamp(.86rem,3.25vw,1.06rem)] font-extrabold leading-[1.58] text-[#9b653f] sm:text-[clamp(1rem,1.35vw,1.28rem)]`}>{opening}</p>
-          <p className="text-[#6e4a35]">{formalMessage}</p>
-          {shouldShowCustomMessage ? (
-            <div className="mx-auto max-w-xl rounded-[.9rem] border border-[#d9a681]/16 bg-[#fff8f3]/32 px-3 py-2.5">
-              <p className="text-[clamp(.54rem,1.8vw,.68rem)] font-black uppercase tracking-[0.18em] text-[#b77a5a]/70">{customLabel}</p>
-              <p className="mt-1.5 text-[#8f5d39]/86">{cleanedMessage}</p>
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CardSoftOverlays() {
-  const reduceMotion = useReducedMotion();
-  const sparkles = useMemo(
-    () => [
-      { left: "18%", top: "20%", delay: 0 },
-      { left: "82%", top: "24%", delay: 0.8 },
-      { left: "26%", top: "55%", delay: 1.6 },
-      { left: "74%", top: "62%", delay: 2.2 },
-      { left: "50%", top: "83%", delay: 1.1 }
-    ],
-    []
-  );
-
-  return (
-    <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden" aria-hidden="true">
-      <Image src={assets.petals} alt="" fill sizes="94vw" className="object-cover opacity-[0.08] mix-blend-multiply" />
-      <motion.span
-        className="absolute inset-x-[11%] top-[7%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.7),transparent)]"
-        animate={reduceMotion ? undefined : { opacity: [0.28, 0.64, 0.3] }}
-        transition={{ duration: 5.6, repeat: Infinity, ease: "easeInOut" }}
-      />
-      {sparkles.map((sparkle) => (
-        <motion.span
-          key={`${sparkle.left}-${sparkle.top}`}
-          className="absolute h-1.5 w-1.5 rotate-45 rounded-[2px] bg-[#d9a681] shadow-[0_0_16px_rgba(217,166,129,.5)]"
-          style={{ left: sparkle.left, top: sparkle.top, opacity: 0.18 }}
-          animate={reduceMotion ? { opacity: 0.16 } : { opacity: [0.08, 0.42, 0.12], scale: [0.85, 1.25, 0.9], y: [0, -6, 0] }}
-          transition={{ duration: 4.8, repeat: Infinity, delay: sparkle.delay, ease: "easeInOut" }}
+      ) : (
+        <InvitationCard
+          language={language}
+          groomName={displayName(groomName, language)}
+          brideName={displayName(brideName, language)}
+          monogram={initials || getMonogram(groomName, brideName, language)}
+          venue={venue}
+          dateParts={dateParts}
+          customMessage={cleanCustomMessage(message)}
         />
-      ))}
-    </div>
-  );
-}
-
-function InvitationInfo({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[.9rem] border border-[#d9a681]/18 bg-white/36 px-1.5 py-2.5 shadow-[0_10px_22px_rgba(183,122,90,.06),inset_0_1px_0_rgba(255,255,255,.5)] sm:px-3 sm:py-3.5">
-      <div className="mx-auto mb-2 h-px w-8 bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
-      <p className="text-[clamp(.48rem,1.7vw,.62rem)] font-extrabold text-[#b77a5a] sm:text-[clamp(.58rem,.82vw,.72rem)]">{label}</p>
-      <p className="mt-1 text-[clamp(.54rem,1.95vw,.72rem)] font-bold leading-4 text-[#432819]/82 sm:text-[clamp(.66rem,.9vw,.88rem)] sm:leading-5">{value}</p>
-    </div>
-  );
-}
-
-function RsvpChoice({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-4 text-sm font-extrabold transition ${
-        active
-          ? "border-[#c98674]/55 bg-[linear-gradient(135deg,#f4c9c2,#f0b9b4)] text-[#432819] shadow-[0_14px_40px_rgba(201,134,116,.2)]"
-          : "border-[#d9a681]/30 bg-white/58 text-[#6e4a35]/74 shadow-[inset_0_1px_0_rgba(255,255,255,.65)] hover:border-[#c98674]/60 hover:bg-white"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
-function RsvpModal({
-  open,
-  language,
-  guestName,
-  response,
-  loading,
-  error,
-  status,
-  onClose,
-  onGuestNameChange,
-  onResponseChange,
-  onSubmit
-}: {
-  open: boolean;
-  language: InvitationLanguage;
-  guestName: string;
-  response: RsvpResponse;
-  loading: boolean;
-  error: string;
-  status: string;
-  onClose: () => void;
-  onGuestNameChange: (value: string) => void;
-  onResponseChange: (value: RsvpResponse) => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-}) {
-  const isArabic = language === "ar";
-
-  return (
-    <AnimatePresence>
-      {open ? (
-        <motion.div
-          className="fixed inset-0 z-[90] grid place-items-end bg-[#432819]/22 px-3 py-4 backdrop-blur-[3px] sm:place-items-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        >
-          <motion.form
-            dir={isArabic ? "rtl" : "ltr"}
-            onSubmit={onSubmit}
-            onClick={(event) => event.stopPropagation()}
-            initial={{ opacity: 0, y: 28, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 18, scale: 0.98 }}
-            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-md overflow-hidden rounded-[1.45rem] border border-[#d9a681]/34 bg-[linear-gradient(135deg,rgba(255,250,246,.96),rgba(255,235,229,.94))] p-4 text-[#432819] shadow-[0_30px_92px_rgba(112,61,45,.22),inset_0_1px_0_rgba(255,255,255,.7)] sm:p-5"
-          >
-            <div className="mb-4 text-center">
-              <p className="font-display text-2xl text-[#9b653f]">{isArabic ? "تأكيد الحضور" : "Kindly RSVP"}</p>
-              <p className="mt-1 text-sm font-bold text-[#6e4a35]/62">{isArabic ? "رد بسيط يكمل جمال الدعوة" : "A simple reply for the couple"}</p>
-            </div>
-            <label>
-              <span className="mb-2 block text-sm font-bold text-[#6e4a35]/70">{isArabic ? "اسم الضيف" : "Guest name"}</span>
-              <input
-                value={guestName}
-                onChange={(event) => onGuestNameChange(event.target.value)}
-                className="w-full rounded-2xl border border-[#d9a681]/34 bg-white/78 px-5 py-3.5 text-[#432819] shadow-[inset_0_1px_0_rgba(255,255,255,.72)] outline-none transition placeholder:text-[#8f5d39]/42 focus:border-[#c98674] focus:bg-white [color-scheme:light]"
-                placeholder={isArabic ? "اكتب اسمك هنا" : "Enter your name"}
-                required
-              />
-            </label>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <RsvpChoice active={response === "accepted"} onClick={() => onResponseChange("accepted")} label={isArabic ? "قبول الدعوة" : "Accept"} />
-              <RsvpChoice active={response === "declined"} onClick={() => onResponseChange("declined")} label={isArabic ? "اعتذار" : "Decline"} />
-            </div>
-            <button
-              disabled={loading}
-              className="mt-4 w-full rounded-full bg-[linear-gradient(135deg,#c98d62,#8f5d39)] px-7 py-3.5 font-extrabold text-white shadow-[0_18px_48px_rgba(183,122,90,.22)] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-55"
-            >
-              {loading ? (isArabic ? "جاري الحفظ..." : "Saving...") : isArabic ? "إرسال الرد" : "Send reply"}
-            </button>
-            <button type="button" onClick={onClose} className="mt-3 w-full text-xs font-bold text-[#8f5d39]/60 transition hover:text-[#8f5d39]">
-              {isArabic ? "إغلاق" : "Close"}
-            </button>
-            {error ? <p className="mt-4 rounded-2xl border border-red-400/25 bg-red-500/10 p-3 text-sm text-red-800">{error}</p> : null}
-            {status ? <p className="mt-4 rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-800">{status}</p> : null}
-          </motion.form>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>
-  );
-}
-
-function InlineCountdown({ target, language, label }: { target: string; language: InvitationLanguage; label: string }) {
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    const interval = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(interval);
-  }, []);
-
-  const units = useMemo(() => {
-    const targetMs = new Date(target).getTime();
-    const diff = Number.isFinite(targetMs) ? Math.max(0, targetMs - now) : 0;
-    const days = Math.floor(diff / 86_400_000);
-    const hours = Math.floor((diff % 86_400_000) / 3_600_000);
-    const minutes = Math.floor((diff % 3_600_000) / 60_000);
-    const seconds = Math.floor((diff % 60_000) / 1000);
-
-    return [
-      { label: language === "ar" ? "يوم" : "Days", value: days },
-      { label: language === "ar" ? "ساعة" : "Hours", value: hours },
-      { label: language === "ar" ? "دقيقة" : "Minutes", value: minutes },
-      { label: language === "ar" ? "ثانية" : "Seconds", value: seconds }
-    ];
-  }, [language, now, target]);
-
-  return (
-    <div className="mt-[4.2%] w-full max-w-[86%]">
-      <p className="mb-2 text-[clamp(.48rem,1.75vw,.64rem)] font-extrabold tracking-[0.12em] text-[#b77a5a]/78 sm:text-[clamp(.58rem,.86vw,.72rem)]">{label}</p>
-      <div className="grid grid-cols-4 gap-1.5 sm:gap-2.5">
-        {units.map((unit) => (
-          <div key={unit.label} className="rounded-[.75rem] border border-[#d9a681]/20 bg-white/34 px-1 py-2 text-center shadow-[inset_0_1px_0_rgba(255,255,255,.42)]">
-            <p className="font-display text-[clamp(.86rem,3.2vw,1.1rem)] leading-none text-[#9b653f] sm:text-[clamp(1.1rem,1.5vw,1.55rem)]">{String(unit.value).padStart(2, "0")}</p>
-            <p className="mt-1 text-[clamp(.42rem,1.45vw,.54rem)] font-bold text-[#6e4a35]/62 sm:text-[clamp(.5rem,.74vw,.62rem)]">{unit.label}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function RosePetals({ className = "" }: { className?: string } = {}) {
-  const reduceMotion = useReducedMotion();
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 18 }, (_, index) => ({
-        id: index,
-        left: (index * 47) % 100,
-        delay: (index % 9) * 0.75,
-        size: 5 + (index % 5),
-        duration: 13 + (index % 6) * 1.6,
-        drift: index % 2 === 0 ? 20 : -18
-      })),
-    []
-  );
-
-  return (
-    <div className={`pointer-events-none absolute inset-0 z-[1] overflow-hidden ${className}`}>
-      <Image src={assets.petals} alt="" fill sizes="100vw" className="object-cover opacity-30 mix-blend-multiply" />
-      {particles.map((particle) => (
-        <motion.span
-          key={particle.id}
-          className={`absolute top-[-8%] rounded-full bg-[#d89688] shadow-[0_0_18px_rgba(216,150,136,.35)] ${
-            particle.id % 3 === 0 ? "hidden sm:block" : ""
-          }`}
-          style={{ left: `${particle.left}%`, width: particle.size, height: Math.max(3, particle.size - 2), opacity: 0.34 }}
-          animate={
-            reduceMotion
-              ? { opacity: [0.16, 0.3, 0.16] }
-              : { y: ["0vh", "112vh"], x: [0, particle.drift, -particle.drift / 2], rotate: [0, 35, -22], opacity: [0, 0.42, 0.18, 0] }
-          }
-          transition={{ duration: particle.duration, repeat: Infinity, delay: particle.delay, ease: "linear" }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function GoldDust({ className = "" }: { className?: string } = {}) {
-  const reduceMotion = useReducedMotion();
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 22 }, (_, index) => ({
-        id: index,
-        left: (index * 37) % 100,
-        top: (index * 19) % 100,
-        delay: (index % 8) * 0.45,
-        size: 2 + (index % 4),
-        duration: 9 + (index % 7) * 1.2
-      })),
-    []
-  );
-
-  return (
-    <div className={`pointer-events-none absolute inset-0 z-[2] overflow-hidden ${className}`}>
-      {particles.map((particle) => (
-        <motion.span
-          key={particle.id}
-          className={`absolute rounded-full bg-[#d7a57a] shadow-[0_0_18px_rgba(215,165,122,.58)] ${particle.id % 2 === 0 ? "hidden sm:block" : ""}`}
-          style={{ left: `${particle.left}%`, top: `${particle.top}%`, width: particle.size, height: particle.size, opacity: 0.26 }}
-          animate={
-            reduceMotion
-              ? { opacity: [0.16, 0.28, 0.16] }
-              : { y: [0, -18, 0], x: [0, 10, -6, 0], opacity: [0.12, 0.38, 0.18] }
-          }
-          transition={{ duration: particle.duration, repeat: Infinity, delay: particle.delay, ease: "easeInOut" }}
-        />
-      ))}
+      )}
+      {isOpen && countdownTarget ? null : null}
     </div>
   );
 }

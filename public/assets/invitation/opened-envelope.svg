@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1680" viewBox="0 0 1080 1680">
+    
+  <defs>
+    <filter id="paperNoise" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="4" seed="8"/>
+      <feColorMatrix type="saturate" values=".18"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 .16"/></feComponentTransfer>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="26" stdDeviation="22" flood-color="#2b130c" flood-opacity=".2"/>
+    </filter>
+    <linearGradient id="antiqueGold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff0bd"/><stop offset=".18" stop-color="#c79845"/><stop offset=".48" stop-color="#7a4a18"/><stop offset=".72" stop-color="#d8ad5e"/><stop offset="1" stop-color="#fff3c8"/>
+    </linearGradient>
+    <radialGradient id="waxGold" cx=".42" cy=".35" r=".72">
+      <stop stop-color="#ffe7a6"/><stop offset=".32" stop-color="#b98235"/><stop offset=".72" stop-color="#6a3715"/><stop offset="1" stop-color="#2d1308"/>
+    </radialGradient>
+    <linearGradient id="ivoryPaper" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fffaf0"/><stop offset=".5" stop-color="#f1e4cc"/><stop offset="1" stop-color="#fff6e5"/>
+    </linearGradient>
+    <linearGradient id="blackStock" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#090806"/><stop offset=".48" stop-color="#1d1713"/><stop offset="1" stop-color="#050403"/>
+    </linearGradient>
+    <linearGradient id="burgundy" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#3b070b"/><stop offset=".46" stop-color="#6d1820"/><stop offset="1" stop-color="#2a0508"/>
+    </linearGradient>
+    <symbol id="cornerVine" viewBox="0 0 220 220">
+      <path d="M18 202 C58 143, 78 76, 191 20" fill="none" stroke="url(#antiqueGold)" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M54 154 C83 148, 89 118, 70 101 C53 121, 49 139, 54 154Z" fill="#d8b879" opacity=".62"/>
+      <path d="M88 102 C118 101, 127 71, 109 52 C91 70, 85 88, 88 102Z" fill="#e7c990" opacity=".56"/>
+      <path d="M129 65 C157 69, 174 43, 160 22 C139 36, 128 50, 129 65Z" fill="#cfa664" opacity=".58"/>
+      <circle cx="42" cy="170" r="8" fill="#d8ad5e" opacity=".5"/>
+      <circle cx="105" cy="88" r="5" fill="#f2d69a" opacity=".62"/>
+      <path d="M24 194 C47 184 58 184 81 195M70 132 C91 122 105 124 126 140M119 72 C141 65 155 67 171 82" fill="none" stroke="#8f5d2b" stroke-width="1.2" opacity=".45"/>
+    </symbol>
+    <symbol id="tinyFlower" viewBox="0 0 100 100">
+      <g fill="#d6a2a2" opacity=".84">
+        <ellipse cx="50" cy="27" rx="13" ry="25"/>
+        <ellipse cx="50" cy="73" rx="13" ry="25"/>
+        <ellipse cx="27" cy="50" rx="25" ry="13"/>
+        <ellipse cx="73" cy="50" rx="25" ry="13"/>
+        <ellipse cx="33" cy="33" rx="11" ry="22" transform="rotate(-45 33 33)"/>
+        <ellipse cx="67" cy="67" rx="11" ry="22" transform="rotate(-45 67 67)"/>
+        <ellipse cx="67" cy="33" rx="11" ry="22" transform="rotate(45 67 33)"/>
+        <ellipse cx="33" cy="67" rx="11" ry="22" transform="rotate(45 33 67)"/>
+      </g>
+      <circle cx="50" cy="50" r="9" fill="#c79845"/>
+    </symbol>
+    <symbol id="arabesqueArch" viewBox="0 0 620 560">
+      <path d="M84 508V262C84 170 154 99 242 99h20C274 52 293 28 310 18c17 10 36 34 48 81h20c88 0 158 71 158 163v246" fill="none" stroke="url(#antiqueGold)" stroke-width="6"/>
+      <path d="M118 506V272c0-76 58-134 132-134h36c7-42 15-63 24-73 9 10 17 31 24 73h36c74 0 132 58 132 134v234" fill="none" stroke="#8a5b25" stroke-width="2.2" opacity=".42"/>
+    </symbol>
+  </defs>
+    <rect width="1080" height="1680" fill="none"/>
+    <rect x="90" y="125" width="900" height="1430" rx="30" fill="#0b0907" opacity=".92" filter="url(#softShadow)"/>
+    <path d="M112 125 540 742 968 125v1430H112Z" fill="#0f0c09"/>
+    <path d="M112 125 540 742 968 125" fill="none" stroke="url(#antiqueGold)" stroke-width="3" opacity=".45"/>
+    <path d="M112 1168 540 820l428 348v360H112Z" fill="#080706"/>
+    <path d="M112 1168 540 820l428 348" fill="none" stroke="#6d4b27" stroke-width="2" opacity=".7"/>
+    <rect x="146" y="202" width="788" height="1048" rx="22" fill="url(#ivoryPaper)" opacity=".98"/>
+    <rect x="172" y="230" width="736" height="990" rx="18" fill="none" stroke="url(#antiqueGold)" stroke-width="3" opacity=".7"/>
+  </svg>
