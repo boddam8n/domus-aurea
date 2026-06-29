@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Tajawal } from "next/font/google";
+import { Amiri, Cormorant_Garamond, Tajawal } from "next/font/google";
 import { LanguageProvider } from "@/components/language-provider";
 import { LuxuryAudioPlayer } from "@/components/luxury-audio-player";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -10,6 +10,20 @@ const tajawal = Tajawal({
   subsets: ["arabic", "latin"],
   weight: ["400", "500", "700", "800"],
   variable: "--font-tajawal",
+  display: "swap"
+});
+
+const amiri = Amiri({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "700"],
+  variable: "--font-amiri",
+  display: "swap"
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-cormorant",
   display: "swap"
 });
 
@@ -35,7 +49,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <body className={`${tajawal.variable} bg-[var(--color-bg)] font-body text-[var(--color-text)] antialiased`}>
+      <body className={`${tajawal.variable} ${amiri.variable} ${cormorant.variable} bg-[var(--color-bg)] font-body text-[var(--color-text)] antialiased`}>
         <LanguageProvider>
           <ThemeProvider>
             {children}

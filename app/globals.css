@@ -4,7 +4,8 @@
 
 :root {
   color-scheme: dark;
-  --font-display: "Didot", "Bodoni 72", "Playfair Display", Georgia, serif;
+  --font-display: var(--font-cormorant), "Didot", "Bodoni 72", "Playfair Display", Georgia, serif;
+  --font-arabic-luxury: var(--font-amiri), var(--font-tajawal), "Cairo", serif;
   --font-body: var(--font-tajawal), "Tajawal", "Cairo", "Segoe UI", Tahoma, Arial, sans-serif;
   --color-bg: #090806;
   --color-surface: rgba(255, 255, 255, 0.075);

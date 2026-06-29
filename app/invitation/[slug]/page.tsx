@@ -13,8 +13,8 @@ function getDemoInvitation(slug: string): PublicInvitation | null {
   return {
     id: "demo",
     slug,
-    bride_name: isTest ? "يوري" : "ليان",
-    groom_name: isTest ? "بودي" : "ياسين",
+    bride_name: isTest ? "مايار" : "ليان",
+    groom_name: isTest ? "أحمد" : "ياسين",
     wedding_date: "2026-12-12T20:00:00+02:00",
     venue: isTest ? "فندق ريتز كارلتون - القاهرة" : "قصر الزمرد - القاهرة",
     venue_address: null,

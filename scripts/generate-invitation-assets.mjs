@@ -230,4 +230,167 @@ await save(
   520
 );
 
+await save(
+  "bg-soft-ivory",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1800" viewBox="0 0 900 1800">
+    ${defs}
+    <rect width="900" height="1800" fill="#fff6ed"/>
+    <path d="M-120 320C160 120 330 312 560 156c152-102 272-116 442-58v1820H-120Z" fill="#f2d9cc" opacity=".46"/>
+    <path d="M-90 1360C206 1180 398 1316 690 1118c150-102 255-116 340-82v860H-90Z" fill="#f8eadc" opacity=".86"/>
+    <path d="M0 0h900v1800H0z" filter="url(#paperNoise)" opacity=".34"/>
+    <g opacity=".18">
+      <use href="#cornerVine" x="635" y="60" width="220" height="220"/>
+      <use href="#cornerVine" x="40" y="1510" width="230" height="230" transform="rotate(180 155 1625)"/>
+    </g>
+    <circle cx="160" cy="250" r="170" fill="#fffaf3" opacity=".42"/>
+    <circle cx="760" cy="1280" r="210" fill="#f0c6bb" opacity=".13"/>
+  </svg>`,
+  900,
+  1800
+);
+
+await save(
+  "bg-paper-texture",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1600" viewBox="0 0 900 1600">
+    ${defs}
+    <rect width="900" height="1600" fill="url(#ivoryPaper)"/>
+    <rect width="900" height="1600" filter="url(#paperNoise)" opacity=".7"/>
+    <path d="M80 160C210 90 328 134 428 72M716 1430c-120 64-218 48-312 104" fill="none" stroke="#d9b98c" stroke-width="16" opacity=".08"/>
+  </svg>`,
+  900,
+  1600
+);
+
+await save(
+  "closed-envelope",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1220" viewBox="0 0 900 1220">
+    ${defs}
+    <rect width="900" height="1220" fill="none"/>
+    <rect x="76" y="196" width="748" height="720" rx="28" fill="#fff5e8" filter="url(#softShadow)"/>
+    <rect x="96" y="216" width="708" height="680" rx="22" fill="url(#ivoryPaper)" stroke="url(#antiqueGold)" stroke-width="4"/>
+    <rect x="120" y="240" width="660" height="632" rx="18" fill="none" stroke="#8f5d2b" stroke-width="1.4" opacity=".22"/>
+    <path d="M96 216 450 585 804 216" fill="#f4e6d0" opacity=".82"/>
+    <path d="M96 896 450 576 804 896" fill="#fff3e2" opacity=".88"/>
+    <path d="M96 216 450 585 804 216M96 896 450 576 804 896" fill="none" stroke="#bd9860" stroke-width="2.2" opacity=".38"/>
+    <path d="M146 284c92 34 144 92 164 176M754 284c-92 34-144 92-164 176" fill="none" stroke="#d3ad70" stroke-width="2" opacity=".24"/>
+    <use href="#cornerVine" x="98" y="232" width="170" height="170" opacity=".22"/>
+    <use href="#cornerVine" x="632" y="232" width="170" height="170" transform="scale(-1 1) translate(-1434 0)" opacity=".22"/>
+    <use href="#tinyFlower" x="112" y="730" width="86" height="86" opacity=".5"/>
+    <use href="#tinyFlower" x="702" y="730" width="86" height="86" opacity=".5"/>
+  </svg>`,
+  900,
+  1220
+);
+
+await save(
+  "opened-envelope",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1220" viewBox="0 0 900 1220">
+    ${defs}
+    <rect width="900" height="1220" fill="none"/>
+    <rect x="76" y="306" width="748" height="610" rx="28" fill="#fff5e8" filter="url(#softShadow)"/>
+    <path d="M96 306 450 96 804 306" fill="#fff8ef" stroke="#bd9860" stroke-width="2.6" opacity=".9"/>
+    <path d="M96 916 450 596 804 916" fill="#fff2df" stroke="#bd9860" stroke-width="2" opacity=".9"/>
+    <path d="M96 306 450 640 804 306v610H96Z" fill="url(#ivoryPaper)" opacity=".82"/>
+    <rect x="118" y="330" width="664" height="562" rx="20" fill="none" stroke="url(#antiqueGold)" stroke-width="3" opacity=".55"/>
+  </svg>`,
+  900,
+  1220
+);
+
+await save(
+  "envelope-flap",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500" viewBox="0 0 900 500">${defs}<rect width="900" height="500" fill="none"/><path d="M82 420 450 56 818 420" fill="url(#ivoryPaper)" stroke="url(#antiqueGold)" stroke-width="4" filter="url(#softShadow)"/><path d="M142 390c110-120 196-182 308-206 116 24 202 88 308 206" fill="none" stroke="#bd9860" stroke-width="1.6" opacity=".24"/></svg>`,
+  900,
+  500
+);
+
+await save(
+  "envelope-inner",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="760" viewBox="0 0 900 760">${defs}<rect width="900" height="760" fill="none"/><rect x="82" y="48" width="736" height="650" rx="28" fill="url(#ivoryPaper)" filter="url(#softShadow)"/><path d="M110 92 450 402 790 92M110 664 450 378 790 664" fill="none" stroke="#bd9860" stroke-width="2" opacity=".42"/></svg>`,
+  900,
+  760
+);
+
+await save(
+  "wax-seal",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="420" height="420" viewBox="0 0 420 420">
+    ${defs}
+    <rect width="420" height="420" fill="none"/>
+    <path d="M210 38c27 0 42 22 65 27 24 5 50-7 69 10 20 17 11 46 24 68 12 21 40 33 40 62 0 28-28 42-40 63-13 22-4 51-24 68-19 17-45 5-69 10-23 5-38 27-65 27s-43-22-66-27c-24-5-50 7-69-10-20-17-11-46-24-68-12-21-40-35-40-63 0-29 28-41 40-62 13-22 4-51 24-68 19-17 45-5 69-10 23-5 39-27 66-27Z" fill="#c88f82" filter="url(#softShadow)"/>
+    <path d="M210 58c24 0 36 20 57 24 22 4 46-7 62 8 18 15 9 42 21 60 11 20 36 30 36 55s-25 38-36 57c-12 20-3 46-21 61-16 15-40 4-62 8-21 4-33 24-57 24s-38-20-59-24c-21-4-45 7-62-8-17-15-8-41-20-61-11-19-36-32-36-57s25-35 36-55c12-18 3-45 20-60 17-15 41-4 62-8 21-4 35-24 59-24Z" fill="none" stroke="#ffe1cf" stroke-width="5" opacity=".55"/>
+    <path d="M172 226c42-54 89-56 118-6M180 244c48 26 86 20 116-18" fill="none" stroke="#fff3d6" stroke-width="11" stroke-linecap="round" opacity=".72"/>
+  </svg>`,
+  420,
+  420
+);
+
+await save(
+  "wax-seal-open",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="420" height="420" viewBox="0 0 420 420">
+    ${defs}
+    <rect width="420" height="420" fill="none"/>
+    <path d="M197 42c-19 4-32 20-52 24-24 5-50-7-69 10-20 17-11 46-24 68-12 21-40 33-40 62 0 28 28 42 40 63 13 22 4 51 24 68 19 17 45 5 69 10 19 4 32 20 52 24l-14-104 25-58-28-49 22-72Z" fill="#c88f82" filter="url(#softShadow)"/>
+    <path d="M223 42c19 4 32 20 52 24 24 5 50-7 69 10 20 17 11 46 24 68 12 21 40 33 40 62 0 28-28 42-40 63-13 22-4 51-24 68-19 17-45 5-69 10-19 4-32 20-52 24l14-104-25-58 28-49-22-72Z" fill="#c88f82" filter="url(#softShadow)"/>
+    <path d="M210 78v65l-22 44 28 36-24 70 18 50" fill="none" stroke="#7d4d43" stroke-width="6" opacity=".58"/>
+  </svg>`,
+  420,
+  420
+);
+
+await save(
+  "floral-top-frame",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="340" viewBox="0 0 900 340">${defs}<rect width="900" height="340" fill="none"/><use href="#cornerVine" x="38" y="36" width="220" height="220"/><use href="#cornerVine" x="642" y="36" width="220" height="220" transform="scale(-1 1) translate(-1504 0)"/><use href="#tinyFlower" x="62" y="58" width="128" height="128"/><use href="#tinyFlower" x="710" y="58" width="128" height="128"/><path d="M230 114C310 58 590 58 670 114" fill="none" stroke="url(#antiqueGold)" stroke-width="3" opacity=".52"/></svg>`,
+  900,
+  340
+);
+
+await save(
+  "floral-bottom-frame",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420">${defs}<rect width="900" height="420" fill="none"/><use href="#cornerVine" x="28" y="142" width="260" height="260" transform="scale(1 -1) translate(0 -544)"/><use href="#cornerVine" x="612" y="142" width="260" height="260" transform="rotate(180 742 272)"/><use href="#tinyFlower" x="46" y="214" width="170" height="170"/><use href="#tinyFlower" x="684" y="214" width="170" height="170"/><path d="M210 304C330 350 570 350 690 304" fill="none" stroke="url(#antiqueGold)" stroke-width="3" opacity=".46"/></svg>`,
+  900,
+  420
+);
+
+await save(
+  "swans-lake",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">${defs}<rect width="900" height="520" fill="none"/><path d="M80 372c160-42 282-42 370 0 100-44 224-44 370 0v96H80Z" fill="#e7d9c8" opacity=".58"/><path d="M128 388c176 30 314 30 414 0 98-30 180-26 252 12" fill="none" stroke="#a7792d" stroke-width="2" opacity=".28"/><path d="M286 330c38 18 76 18 114 0 38 24 78 32 120 24-44 42-104 58-170 44-48-10-84-32-108-66 10-4 24-4 44-2Z" fill="#fffaf2" stroke="#d4b075" stroke-width="2"/><path d="M330 318c-16-50 20-96 72-92 32 2 52 20 70 48-42-22-80-10-100 36" fill="none" stroke="#fffaf2" stroke-width="28" stroke-linecap="round"/><path d="M520 330c38 18 76 18 114 0 38 24 78 32 120 24-44 42-104 58-170 44-48-10-84-32-108-66 10-4 24-4 44-2Z" fill="#fffaf2" stroke="#d4b075" stroke-width="2"/><path d="M564 318c-16-50 20-96 72-92 32 2 52 20 70 48-42-22-80-10-100 36" fill="none" stroke="#fffaf2" stroke-width="28" stroke-linecap="round"/><use href="#tinyFlower" x="58" y="260" width="128" height="128"/><use href="#tinyFlower" x="718" y="260" width="128" height="128"/></svg>`,
+  900,
+  520
+);
+
+await save(
+  "invitation-hero-frame",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1600" viewBox="0 0 900 1600">${defs}<rect width="900" height="1600" fill="url(#ivoryPaper)"/><rect width="900" height="1600" filter="url(#paperNoise)" opacity=".58"/><rect x="44" y="44" width="812" height="1512" rx="38" fill="none" stroke="url(#antiqueGold)" stroke-width="4" opacity=".72"/><use href="#arabesqueArch" x="140" y="140" width="620" height="560" opacity=".78"/><use href="#cornerVine" x="58" y="68" width="220" height="220"/><use href="#cornerVine" x="622" y="68" width="220" height="220" transform="scale(-1 1) translate(-1464 0)"/><use href="#tinyFlower" x="72" y="112" width="150" height="150"/><use href="#tinyFlower" x="678" y="112" width="150" height="150"/><path d="M104 1248c152 84 540 84 692 0" fill="none" stroke="#c79845" stroke-width="2" opacity=".28"/></svg>`,
+  900,
+  1600
+);
+
+await save(
+  "venue-illustration",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">${defs}<rect width="900" height="520" fill="none"/><path d="M170 392h560M218 392V210h464v182M254 210l196-92 196 92M292 392V248M382 392V248M518 392V248M608 392V248" fill="none" stroke="#8a5b25" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".62"/><path d="M450 118v274M214 210h472M250 248h400M286 304h328" fill="none" stroke="#c79845" stroke-width="3" opacity=".46"/><path d="M138 414c170 40 454 40 624 0" fill="none" stroke="#d7a57a" stroke-width="2" opacity=".3"/><use href="#cornerVine" x="52" y="248" width="160" height="160" opacity=".34"/><use href="#cornerVine" x="688" y="248" width="160" height="160" transform="scale(-1 1) translate(-1536 0)" opacity=".34"/></svg>`,
+  900,
+  520
+);
+
+await save(
+  "map-frame",
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560">${defs}<rect x="36" y="34" width="828" height="492" rx="34" fill="#fffaf0" filter="url(#softShadow)"/><rect x="62" y="60" width="776" height="440" rx="24" fill="none" stroke="url(#antiqueGold)" stroke-width="4"/><path d="M124 394C240 302 300 346 406 252c92-82 154-64 238-126M136 168c134 28 222 22 354 118 86 62 148 76 262 48" fill="none" stroke="#d6b882" stroke-width="16" opacity=".24"/><path d="M450 158c54 0 98 42 98 94 0 72-98 156-98 156s-98-84-98-156c0-52 44-94 98-94Z" fill="#c88f82" opacity=".58"/><circle cx="450" cy="252" r="34" fill="#fff8ec" opacity=".9"/><path d="M102 112h696v336H102z" fill="none" stroke="#8a5b25" stroke-width="1.4" opacity=".24"/></svg>`,
+  900,
+  560
+);
+
+await fs.writeFile(
+  path.join(outDir, "floral-divider.svg"),
+  `<svg xmlns="http://www.w3.org/2000/svg" width="520" height="56" viewBox="0 0 520 56"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="transparent"/><stop offset=".18" stop-color="#d7a57a"/><stop offset=".5" stop-color="#a7792d"/><stop offset=".82" stop-color="#d7a57a"/><stop offset="1" stop-color="transparent"/></linearGradient></defs><path d="M0 28h212M308 28h212" stroke="url(#g)" stroke-width="2"/><path d="M260 10c18 14 18 22 0 36-18-14-18-22 0-36Z" fill="#c88f82" opacity=".72"/><path d="M232 30c18-16 38-16 56 0" fill="none" stroke="#a7792d" stroke-width="2" stroke-linecap="round"/></svg>`,
+  "utf8"
+);
+
+await fs.writeFile(
+  path.join(outDir, "ornamental-corners.svg"),
+  `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#fff0bd"/><stop offset=".5" stop-color="#c79845"/><stop offset="1" stop-color="#7a4a18"/></linearGradient></defs><path d="M70 250C90 130 150 70 270 50M90 190c70-8 106-46 126-116M706 50c120 20 180 80 200 200M790 74c20 70 56 108 126 116M70 650c20 120 80 180 200 200M90 710c70 8 106 46 126 116M706 850c120-20 180-80 200-200M790 826c20-70 56-108 126-116" fill="none" stroke="url(#g)" stroke-width="5" stroke-linecap="round" opacity=".62"/></svg>`,
+  "utf8"
+);
+
+await fs.copyFile(path.join(outDir, "subtle-noise.png"), path.join(outDir, "paper-noise.png"));
+
 console.log(`Generated assets in ${outDir}`);
