@@ -13,7 +13,7 @@ type InvitationLanguage = "ar" | "en";
 const assets = {
   background: "/assets/invitation-blush/background.webp",
   doorsClosed: "/assets/invitation-blush/doors-closed-wide.webp",
-  cardTall: "/assets/invitation-blush/invitation-card-tall.webp",
+  cardPortrait: "/assets/invitation-blush/invitation-card-mobile.webp",
   seal: "/assets/invitation-blush/wax-seal.webp",
   petals: "/assets/invitation-blush/petals.webp",
   light: "/assets/invitation-blush/light-burst.webp"
@@ -101,6 +101,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rsvpVisible, setRsvpVisible] = useState(false);
 
   const direction = language === "ar" ? "rtl" : "ltr";
   const dateParts = useMemo(() => getInvitationDateParts(invitation.wedding_date, language), [invitation.wedding_date, language]);
@@ -152,7 +153,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
   }
 
   return (
-    <section dir={direction} className="relative min-h-[100svh] overflow-x-hidden bg-[#fff5f1] text-[#432819]">
+    <section dir={direction} className="relative min-h-[100svh] overflow-x-hidden bg-[#fff5f1] text-[#432819] [color-scheme:light]">
       <div className="relative min-h-[100svh]">
         <Image src={assets.background} alt="" fill priority sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_9%,rgba(255,247,240,.82),transparent_38%),linear-gradient(180deg,rgba(255,248,244,.62),rgba(255,237,230,.76)_58%,#fff8f4_100%)]" />
@@ -161,7 +162,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
         <RosePetals />
         <GoldDust />
 
-        <main className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1920px] flex-col items-center justify-center px-2 py-6 sm:px-5 lg:px-8">
+        <main className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1920px] flex-col items-center justify-center px-2 py-0 sm:px-5 lg:px-8">
         <LanguageToggle language={language} onChange={setLanguage} />
 
         <RoyalDoorStage
@@ -177,66 +178,24 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
           time={dateParts.time}
           venue={invitation.venue}
           message={invitationText}
+          countdownTarget={invitation.wedding_date}
           sealImageUrl={invitation.seal_image_url}
+          onRsvpClick={() => setRsvpVisible(true)}
         />
-
-        {isReading ? (
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-6xl overflow-hidden"
-          >
-            <div className="relative mt-6 overflow-hidden rounded-[1.6rem] border border-[#d9a681]/38 bg-[linear-gradient(135deg,rgba(255,255,255,.76),rgba(255,238,231,.58))] p-4 shadow-[0_26px_90px_rgba(173,99,82,.16),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-xl sm:p-5">
-              <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
-              <p className="text-center text-sm font-extrabold tracking-[0.16em] text-[#a46a43]">{language === "ar" ? "الوقت المتبقي" : "Countdown"}</p>
-              <LuxuryCountdown target={invitation.wedding_date} language={language} />
-            </div>
-          </motion.div>
-        ) : null}
-
-        {isReading ? (
-          <motion.form
-            onSubmit={submitRsvp}
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.78, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-6xl overflow-hidden"
-          >
-            <div className="relative mt-5 overflow-hidden rounded-[1.6rem] border border-[#d9a681]/30 bg-[linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,240,234,.62))] p-4 shadow-[0_24px_90px_rgba(173,99,82,.14),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-xl sm:p-5">
-              <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
-              <div className="mb-5 text-center">
-                <p className="font-display text-2xl text-[#9b653f]">{language === "ar" ? "تأكيد الحضور" : "Kindly RSVP"}</p>
-                <p className="mt-1 text-sm font-bold text-[#6e4a35]/62">{language === "ar" ? "اكتب اسمك واختر ردك بكل بساطة" : "Write your name and choose your reply"}</p>
-              </div>
-              <div className="flex flex-col gap-4 md:flex-row md:items-end">
-                <label className="flex-1">
-                  <span className="mb-2 block text-sm font-bold text-[#6e4a35]/70">{language === "ar" ? "اسم الضيف" : "Guest name"}</span>
-                  <input
-                    value={guestName}
-                    onChange={(event) => setGuestName(event.target.value)}
-                    className="w-full rounded-2xl border border-[#d9a681]/34 bg-white/76 px-5 py-4 text-[#432819] shadow-[inset_0_1px_0_rgba(255,255,255,.72)] outline-none transition placeholder:text-[#8f5d39]/42 focus:border-[#c98674] focus:bg-white"
-                    placeholder={language === "ar" ? "اكتب اسمك هنا" : "Enter your name"}
-                    required
-                  />
-                </label>
-                <div className="grid gap-3 sm:grid-cols-2 md:w-[330px]">
-                  <RsvpChoice active={response === "accepted"} onClick={() => setResponse("accepted")} label={language === "ar" ? "قبول الدعوة" : "Accept"} />
-                  <RsvpChoice active={response === "declined"} onClick={() => setResponse("declined")} label={language === "ar" ? "اعتذار" : "Decline"} />
-                </div>
-                <button
-                  disabled={loading}
-                  className="rounded-full bg-[linear-gradient(135deg,#c98d62,#8f5d39)] px-7 py-4 font-extrabold text-white shadow-[0_18px_48px_rgba(183,122,90,.24)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_62px_rgba(183,122,90,.28)] disabled:translate-y-0 disabled:opacity-55 md:w-[170px]"
-                >
-                  {loading ? (language === "ar" ? "جاري الحفظ..." : "Saving...") : language === "ar" ? "إرسال" : "Send"}
-                </button>
-              </div>
-              {error ? <p className="mt-4 rounded-2xl border border-red-400/25 bg-red-500/10 p-3 text-sm text-red-800">{error}</p> : null}
-              {status ? <p className="mt-4 rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-800">{status}</p> : null}
-            </div>
-          </motion.form>
-        ) : null}
         </main>
+        <RsvpModal
+          open={rsvpVisible}
+          language={language}
+          guestName={guestName}
+          response={response}
+          loading={loading}
+          error={error}
+          status={status}
+          onClose={() => setRsvpVisible(false)}
+          onGuestNameChange={setGuestName}
+          onResponseChange={setResponse}
+          onSubmit={submitRsvp}
+        />
       </div>
     </section>
   );
@@ -282,7 +241,9 @@ export function LuxuryInvitationArtifact(props: {
   time?: string;
   venue: string;
   message: string;
+  countdownTarget?: string;
   sealImageUrl?: string | null;
+  onRsvpClick?: () => void;
 }) {
   const [isReading, setIsReading] = useState(props.isOpen);
   const handleReading = useCallback(() => setIsReading(true), []);
@@ -307,7 +268,9 @@ function RoyalDoorStage({
   time = "",
   venue,
   message,
+  countdownTarget,
   sealImageUrl,
+  onRsvpClick,
   compact = false
 }: {
   isOpen: boolean;
@@ -322,7 +285,9 @@ function RoyalDoorStage({
   time?: string;
   venue: string;
   message: string;
+  countdownTarget?: string;
   sealImageUrl?: string | null;
+  onRsvpClick?: () => void;
   compact?: boolean;
 }) {
   const reduceMotion = useReducedMotion();
@@ -339,28 +304,23 @@ function RoyalDoorStage({
     const nodes = [leftDoorRef.current, rightDoorRef.current, openDoorsRef.current, cardRef.current, lightRef.current, sealRef.current, contentRef.current].filter(Boolean);
     const finishReveal = () => {
       onReading();
-      if (!compact && cardRef.current) {
-        window.setTimeout(() => {
-          cardRef.current?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-        }, 80);
-      }
     };
 
     if (!isOpen) {
       gsap.set(nodes, { clearProps: "all" });
       gsap.set(openDoorsRef.current, { autoAlpha: 0, scale: 0.98 });
       gsap.set(lightRef.current, { autoAlpha: 0, scale: 0.7 });
-      gsap.set(cardRef.current, { autoAlpha: 0, y: 42, scale: 0.88, filter: "blur(9px)" });
-      gsap.set(contentRef.current, { autoAlpha: 0, y: 10 });
+      gsap.set(cardRef.current, { autoAlpha: 0, y: 18, scale: 0.95, filter: "blur(4px)" });
+      gsap.set(contentRef.current, { autoAlpha: 0, y: 6 });
       return;
     }
 
     const ctx = gsap.context(() => {
       if (reduceMotion) {
-        gsap.set(leftDoorRef.current, { xPercent: -58, autoAlpha: 0 });
-        gsap.set(rightDoorRef.current, { xPercent: 58, autoAlpha: 0 });
+        gsap.set(leftDoorRef.current, { xPercent: -46, autoAlpha: 0 });
+        gsap.set(rightDoorRef.current, { xPercent: 46, autoAlpha: 0 });
         gsap.set(openDoorsRef.current, { autoAlpha: 1, scale: 1 });
-        gsap.set(lightRef.current, { autoAlpha: 0.92, scale: 1 });
+        gsap.set(lightRef.current, { autoAlpha: 0.54, scale: 1 });
         gsap.set(sealRef.current, { autoAlpha: 0, pointerEvents: "none" });
         gsap.set(cardRef.current, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)" });
         gsap.set(contentRef.current, { autoAlpha: 1, y: 0 });
@@ -374,14 +334,14 @@ function RoyalDoorStage({
       });
 
       timeline
-        .to(sealRef.current, { scale: 1.07, duration: 0.34, ease: "power2.out" }, 0)
-        .to(sealRef.current, { autoAlpha: 0, scale: 0.88, duration: 0.86, ease: "power2.inOut" }, 0.34)
-        .to(leftDoorRef.current, { xPercent: -74, rotateY: -18, autoAlpha: 0.08, duration: 2.65, ease: "expo.inOut" }, 0.64)
-        .to(rightDoorRef.current, { xPercent: 74, rotateY: 18, autoAlpha: 0.08, duration: 2.65, ease: "expo.inOut" }, 0.64)
-        .to(openDoorsRef.current, { autoAlpha: 1, scale: 1.04, duration: 2.1, ease: "power3.out" }, 0.92)
-        .to(lightRef.current, { autoAlpha: 0.98, scale: 1.34, duration: 2.35, ease: "power2.out" }, 0.8)
-        .to(cardRef.current, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 1.92, ease: "expo.out" }, 1.86)
-        .to(contentRef.current, { autoAlpha: 1, y: 0, duration: 1.08, ease: "power2.out" }, 2.58)
+        .to(sealRef.current, { scale: 1.04, duration: 0.38, ease: "power2.out" }, 0)
+        .to(sealRef.current, { autoAlpha: 0, scale: 0.92, duration: 0.78, ease: "power2.inOut" }, 0.3)
+        .to(leftDoorRef.current, { xPercent: -54, rotateY: -10, autoAlpha: 0.14, duration: 2.15, ease: "expo.inOut" }, 0.54)
+        .to(rightDoorRef.current, { xPercent: 54, rotateY: 10, autoAlpha: 0.14, duration: 2.15, ease: "expo.inOut" }, 0.54)
+        .to(openDoorsRef.current, { autoAlpha: 1, scale: 1.01, duration: 1.8, ease: "power3.out" }, 0.78)
+        .to(lightRef.current, { autoAlpha: 0.58, scale: 1.12, duration: 1.9, ease: "power2.out" }, 0.7)
+        .to(cardRef.current, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 1.55, ease: "expo.out" }, 1.46)
+        .to(contentRef.current, { autoAlpha: 1, y: 0, duration: 0.92, ease: "power2.out" }, 2.06)
         .set(sealRef.current, { pointerEvents: "none" }, 0.36);
     }, stageRef);
 
@@ -396,7 +356,9 @@ function RoyalDoorStage({
     time: isArabic ? "الساعة" : "Time",
     soon: isArabic ? "قريبًا" : "Soon",
     honor: isArabic ? "نتشرف بحضوركم" : "With love and joy",
-    hint: isArabic ? "اضغط على الختم لفتح الدعوة" : "Click the seal to open"
+    hint: isArabic ? "اضغط على الختم لفتح الدعوة" : "Click the seal to open",
+    countdown: isArabic ? "الوقت المتبقي" : "Countdown",
+    rsvp: isArabic ? "تأكيد الحضور" : "RSVP"
   };
 
   return (
@@ -405,28 +367,28 @@ function RoyalDoorStage({
         ref={stageRef}
         data-reading={isReading ? "true" : "false"}
         className={`relative mx-auto grid w-full place-items-center ${
-          compact ? "min-h-[560px]" : "min-h-[clamp(640px,100svh,980px)] md:min-h-[100svh]"
+          compact ? "min-h-[560px]" : "min-h-[100svh]"
         }`}
       >
-        <div className="absolute left-1/2 top-[84%] h-20 w-[min(88vw,980px)] -translate-x-1/2 rounded-full bg-[#b9796a]/16 blur-3xl" />
+        <div className="absolute left-1/2 top-[86%] h-16 w-[min(82vw,560px)] -translate-x-1/2 rounded-full bg-[#b9796a]/14 blur-3xl" />
 
-        <div ref={lightRef} className="pointer-events-none absolute left-1/2 top-[44%] z-10 w-[min(132vw,1500px)] -translate-x-1/2 -translate-y-1/2 opacity-0">
+        <div ref={lightRef} className="pointer-events-none absolute inset-0 z-10 m-auto h-fit w-[min(132vw,1040px)] opacity-0">
           <Image src={assets.light} alt="" width={1600} height={900} className="h-auto w-full mix-blend-screen" />
         </div>
 
-        <div ref={openDoorsRef} className="pointer-events-none absolute left-1/2 top-[43%] z-20 aspect-[1672/941] w-[min(100vw,1280px)] -translate-x-1/2 -translate-y-1/2 opacity-0">
-          <div className="absolute inset-[2%] rounded-[2rem] border border-[#d9a681]/38 shadow-[0_34px_92px_rgba(155,88,71,.18),inset_0_0_90px_rgba(255,244,232,.5)]" />
-          <div className="absolute inset-y-[9%] left-1/2 w-px bg-[linear-gradient(180deg,transparent,rgba(217,166,129,.62),transparent)]" />
+        <div ref={openDoorsRef} className="pointer-events-none absolute inset-0 z-20 m-auto aspect-[696/1221] w-[min(94vw,47svh,540px)] opacity-0">
+          <div className="absolute inset-[2%] rounded-[1.4rem] border border-[#d9a681]/30 shadow-[0_28px_72px_rgba(155,88,71,.16),inset_0_0_70px_rgba(255,244,232,.42)]" />
+          <div className="absolute inset-y-[9%] left-1/2 w-px bg-[linear-gradient(180deg,transparent,rgba(217,166,129,.44),transparent)]" />
         </div>
 
-        <div data-closed-invitation className="absolute left-1/2 top-[43%] z-30 aspect-[1672/941] w-[min(96vw,1240px)] -translate-x-1/2 -translate-y-1/2 md:w-[min(94vw,1320px)] [perspective:1700px]">
+        <div data-closed-invitation className="absolute inset-0 z-30 m-auto aspect-[696/1221] w-[min(94vw,47svh,540px)] [perspective:1500px]">
           <div
             ref={leftDoorRef}
-            className="absolute inset-y-0 left-0 w-1/2 bg-[url('/assets/invitation-blush/doors-closed-wide.webp')] bg-[length:200%_100%] bg-left bg-no-repeat drop-shadow-[0_30px_80px_rgba(155,88,71,.28)] will-change-transform"
+            className="absolute inset-y-0 left-0 w-1/2 rounded-l-[1.25rem] bg-[url('/assets/invitation-blush/invitation-card-mobile.webp')] bg-[length:200%_100%] bg-left bg-no-repeat drop-shadow-[0_26px_60px_rgba(155,88,71,.22)] will-change-transform"
           />
           <div
             ref={rightDoorRef}
-            className="absolute inset-y-0 right-0 w-1/2 bg-[url('/assets/invitation-blush/doors-closed-wide.webp')] bg-[length:200%_100%] bg-right bg-no-repeat drop-shadow-[0_30px_80px_rgba(155,88,71,.28)] will-change-transform"
+            className="absolute inset-y-0 right-0 w-1/2 rounded-r-[1.25rem] bg-[url('/assets/invitation-blush/invitation-card-mobile.webp')] bg-[length:200%_100%] bg-right bg-no-repeat drop-shadow-[0_26px_60px_rgba(155,88,71,.22)] will-change-transform"
           />
         </div>
 
@@ -437,36 +399,47 @@ function RoyalDoorStage({
             compact
               ? "relative z-40 mt-2 w-[min(94vw,410px)] opacity-0 md:w-[min(86vw,920px)]"
               : isReading
-                ? "relative z-40 mt-8 w-[min(96vw,430px)] scroll-mt-28 opacity-0 md:mt-10 md:w-[94vw] md:scroll-mt-28 2xl:w-[92vw]"
-                : "absolute left-0 right-0 top-[clamp(110px,12svh,170px)] z-40 mx-auto w-[min(96vw,430px)] opacity-0 md:w-[94vw] 2xl:w-[92vw]"
+                ? "absolute inset-0 z-40 m-auto w-[min(94vw,47svh,540px)] opacity-0"
+                : "absolute inset-0 z-40 m-auto w-[min(94vw,47svh,540px)] opacity-0"
           }
         >
-          <div className="relative min-h-[1180px] w-full overflow-hidden rounded-[1.35rem] drop-shadow-[0_48px_130px_rgba(155,88,71,.3)] md:aspect-[864/1821] md:min-h-0">
-            <Image src={assets.cardTall} alt="" fill sizes={compact ? "(min-width: 768px) 86vw, 96vw" : "94vw"} className="object-cover md:object-contain" priority={isOpen} />
-            <div className="pointer-events-none absolute inset-[3%] rounded-[1.25rem] border border-[#d9a681]/28 shadow-[inset_0_0_70px_rgba(255,255,255,.38)]" />
-            <div className="pointer-events-none absolute inset-x-[8%] top-[6%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.64),transparent)]" />
-            <div className="pointer-events-none absolute inset-x-[8%] bottom-[6%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.5),transparent)]" />
+          <div className="relative aspect-[696/1221] w-full overflow-hidden rounded-[1.25rem] drop-shadow-[0_34px_92px_rgba(155,88,71,.22)]">
+            <Image src={assets.cardPortrait} alt="" fill sizes={compact ? "(min-width: 768px) 48vw, 94vw" : "94vw"} className="object-cover" priority={isOpen} />
+            <div className="pointer-events-none absolute inset-[3%] rounded-[1.05rem] border border-[#d9a681]/24 shadow-[inset_0_0_46px_rgba(255,255,255,.34)]" />
+            <div className="pointer-events-none absolute inset-x-[10%] top-[7%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.54),transparent)]" />
+            <div className="pointer-events-none absolute inset-x-[10%] bottom-[7%] h-px bg-[linear-gradient(90deg,transparent,rgba(217,166,129,.45),transparent)]" />
             <CardSoftOverlays />
-            <div ref={contentRef} dir={isArabic ? "rtl" : "ltr"} className="absolute inset-[8%_8%_7%] z-10 flex flex-col items-center text-center text-[#432819] opacity-0 md:inset-[9%_10%_7%]">
-              <p className="mt-[2%] text-[clamp(.62rem,1.05vw,1rem)] font-extrabold tracking-[0.18em] text-[#b77a5a]">{labels.invite}</p>
-              <div className="my-[3.5%] flex items-center gap-3 text-[#c28a67] md:my-[3%]">
-                <span className="h-px w-16 bg-[linear-gradient(90deg,transparent,#c28a67)]" />
-                <span className="text-xs">◆</span>
-                <span className="h-px w-16 bg-[linear-gradient(90deg,#c28a67,transparent)]" />
+            <div ref={contentRef} dir={isArabic ? "rtl" : "ltr"} className="absolute inset-[8.5%_8.5%_6.8%] z-10 flex flex-col items-center text-center text-[#432819] opacity-0">
+              <p className="mt-[1%] text-[clamp(.52rem,2.1vw,.72rem)] font-extrabold tracking-[0.16em] text-[#b77a5a] sm:text-[clamp(.62rem,1vw,.9rem)]">{labels.invite}</p>
+              <div className="my-[3%] flex items-center gap-2 text-[#c28a67]">
+                <span className="h-px w-12 bg-[linear-gradient(90deg,transparent,#c28a67)]" />
+                <span className="text-[.58rem]">◆</span>
+                <span className="h-px w-12 bg-[linear-gradient(90deg,#c28a67,transparent)]" />
               </div>
-              <h1 className="font-display text-[clamp(1.65rem,7.4vw,2.35rem)] leading-[1.16] text-[#9b653f] [text-shadow:0_10px_28px_rgba(183,122,90,.12)] md:text-[clamp(3.2rem,5.45vw,6.6rem)]">
+              <h1 className={`${isArabic ? "font-body" : "font-display"} text-[clamp(1.75rem,8vw,2.45rem)] font-extrabold leading-[1.12] text-[#9b653f] [text-shadow:0_8px_22px_rgba(183,122,90,.1)] sm:text-[clamp(2.3rem,4.2vw,4rem)]`}>
                 {groomName} <span className="mx-2 text-[#c98778]">&</span> {brideName}
               </h1>
-              <InvitationCopyBlock language={language} brideName={brideName} message={message} />
+              <InvitationCopyBlock language={language} message={message} />
 
-              <div className="mt-[7%] grid w-full max-w-[86%] grid-cols-1 gap-2.5 text-[#432819] md:mt-[5.6%] md:max-w-5xl md:grid-cols-3 md:gap-4">
+              <div className="mt-[5%] grid w-full grid-cols-3 gap-1.5 text-[#432819] sm:mt-[5.8%] sm:gap-3">
                 <InvitationInfo label={labels.venue} value={venue} />
                 <InvitationInfo label={labels.date} value={date} />
                 <InvitationInfo label={labels.time} value={time || labels.soon} />
               </div>
 
-              <div className="mt-auto h-px w-[64%] bg-[linear-gradient(90deg,transparent,rgba(194,138,103,.55),transparent)]" />
-              <p className="mt-[2%] text-[clamp(.68rem,1.1vw,.94rem)] font-extrabold text-[#b77a5a]">{labels.honor}</p>
+              {countdownTarget ? <InlineCountdown target={countdownTarget} language={language} label={labels.countdown} /> : null}
+
+              <div className="mt-auto h-px w-[58%] bg-[linear-gradient(90deg,transparent,rgba(194,138,103,.5),transparent)]" />
+              <p className="mt-[2%] text-[clamp(.58rem,2vw,.72rem)] font-extrabold text-[#b77a5a] sm:text-[clamp(.7rem,1vw,.9rem)]">{labels.honor}</p>
+              {onRsvpClick ? (
+                <button
+                  type="button"
+                  onClick={onRsvpClick}
+                  className="mt-[2.4%] rounded-full border border-[#c98674]/36 bg-[linear-gradient(135deg,rgba(255,255,255,.72),rgba(246,204,196,.62))] px-5 py-2 text-[clamp(.62rem,2.2vw,.78rem)] font-extrabold text-[#8f5d39] shadow-[0_10px_26px_rgba(183,122,90,.13)] transition hover:-translate-y-0.5 hover:border-[#c98674]/55"
+                >
+                  {labels.rsvp}
+                </button>
+              ) : null}
             </div>
           </div>
         </div>
@@ -477,7 +450,7 @@ function RoyalDoorStage({
           disabled={isOpen}
           onClick={onOpen}
           aria-label="Open invitation seal"
-          className="absolute left-1/2 top-[43%] z-50 grid h-[clamp(84px,12vw,150px)] w-[clamp(84px,12vw,150px)] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full outline-none transition duration-500 hover:scale-105 focus-visible:ring-2 focus-visible:ring-[#d89688]"
+          className="absolute inset-0 z-50 m-auto grid h-[clamp(72px,18vw,118px)] w-[clamp(72px,18vw,118px)] place-items-center rounded-full outline-none transition duration-500 hover:scale-105 focus-visible:ring-2 focus-visible:ring-[#d89688]"
         >
           <Image
             src={sealImageUrl || assets.seal}
@@ -497,7 +470,7 @@ function RoyalDoorStage({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute bottom-[10%] z-40 rounded-full border border-[#d9a681]/28 bg-white/46 px-5 py-2 text-xs font-bold text-[#8f5d39]/76 shadow-[0_18px_48px_rgba(183,122,90,.12)] backdrop-blur-xl md:bottom-[8%]"
+              className="absolute bottom-[4.5%] z-40 rounded-full border border-[#d9a681]/28 bg-white/72 px-5 py-2 text-xs font-bold text-[#8f5d39]/76 shadow-[0_14px_36px_rgba(183,122,90,.12)] backdrop-blur-xl"
             >
               {labels.hint}
             </motion.p>
@@ -508,34 +481,35 @@ function RoyalDoorStage({
   );
 }
 
-function InvitationCopyBlock({ language, brideName, message }: { language: InvitationLanguage; brideName: string; message: string }) {
+function InvitationCopyBlock({ language, message }: { language: InvitationLanguage; message: string }) {
   const isArabic = language === "ar";
   const cleanedMessage = message.trim();
-  const shouldShowCustomMessage = Boolean(cleanedMessage && cleanedMessage !== fallbackMessage && !cleanedMessage.includes("بكل الحب والفرحة"));
+  const blockedGeneratedPhrases = ["بكل الحب والفرحة", "من العريس إلى عروسه", "اختارها قلبي", "From the groom to his bride", "the one my heart chose"];
+  const shouldShowCustomMessage = Boolean(
+    cleanedMessage && cleanedMessage !== fallbackMessage && !blockedGeneratedPhrases.some((phrase) => cleanedMessage.includes(phrase))
+  );
   const opening = isArabic ? arabicOpening : englishOpening;
   const formalMessage = isArabic ? fallbackMessage : englishFormalMessage;
-  const groomLabel = isArabic ? "من العريس إلى عروسه" : "From the groom to his bride";
-  const groomMessage = isArabic
-    ? `إلى ${brideName}، من اختارها قلبي شريكةً للعمر... بكِ تكتمل الحكاية، وبقربك يصبح الفرح بيتًا نعود إليه.`
-    : `To ${brideName}, the one my heart chose for a lifetime... with you, every chapter becomes softer, brighter, and complete.`;
+  const customLabel = isArabic ? "رسالة الدعوة" : "Invitation note";
 
   return (
-    <div className="relative mt-[5.8%] w-full max-w-[90%] text-[#5a3927] md:mt-[4.6%] md:max-w-[74%]">
-      <div className="pointer-events-none absolute -inset-x-3 -inset-y-4 rounded-[2rem] bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,.6),transparent_62%)] opacity-70" />
-      <div className="relative rounded-[1.35rem] border border-[#d9a681]/18 bg-white/18 px-3 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,.5)] backdrop-blur-[1px] md:px-7 md:py-6">
-        <div className="mx-auto mb-3 flex max-w-[220px] items-center justify-center gap-3 text-[#c28a67]">
+    <div className="relative mt-[5%] w-full max-w-[92%] text-[#5a3927] sm:mt-[5.5%]">
+      <div className="pointer-events-none absolute -inset-x-2 -inset-y-3 rounded-[1.4rem] bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,.5),transparent_62%)] opacity-60" />
+      <div className="relative rounded-[1.1rem] border border-[#d9a681]/16 bg-white/20 px-3 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,.46)] sm:px-5 sm:py-5">
+        <div className="mx-auto mb-2.5 flex max-w-[180px] items-center justify-center gap-3 text-[#c28a67]">
           <span className="h-px flex-1 bg-[linear-gradient(90deg,transparent,#c28a67)]" />
-          <span className="font-display text-lg leading-none">♡</span>
+          <span className="font-display text-sm leading-none">♡</span>
           <span className="h-px flex-1 bg-[linear-gradient(90deg,#c28a67,transparent)]" />
         </div>
-        <div className="space-y-3 text-[clamp(.7rem,2.65vw,.94rem)] font-bold leading-[1.88] text-[#4d3124]/86 md:space-y-4 md:text-[clamp(.84rem,1.03vw,1.05rem)] md:leading-[2.02]">
-          <p className="font-display text-[clamp(.98rem,3.75vw,1.34rem)] leading-[1.55] text-[#9b653f] md:text-[clamp(1.08rem,1.5vw,1.5rem)]">{opening}</p>
+        <div className="space-y-2.5 text-[clamp(.68rem,2.55vw,.86rem)] font-bold leading-[1.78] text-[#4d3124]/86 sm:text-[clamp(.84rem,1.05vw,1rem)] sm:leading-[1.9]">
+          <p className={`${isArabic ? "font-body" : "font-display"} text-[clamp(.86rem,3.25vw,1.06rem)] font-extrabold leading-[1.58] text-[#9b653f] sm:text-[clamp(1rem,1.35vw,1.28rem)]`}>{opening}</p>
           <p className="text-[#6e4a35]">{formalMessage}</p>
-          <div className="mx-auto max-w-2xl rounded-[1.1rem] border border-[#d9a681]/18 bg-[#fff8f3]/38 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,.44)]">
-            <p className="text-[clamp(.58rem,1.85vw,.76rem)] font-black uppercase tracking-[0.2em] text-[#b77a5a]/72">{groomLabel}</p>
-            <p className="mt-2 font-display text-[clamp(.88rem,3vw,1.18rem)] leading-[1.8] text-[#8f5d39]">{groomMessage}</p>
-          </div>
-          {shouldShowCustomMessage ? <p className="text-[#8f5d39]/86">{cleanedMessage}</p> : null}
+          {shouldShowCustomMessage ? (
+            <div className="mx-auto max-w-xl rounded-[.9rem] border border-[#d9a681]/16 bg-[#fff8f3]/32 px-3 py-2.5">
+              <p className="text-[clamp(.54rem,1.8vw,.68rem)] font-black uppercase tracking-[0.18em] text-[#b77a5a]/70">{customLabel}</p>
+              <p className="mt-1.5 text-[#8f5d39]/86">{cleanedMessage}</p>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -578,10 +552,10 @@ function CardSoftOverlays() {
 
 function InvitationInfo({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[1.35rem] border border-[#d9a681]/24 bg-white/46 px-3 py-4 shadow-[0_14px_34px_rgba(183,122,90,.08),inset_0_1px_0_rgba(255,255,255,.62)] backdrop-blur md:px-5 md:py-5">
-      <div className="mx-auto mb-3 h-px w-14 bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
-      <p className="text-[clamp(.58rem,1vw,.8rem)] font-extrabold text-[#b77a5a]">{label}</p>
-      <p className="mt-1 text-[clamp(.66rem,1.08vw,.98rem)] font-bold leading-6 text-[#432819]/82">{value}</p>
+    <div className="rounded-[.9rem] border border-[#d9a681]/18 bg-white/36 px-1.5 py-2.5 shadow-[0_10px_22px_rgba(183,122,90,.06),inset_0_1px_0_rgba(255,255,255,.5)] sm:px-3 sm:py-3.5">
+      <div className="mx-auto mb-2 h-px w-8 bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
+      <p className="text-[clamp(.48rem,1.7vw,.62rem)] font-extrabold text-[#b77a5a] sm:text-[clamp(.58rem,.82vw,.72rem)]">{label}</p>
+      <p className="mt-1 text-[clamp(.54rem,1.95vw,.72rem)] font-bold leading-4 text-[#432819]/82 sm:text-[clamp(.66rem,.9vw,.88rem)] sm:leading-5">{value}</p>
     </div>
   );
 }
@@ -602,7 +576,90 @@ function RsvpChoice({ active, onClick, label }: { active: boolean; onClick: () =
   );
 }
 
-function LuxuryCountdown({ target, language }: { target: string; language: InvitationLanguage }) {
+function RsvpModal({
+  open,
+  language,
+  guestName,
+  response,
+  loading,
+  error,
+  status,
+  onClose,
+  onGuestNameChange,
+  onResponseChange,
+  onSubmit
+}: {
+  open: boolean;
+  language: InvitationLanguage;
+  guestName: string;
+  response: RsvpResponse;
+  loading: boolean;
+  error: string;
+  status: string;
+  onClose: () => void;
+  onGuestNameChange: (value: string) => void;
+  onResponseChange: (value: RsvpResponse) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  const isArabic = language === "ar";
+
+  return (
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          className="fixed inset-0 z-[90] grid place-items-end bg-[#432819]/22 px-3 py-4 backdrop-blur-[3px] sm:place-items-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+        >
+          <motion.form
+            dir={isArabic ? "rtl" : "ltr"}
+            onSubmit={onSubmit}
+            onClick={(event) => event.stopPropagation()}
+            initial={{ opacity: 0, y: 28, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 18, scale: 0.98 }}
+            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-md overflow-hidden rounded-[1.45rem] border border-[#d9a681]/34 bg-[linear-gradient(135deg,rgba(255,250,246,.96),rgba(255,235,229,.94))] p-4 text-[#432819] shadow-[0_30px_92px_rgba(112,61,45,.22),inset_0_1px_0_rgba(255,255,255,.7)] sm:p-5"
+          >
+            <div className="mb-4 text-center">
+              <p className="font-display text-2xl text-[#9b653f]">{isArabic ? "تأكيد الحضور" : "Kindly RSVP"}</p>
+              <p className="mt-1 text-sm font-bold text-[#6e4a35]/62">{isArabic ? "رد بسيط يكمل جمال الدعوة" : "A simple reply for the couple"}</p>
+            </div>
+            <label>
+              <span className="mb-2 block text-sm font-bold text-[#6e4a35]/70">{isArabic ? "اسم الضيف" : "Guest name"}</span>
+              <input
+                value={guestName}
+                onChange={(event) => onGuestNameChange(event.target.value)}
+                className="w-full rounded-2xl border border-[#d9a681]/34 bg-white/78 px-5 py-3.5 text-[#432819] shadow-[inset_0_1px_0_rgba(255,255,255,.72)] outline-none transition placeholder:text-[#8f5d39]/42 focus:border-[#c98674] focus:bg-white [color-scheme:light]"
+                placeholder={isArabic ? "اكتب اسمك هنا" : "Enter your name"}
+                required
+              />
+            </label>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <RsvpChoice active={response === "accepted"} onClick={() => onResponseChange("accepted")} label={isArabic ? "قبول الدعوة" : "Accept"} />
+              <RsvpChoice active={response === "declined"} onClick={() => onResponseChange("declined")} label={isArabic ? "اعتذار" : "Decline"} />
+            </div>
+            <button
+              disabled={loading}
+              className="mt-4 w-full rounded-full bg-[linear-gradient(135deg,#c98d62,#8f5d39)] px-7 py-3.5 font-extrabold text-white shadow-[0_18px_48px_rgba(183,122,90,.22)] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-55"
+            >
+              {loading ? (isArabic ? "جاري الحفظ..." : "Saving...") : isArabic ? "إرسال الرد" : "Send reply"}
+            </button>
+            <button type="button" onClick={onClose} className="mt-3 w-full text-xs font-bold text-[#8f5d39]/60 transition hover:text-[#8f5d39]">
+              {isArabic ? "إغلاق" : "Close"}
+            </button>
+            {error ? <p className="mt-4 rounded-2xl border border-red-400/25 bg-red-500/10 p-3 text-sm text-red-800">{error}</p> : null}
+            {status ? <p className="mt-4 rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-800">{status}</p> : null}
+          </motion.form>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
+  );
+}
+
+function InlineCountdown({ target, language, label }: { target: string; language: InvitationLanguage; label: string }) {
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -627,17 +684,16 @@ function LuxuryCountdown({ target, language }: { target: string; language: Invit
   }, [language, now, target]);
 
   return (
-    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-      {units.map((unit) => (
-        <div
-          key={unit.label}
-          className="relative overflow-hidden rounded-[1.15rem] border border-[#d9a681]/44 bg-[linear-gradient(180deg,rgba(255,255,255,.74),rgba(255,239,232,.64))] px-4 py-4 text-center shadow-[0_18px_55px_rgba(173,99,82,.14),inset_0_0_0_1px_rgba(255,255,255,.42)]"
-        >
-          <span className="absolute inset-x-3 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
-          <p className="font-display text-3xl leading-none text-[#9b653f] sm:text-4xl">{String(unit.value).padStart(2, "0")}</p>
-          <p className="mt-2 text-xs font-bold text-[#6e4a35]/62">{unit.label}</p>
-        </div>
-      ))}
+    <div className="mt-[4.2%] w-full max-w-[86%]">
+      <p className="mb-2 text-[clamp(.48rem,1.75vw,.64rem)] font-extrabold tracking-[0.12em] text-[#b77a5a]/78 sm:text-[clamp(.58rem,.86vw,.72rem)]">{label}</p>
+      <div className="grid grid-cols-4 gap-1.5 sm:gap-2.5">
+        {units.map((unit) => (
+          <div key={unit.label} className="rounded-[.75rem] border border-[#d9a681]/20 bg-white/34 px-1 py-2 text-center shadow-[inset_0_1px_0_rgba(255,255,255,.42)]">
+            <p className="font-display text-[clamp(.86rem,3.2vw,1.1rem)] leading-none text-[#9b653f] sm:text-[clamp(1.1rem,1.5vw,1.55rem)]">{String(unit.value).padStart(2, "0")}</p>
+            <p className="mt-1 text-[clamp(.42rem,1.45vw,.54rem)] font-bold text-[#6e4a35]/62 sm:text-[clamp(.5rem,.74vw,.62rem)]">{unit.label}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
