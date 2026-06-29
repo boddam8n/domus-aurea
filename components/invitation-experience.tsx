@@ -180,58 +180,62 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
           sealImageUrl={invitation.seal_image_url}
         />
 
-        <motion.div
-          initial={false}
-          animate={isReading ? { opacity: 1, y: 0, height: "auto" } : { opacity: 0, y: 18, height: 0 }}
-          transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-6xl overflow-hidden"
-        >
-          <div className="relative mt-6 overflow-hidden rounded-[1.6rem] border border-[#d9a681]/38 bg-[linear-gradient(135deg,rgba(255,255,255,.76),rgba(255,238,231,.58))] p-4 shadow-[0_26px_90px_rgba(173,99,82,.16),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-xl sm:p-5">
-            <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
-            <p className="text-center text-sm font-extrabold tracking-[0.16em] text-[#a46a43]">{language === "ar" ? "الوقت المتبقي" : "Countdown"}</p>
-            <LuxuryCountdown target={invitation.wedding_date} language={language} />
-          </div>
-        </motion.div>
+        {isReading ? (
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-6xl overflow-hidden"
+          >
+            <div className="relative mt-6 overflow-hidden rounded-[1.6rem] border border-[#d9a681]/38 bg-[linear-gradient(135deg,rgba(255,255,255,.76),rgba(255,238,231,.58))] p-4 shadow-[0_26px_90px_rgba(173,99,82,.16),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-xl sm:p-5">
+              <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
+              <p className="text-center text-sm font-extrabold tracking-[0.16em] text-[#a46a43]">{language === "ar" ? "الوقت المتبقي" : "Countdown"}</p>
+              <LuxuryCountdown target={invitation.wedding_date} language={language} />
+            </div>
+          </motion.div>
+        ) : null}
 
-        <motion.form
-          onSubmit={submitRsvp}
-          initial={false}
-          animate={isReading ? { opacity: 1, y: 0, height: "auto" } : { opacity: 0, y: 22, height: 0 }}
-          transition={{ duration: 0.78, delay: isReading ? 0.1 : 0, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-6xl overflow-hidden"
-        >
-          <div className="relative mt-5 overflow-hidden rounded-[1.6rem] border border-[#d9a681]/30 bg-[linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,240,234,.62))] p-4 shadow-[0_24px_90px_rgba(173,99,82,.14),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-xl sm:p-5">
-            <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
-            <div className="mb-5 text-center">
-              <p className="font-display text-2xl text-[#9b653f]">{language === "ar" ? "تأكيد الحضور" : "Kindly RSVP"}</p>
-              <p className="mt-1 text-sm font-bold text-[#6e4a35]/62">{language === "ar" ? "اكتب اسمك واختر ردك بكل بساطة" : "Write your name and choose your reply"}</p>
-            </div>
-            <div className="flex flex-col gap-4 md:flex-row md:items-end">
-              <label className="flex-1">
-                <span className="mb-2 block text-sm font-bold text-[#6e4a35]/70">{language === "ar" ? "اسم الضيف" : "Guest name"}</span>
-                <input
-                  value={guestName}
-                  onChange={(event) => setGuestName(event.target.value)}
-                  className="w-full rounded-2xl border border-[#d9a681]/34 bg-white/76 px-5 py-4 text-[#432819] shadow-[inset_0_1px_0_rgba(255,255,255,.72)] outline-none transition placeholder:text-[#8f5d39]/42 focus:border-[#c98674] focus:bg-white"
-                  placeholder={language === "ar" ? "اكتب اسمك هنا" : "Enter your name"}
-                  required
-                />
-              </label>
-              <div className="grid gap-3 sm:grid-cols-2 md:w-[330px]">
-                <RsvpChoice active={response === "accepted"} onClick={() => setResponse("accepted")} label={language === "ar" ? "قبول الدعوة" : "Accept"} />
-                <RsvpChoice active={response === "declined"} onClick={() => setResponse("declined")} label={language === "ar" ? "اعتذار" : "Decline"} />
+        {isReading ? (
+          <motion.form
+            onSubmit={submitRsvp}
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.78, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-6xl overflow-hidden"
+          >
+            <div className="relative mt-5 overflow-hidden rounded-[1.6rem] border border-[#d9a681]/30 bg-[linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,240,234,.62))] p-4 shadow-[0_24px_90px_rgba(173,99,82,.14),inset_0_1px_0_rgba(255,255,255,.7)] backdrop-blur-xl sm:p-5">
+              <span className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#d9a681,transparent)]" />
+              <div className="mb-5 text-center">
+                <p className="font-display text-2xl text-[#9b653f]">{language === "ar" ? "تأكيد الحضور" : "Kindly RSVP"}</p>
+                <p className="mt-1 text-sm font-bold text-[#6e4a35]/62">{language === "ar" ? "اكتب اسمك واختر ردك بكل بساطة" : "Write your name and choose your reply"}</p>
               </div>
-              <button
-                disabled={loading}
-                className="rounded-full bg-[linear-gradient(135deg,#c98d62,#8f5d39)] px-7 py-4 font-extrabold text-white shadow-[0_18px_48px_rgba(183,122,90,.24)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_62px_rgba(183,122,90,.28)] disabled:translate-y-0 disabled:opacity-55 md:w-[170px]"
-              >
-                {loading ? (language === "ar" ? "جاري الحفظ..." : "Saving...") : language === "ar" ? "إرسال" : "Send"}
-              </button>
+              <div className="flex flex-col gap-4 md:flex-row md:items-end">
+                <label className="flex-1">
+                  <span className="mb-2 block text-sm font-bold text-[#6e4a35]/70">{language === "ar" ? "اسم الضيف" : "Guest name"}</span>
+                  <input
+                    value={guestName}
+                    onChange={(event) => setGuestName(event.target.value)}
+                    className="w-full rounded-2xl border border-[#d9a681]/34 bg-white/76 px-5 py-4 text-[#432819] shadow-[inset_0_1px_0_rgba(255,255,255,.72)] outline-none transition placeholder:text-[#8f5d39]/42 focus:border-[#c98674] focus:bg-white"
+                    placeholder={language === "ar" ? "اكتب اسمك هنا" : "Enter your name"}
+                    required
+                  />
+                </label>
+                <div className="grid gap-3 sm:grid-cols-2 md:w-[330px]">
+                  <RsvpChoice active={response === "accepted"} onClick={() => setResponse("accepted")} label={language === "ar" ? "قبول الدعوة" : "Accept"} />
+                  <RsvpChoice active={response === "declined"} onClick={() => setResponse("declined")} label={language === "ar" ? "اعتذار" : "Decline"} />
+                </div>
+                <button
+                  disabled={loading}
+                  className="rounded-full bg-[linear-gradient(135deg,#c98d62,#8f5d39)] px-7 py-4 font-extrabold text-white shadow-[0_18px_48px_rgba(183,122,90,.24)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_62px_rgba(183,122,90,.28)] disabled:translate-y-0 disabled:opacity-55 md:w-[170px]"
+                >
+                  {loading ? (language === "ar" ? "جاري الحفظ..." : "Saving...") : language === "ar" ? "إرسال" : "Send"}
+                </button>
+              </div>
+              {error ? <p className="mt-4 rounded-2xl border border-red-400/25 bg-red-500/10 p-3 text-sm text-red-800">{error}</p> : null}
+              {status ? <p className="mt-4 rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-800">{status}</p> : null}
             </div>
-            {error ? <p className="mt-4 rounded-2xl border border-red-400/25 bg-red-500/10 p-3 text-sm text-red-800">{error}</p> : null}
-            {status ? <p className="mt-4 rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-800">{status}</p> : null}
-          </div>
-        </motion.form>
+          </motion.form>
+        ) : null}
         </main>
       </div>
     </section>
