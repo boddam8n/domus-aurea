@@ -25,8 +25,7 @@ const assets = {
   swanHeroVideo: "/invitation/swan-hero.mp4",
   swanHero: "/invitation/swan-hero.webp",
   paper: "/invitation/paper-bg.webp",
-  floralFrame: "/invitation/floral-frame.webp",
-  countdownFrame: "/invitation/countdown-frame.webp",
+  sectionDivider: "/invitation/gold-heart-divider.svg",
   locationPalace: "/invitation/location-palace.webp",
   rsvpEnvelope: "/invitation/rsvp-envelope.webp",
   petals: "/invitation/petals.svg",
@@ -141,6 +140,19 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
     fetch(`/api/invitations/${invitation.slug}/view`, { method: "POST" }).catch(() => undefined);
   }, [invitation.id, invitation.slug]);
 
+  useEffect(() => {
+    const preventMediaAction = (event: Event) => {
+      const target = event.target as Element | null;
+      if (target?.closest("img, video, svg")) event.preventDefault();
+    };
+    document.addEventListener("contextmenu", preventMediaAction);
+    document.addEventListener("dragstart", preventMediaAction);
+    return () => {
+      document.removeEventListener("contextmenu", preventMediaAction);
+      document.removeEventListener("dragstart", preventMediaAction);
+    };
+  }, []);
+
   const finishIntro = () => {
     window.localStorage.setItem("invitationOpened", "true");
     setIntro("done");
@@ -160,11 +172,17 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
         }`}
       >
         <SwanHeroSection language={language} groomName={groomName} brideName={brideName} />
+        <SectionDivider />
         <VenueSection language={language} />
+        <SectionDivider />
         <CountdownSection language={language} target={invitation.wedding_date || invitationData.wedding.dateISO} />
+        <SectionDivider compact />
         <WeddingTimeSection language={language} />
+        <SectionDivider compact />
         <LocationSection language={language} venueName={venueName} venueAddress={venueAddress} mapUrl={mapUrl} />
+        <SectionDivider />
         <RSVPSection invitation={invitation} language={language} />
+        <SectionDivider compact />
         <FooterSection language={language} />
       </main>
 
@@ -214,7 +232,7 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
       <div className="relative flex h-[100dvh] min-h-[100svh] w-full max-w-[430px] items-center justify-center overflow-hidden bg-[#fff4ef] shadow-[0_0_80px_rgba(111,77,56,.28)]">
         <video
           ref={videoRef}
-          className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-500 ${phase === "playing" ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-500 ${phase === "playing" ? "opacity-100" : "opacity-0"}`}
           src={assets.introVideo}
           poster={assets.introPoster}
           muted
@@ -233,7 +251,7 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
               exit={{ opacity: 0, scale: 1.012 }}
               transition={{ duration: 0.75, ease: easing }}
             >
-              <Image src={assets.introPoster} alt="" fill priority sizes="430px" className="object-contain" />
+              <Image src={assets.introPoster} alt="" fill priority sizes="430px" draggable={false} className="select-none object-contain" />
               <button
                 type="button"
                 onClick={startOpening}
@@ -299,10 +317,10 @@ function SwanHeroSection({
 
   return (
     <section className="relative min-h-[100svh] overflow-hidden">
-      <Image src={assets.swanHero} alt="" fill priority sizes="430px" className="object-cover object-top" />
+      <Image src={assets.swanHero} alt="" fill priority sizes="430px" draggable={false} className="select-none object-cover object-top" />
       {!videoFailed ? (
         <video
-          className="absolute inset-0 h-full w-full object-cover object-top"
+          className="absolute inset-0 h-full w-full select-none object-cover object-top"
           src={assets.swanHeroVideo}
           autoPlay
           muted
@@ -315,7 +333,7 @@ function SwanHeroSection({
       ) : null}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,244,239,.2)_0%,rgba(255,244,239,.08)_46%,rgba(61,38,26,.1)_100%)]" />
       <motion.div
-        className="relative z-10 mx-auto flex min-h-[100svh] w-full flex-col items-center px-7 pt-[calc(env(safe-area-inset-top)+4rem)] text-center"
+        className="relative z-10 mx-auto flex min-h-[100svh] w-full flex-col items-center px-7 pt-[calc(env(safe-area-inset-top)+5.5rem)] text-center"
         initial={{ opacity: 0, y: 26 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.1, ease: easing, delay: 0.15 }}
@@ -344,15 +362,32 @@ function SwanHeroSection({
   );
 }
 
+function SectionDivider({ compact = false }: { compact?: boolean }) {
+  const reduceMotion = useReducedMotion();
+  return (
+    <motion.div
+      className={`relative overflow-hidden bg-[#fff4ef] px-7 ${compact ? "py-2.5" : "py-4"} select-none`}
+      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 10, filter: "blur(8px)" }}
+      whileInView={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: false, amount: 0.45 }}
+      transition={{ duration: reduceMotion ? 0.01 : 0.95, ease: easing }}
+    >
+      <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#c99b65]/30 to-transparent" />
+      <Image src={assets.sectionDivider} alt="" width={320} height={32} draggable={false} className="mx-auto h-auto w-52 opacity-75" />
+      <div className="absolute inset-x-10 bottom-0 h-px bg-gradient-to-r from-transparent via-[#e8b7aa]/24 to-transparent" />
+    </motion.div>
+  );
+}
+
 function RevealSection({ children, className = "" }: { children: ReactNode; className?: string }) {
   const reduceMotion = useReducedMotion();
   return (
     <motion.section
       className={className}
-      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 45, scale: 0.985, filter: "blur(14px)" }}
+      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 36, scale: 0.988, filter: "blur(12px)" }}
       whileInView={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-      viewport={{ once: false, amount: 0.22 }}
-      transition={{ duration: reduceMotion ? 0.01 : 1, ease: easing }}
+      viewport={{ once: false, amount: 0.18 }}
+      transition={{ duration: reduceMotion ? 0.01 : 1.08, ease: easing }}
     >
       {children}
     </motion.section>
@@ -668,28 +703,39 @@ function ChoiceMiniCard({
 }
 
 function FloatingPetals() {
+  const reduceMotion = useReducedMotion();
   const petals = useMemo(
     () =>
-      Array.from({ length: 14 }, (_, index) => ({
+      Array.from({ length: reduceMotion ? 0 : 20 }, (_, index) => ({
         id: index,
-        left: `${8 + ((index * 23) % 84)}%`,
-        delay: (index % 7) * 1.3,
-        duration: 16 + (index % 5) * 3,
-        size: 18 + (index % 4) * 6
+        left: `${5 + ((index * 29) % 90)}%`,
+        delay: (index % 10) * 1.15,
+        duration: 14 + (index % 7) * 1.32,
+        size: 11 + (index % 6) * 3,
+        drift: index % 2 ? 16 + (index % 4) * 5 : -14 - (index % 4) * 5,
+        peakOpacity: 0.28 + (index % 5) * 0.055
       })),
-    []
+    [reduceMotion]
   );
 
+  if (reduceMotion) return null;
+
   return (
-    <div className="pointer-events-none fixed inset-0 z-[3] mx-auto max-w-[430px] overflow-hidden opacity-70">
+    <div className="pointer-events-none fixed inset-0 z-[3] mx-auto max-w-[430px] overflow-hidden opacity-80">
       {petals.map((petal) => (
         <motion.img
           key={petal.id}
           src={assets.petals}
           alt=""
-          className="absolute -top-16"
+          draggable={false}
+          className="absolute -top-16 select-none"
           style={{ left: petal.left, width: petal.size }}
-          animate={{ y: ["0vh", "112vh"], x: [0, petal.id % 2 ? 18 : -14, 0], rotate: [0, 25, -12], opacity: [0, 0.4, 0.18, 0] }}
+          animate={{
+            y: ["0vh", "112vh"],
+            x: [0, petal.drift, petal.drift * 0.25, 0],
+            rotate: [0, petal.id % 2 ? 22 : -18, petal.id % 2 ? -10 : 14],
+            opacity: [0, petal.peakOpacity, petal.peakOpacity * 0.55, 0]
+          }}
           transition={{ duration: petal.duration, repeat: Infinity, delay: petal.delay, ease: "linear" }}
         />
       ))}

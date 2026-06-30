@@ -206,7 +206,7 @@ export function LuxuryAudioPlayer({
       <div
         className={
           isInvitationPage
-            ? "fixed right-3 top-[calc(env(safe-area-inset-top)+.75rem)] z-[60]"
+            ? "fixed right-2.5 top-[calc(env(safe-area-inset-top)+.45rem)] z-[60]"
             : "fixed left-4 top-[5.25rem] z-[60] md:left-auto md:right-8 md:top-5"
         }
       >
@@ -214,7 +214,7 @@ export function LuxuryAudioPlayer({
         <div
           className={
             isInvitationPage
-              ? "flex items-center gap-1 rounded-full border border-[#b98b5f]/35 bg-[#fff8f1]/82 p-1 text-[#8a6240] shadow-[0_12px_34px_rgba(111,77,56,.14)] backdrop-blur-md"
+              ? "flex items-center gap-0.5 rounded-full border border-[#b98b5f]/35 bg-[#fff8f1]/78 p-0.5 text-[#8a6240] shadow-[0_10px_28px_rgba(111,77,56,.12)] backdrop-blur-md"
               : "flex items-center gap-1 rounded-full border border-gold/25 bg-black/35 p-1.5 text-pearl shadow-[0_18px_60px_rgba(0,0,0,.22)] backdrop-blur-xl"
           }
         >
@@ -223,7 +223,7 @@ export function LuxuryAudioPlayer({
             onClick={() => (isPlaying ? pauseSoftly() : playSoftly())}
             className={
               isInvitationPage
-                ? "grid h-8 w-8 place-items-center rounded-full bg-[#c99780] text-white transition hover:bg-[#b98b5f]"
+                ? "grid h-7 w-7 place-items-center rounded-full bg-[#c99780] text-white transition hover:bg-[#b98b5f]"
                 : "grid h-9 w-9 place-items-center rounded-full bg-pearl text-night transition hover:bg-gold"
             }
             aria-label={isPlaying ? "Pause music" : "Play music"}
@@ -235,7 +235,7 @@ export function LuxuryAudioPlayer({
             onClick={() => setIsMuted((current) => !current)}
             className={
               isInvitationPage
-                ? "grid h-8 w-8 place-items-center rounded-full text-[#8a6240]/80 transition hover:bg-[#fff4ef]"
+                ? "grid h-7 w-7 place-items-center rounded-full text-[#8a6240]/80 transition hover:bg-[#fff4ef]"
                 : "grid h-9 w-9 place-items-center rounded-full text-pearl/80 transition hover:bg-white/10"
             }
             aria-label={isMuted ? "Unmute music" : "Mute music"}
