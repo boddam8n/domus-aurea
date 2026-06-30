@@ -1,17 +1,20 @@
 export type InvitationLanguage = "ar" | "en";
 
-export type InvitationScheduleItem = {
-  time: {
-    ar: string;
-    en: string;
-  };
-  title: {
-    ar: string;
-    en: string;
-  };
+export type LocalizedText = {
+  ar: string;
+  en: string;
 };
 
-export const invitationContent = {
+export type VenueOption = {
+  id: "palace" | "weddingHall" | "sea" | "mosque";
+  name: LocalizedText;
+  image: string;
+};
+
+export const invitationData = {
+  invitationId: "demo-wedding-001",
+  mainWebsiteUrl: "/",
+  languageDefault: "en" as InvitationLanguage,
   couple: {
     groom: {
       ar: "أحمد",
@@ -22,91 +25,177 @@ export const invitationContent = {
       en: "Mayar"
     }
   },
+  wedding: {
+    dateISO: "2026-12-12T18:00:00+02:00",
+    startTime: {
+      ar: "6:00 PM",
+      en: "6:00 PM"
+    },
+    endTime: {
+      ar: "11:00 PM",
+      en: "11:00 PM"
+    }
+  },
+  venue: {
+    selected: "weddingHall" as const,
+    name: {
+      ar: "قاعة جراند بالاس",
+      en: "The Grand Palace"
+    },
+    address: {
+      ar: "شارع الاحتفال ١٢٣، القاهرة، مصر",
+      en: "123 Celebration Street, Cairo, Egypt"
+    },
+    mapUrl: "https://maps.google.com/?q=The%20Grand%20Palace%20Cairo"
+  },
+  venueOptions: [
+    {
+      id: "palace",
+      name: { ar: "قصر", en: "Palace" },
+      image: "/invitation/venue-palace.webp"
+    },
+    {
+      id: "weddingHall",
+      name: { ar: "قاعة زفاف", en: "Wedding Hall" },
+      image: "/invitation/venue-hall.webp"
+    },
+    {
+      id: "sea",
+      name: { ar: "البحر", en: "Sea" },
+      image: "/invitation/venue-sea.webp"
+    },
+    {
+      id: "mosque",
+      name: { ar: "مسجد", en: "Mosque" },
+      image: "/invitation/venue-mosque.webp"
+    }
+  ] satisfies VenueOption[],
+  copy: {
+    ar: {
+      languageLabel: "عربي",
+      introSkip: "تخطي",
+      heroLabel: "دعوة زفاف",
+      heroText: "بكل حب وسرور\nندعوكم لمشاركتنا فرحة زفافنا",
+      venueTitle: "المكان",
+      venueSubtitle: "اختاروا المكان المثالي ليومنا الخاص",
+      countdownTitle: "يومنا المميز",
+      countdownLabels: ["يوم", "ساعة", "دقيقة", "ثانية"],
+      weddingTimeTitle: "موعد الفرح",
+      weddingTimeText: "من 6:00 PM إلى 11:00 PM",
+      locationTitle: "المكان",
+      openMaps: "فتح الخريطة",
+      rsvpTitle: "تأكيد الحضور",
+      rsvpSubtitle: "يسعدنا حضوركم ومشاركتكم فرحتنا",
+      guestName: "اسم الضيف",
+      accept: "قبول الدعوة",
+      apologize: "اعتذار",
+      send: "إرسال",
+      sending: "جاري الإرسال...",
+      successTitle: "شكرًا لتأكيد حضوركم",
+      successBody: "نتطلع للاحتفال معكم.",
+      error: "حدث خطأ غير متوقع. حاول مرة أخرى.",
+      thankYou: "شكرًا لكم",
+      thankYouBody: "وجودكم يزيد فرحتنا",
+      backHome: "العودة إلى الموقع الرئيسي",
+      designed: "صُممت بكل حب",
+      copyright: "جميع الحقوق محفوظة © 2026"
+    },
+    en: {
+      languageLabel: "EN",
+      introSkip: "Skip",
+      heroLabel: "Wedding Invitation",
+      heroText: "Together with their families\nwe invite you to celebrate\nour wedding day",
+      venueTitle: "Venue",
+      venueSubtitle: "Choose the perfect place for our special day",
+      countdownTitle: "Our Special Day",
+      countdownLabels: ["Days", "Hours", "Minutes", "Seconds"],
+      weddingTimeTitle: "Wedding Time",
+      weddingTimeText: "From 6:00 PM to 11:00 PM",
+      locationTitle: "Location",
+      openMaps: "Open in Maps",
+      rsvpTitle: "Confirm Your Attendance",
+      rsvpSubtitle: "We would be honored to celebrate with you",
+      guestName: "Guest Name",
+      accept: "Accept Invitation",
+      apologize: "Apologize",
+      send: "Send",
+      sending: "Sending...",
+      successTitle: "Thank you for confirming",
+      successBody: "We look forward to celebrating with you.",
+      error: "Something went wrong. Please try again.",
+      thankYou: "Thank You",
+      thankYouBody: "Your presence will make our day even more special",
+      backHome: "Back to Main Website",
+      designed: "Designed with love",
+      copyright: "All rights reserved © 2026"
+    }
+  }
+};
+
+export const invitationContent = {
+  couple: invitationData.couple,
   copy: {
     ar: {
       closedLabel: "دعوة زفاف",
       openHint: "اضغط على الختم لفتح الدعوة",
-      heroLabel: "يوم الزفاف",
+      heroLabel: invitationData.copy.ar.heroLabel,
       bismillah: "بسم الله الرحمن الرحيم",
       opening: "تشرفت حكايتنا ببدايتها... ويشرّفها أن تكونوا شهودًا على أجمل فصولها.",
       formal: "يسرّنا دعوتكم لمشاركتنا حفل زفافنا، لتكتمل فرحتنا بحضوركم الكريم ودعواتكم الصادقة.",
       scrollHint: "مرّر للأسفل",
-      countdownTitle: "يبدأ الاحتفال خلال",
+      countdownTitle: invitationData.copy.ar.countdownTitle,
       scheduleTitle: "برنامج الحفل",
-      locationTitle: "المكان",
+      locationTitle: invitationData.copy.ar.locationTitle,
       mapTitle: "خريطة الوصول",
-      openMaps: "فتح في الخرائط",
+      openMaps: invitationData.copy.ar.openMaps,
       dressTitle: "قواعد اللباس",
       dressValue: "رسمي / أنيق",
-      rsvpTitle: "تأكيد الحضور",
-      guestName: "اسم الضيف",
-      accept: "قبول الدعوة",
-      decline: "اعتذار",
-      send: "إرسال",
-      sending: "جاري الإرسال...",
-      success: "تم تسجيل ردك بنجاح. شكرًا لمشاركتكم.",
-      error: "حدث خطأ غير متوقع."
+      rsvpTitle: invitationData.copy.ar.rsvpTitle,
+      guestName: invitationData.copy.ar.guestName,
+      accept: invitationData.copy.ar.accept,
+      decline: invitationData.copy.ar.apologize,
+      send: invitationData.copy.ar.send,
+      sending: invitationData.copy.ar.sending,
+      success: invitationData.copy.ar.successTitle,
+      error: invitationData.copy.ar.error
     },
     en: {
       closedLabel: "Save the Date",
       openHint: "Tap the seal to open the invitation",
-      heroLabel: "Wedding Day",
+      heroLabel: invitationData.copy.en.heroLabel,
       bismillah: "In the name of God, the Most Gracious, the Most Merciful",
       opening: "Our story begins with love, and it would be our honor to have you witness one of its most beautiful chapters.",
-      formal: "We are delighted to invite you to celebrate our wedding day with us.",
+      formal: invitationData.copy.en.heroText,
       scrollHint: "Scroll down",
-      countdownTitle: "The Celebration Begins In",
+      countdownTitle: invitationData.copy.en.countdownTitle,
       scheduleTitle: "Wedding Schedule",
-      locationTitle: "Location",
+      locationTitle: invitationData.copy.en.locationTitle,
       mapTitle: "Map",
-      openMaps: "Open in Maps",
+      openMaps: invitationData.copy.en.openMaps,
       dressTitle: "Dress Code",
       dressValue: "Formal / Elegant",
-      rsvpTitle: "RSVP",
-      guestName: "Guest Name",
-      accept: "Accept Invitation",
-      decline: "Apologize",
-      send: "Send",
-      sending: "Sending...",
-      success: "Your reply has been saved. Thank you.",
-      error: "Something went wrong."
+      rsvpTitle: invitationData.copy.en.rsvpTitle,
+      guestName: invitationData.copy.en.guestName,
+      accept: invitationData.copy.en.accept,
+      decline: invitationData.copy.en.apologize,
+      send: invitationData.copy.en.send,
+      sending: invitationData.copy.en.sending,
+      success: invitationData.copy.en.successTitle,
+      error: invitationData.copy.en.error
     }
   },
   event: {
-    date: "2026-12-12T20:00:00+02:00",
-    venue: {
-      ar: "فندق ريتز كارلتون - القاهرة",
-      en: "The Ritz-Carlton, Cairo"
-    },
-    address: {
-      ar: "كورنيش النيل، القاهرة",
-      en: "Nile Corniche, Cairo"
-    },
+    date: invitationData.wedding.dateISO,
+    venue: invitationData.venue.name,
+    address: invitationData.venue.address,
     coordinates: {
       lat: 30.0444,
       lng: 31.2357
     }
   },
-  schedule: [
-    {
-      time: { ar: "٥ مساءً", en: "5 PM" },
-      title: { ar: "استقبال الضيوف", en: "Guest Arrival" }
-    },
-    {
-      time: { ar: "٦ مساءً", en: "6 PM" },
-      title: { ar: "مراسم الزفاف", en: "Ceremony" }
-    },
-    {
-      time: { ar: "٧ مساءً", en: "7 PM" },
-      title: { ar: "العشاء", en: "Dinner" }
-    },
-    {
-      time: { ar: "٩ مساءً", en: "9 PM" },
-      title: { ar: "بداية الاحتفال", en: "Celebration" }
-    }
-  ] satisfies InvitationScheduleItem[],
+  schedule: [],
   countdownLabels: {
-    ar: ["يوم", "ساعة", "دقيقة", "ثانية"],
-    en: ["Days", "Hours", "Minutes", "Seconds"]
+    ar: invitationData.copy.ar.countdownLabels,
+    en: invitationData.copy.en.countdownLabels
   }
 };

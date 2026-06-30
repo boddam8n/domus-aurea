@@ -5,7 +5,10 @@
 :root {
   color-scheme: dark;
   --font-display: var(--font-cormorant), "Didot", "Bodoni 72", "Playfair Display", Georgia, serif;
-  --font-arabic-luxury: var(--font-amiri), var(--font-tajawal), "Cairo", serif;
+  --font-script: var(--font-great-vibes), "Great Vibes", cursive;
+  --font-display-serif: var(--font-playfair), "Playfair Display", Georgia, serif;
+  --font-arabic-luxury: var(--font-aref-ruqaa), var(--font-amiri), var(--font-tajawal), "Cairo", serif;
+  --font-arabic-body: var(--font-amiri), var(--font-tajawal), "Cairo", serif;
   --font-body: var(--font-tajawal), "Tajawal", "Cairo", "Segoe UI", Tahoma, Arial, sans-serif;
   --color-bg: #090806;
   --color-surface: rgba(255, 255, 255, 0.075);
@@ -85,6 +88,29 @@ body {
   box-shadow: var(--glass-shadow);
   backdrop-filter: blur(18px);
   transition: background 700ms ease, border-color 700ms ease, box-shadow 700ms ease;
+}
+
+.script-title {
+  font-family: var(--font-great-vibes), "Great Vibes", cursive;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.serif-text {
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+}
+
+.display-serif {
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+}
+
+.arabic-title {
+  font-family: var(--font-aref-ruqaa), var(--font-amiri), serif;
+}
+
+.arabic-body {
+  font-family: var(--font-amiri), var(--font-tajawal), serif;
 }
 
 .paper-card {

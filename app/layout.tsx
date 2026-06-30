@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Amiri, Cormorant_Garamond, Tajawal } from "next/font/google";
+import { Amiri, Aref_Ruqaa_Ink, Cormorant_Garamond, Great_Vibes, Playfair_Display, Tajawal } from "next/font/google";
 import { LanguageProvider } from "@/components/language-provider";
 import { LuxuryAudioPlayer } from "@/components/luxury-audio-player";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -27,6 +27,27 @@ const cormorant = Cormorant_Garamond({
   display: "swap"
 });
 
+const greatVibes = Great_Vibes({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-great-vibes",
+  display: "swap"
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-playfair",
+  display: "swap"
+});
+
+const arefRuqaa = Aref_Ruqaa_Ink({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "700"],
+  variable: "--font-aref-ruqaa",
+  display: "swap"
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: "Domus Aurea | Luxury Wedding Invitations",
@@ -49,7 +70,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <body className={`${tajawal.variable} ${amiri.variable} ${cormorant.variable} bg-[var(--color-bg)] font-body text-[var(--color-text)] antialiased`}>
+      <body
+        className={`${tajawal.variable} ${amiri.variable} ${cormorant.variable} ${greatVibes.variable} ${playfair.variable} ${arefRuqaa.variable} bg-[var(--color-bg)] font-body text-[var(--color-text)] antialiased`}
+      >
         <LanguageProvider>
           <ThemeProvider>
             {children}

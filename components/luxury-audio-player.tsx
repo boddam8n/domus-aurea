@@ -214,7 +214,7 @@ export function LuxuryAudioPlayer({
         <div
           className={
             isInvitationPage
-              ? "flex items-center gap-1 rounded-full border border-[#b58b48]/25 bg-[#17110d]/78 p-1 text-[#f8e8bf] shadow-[0_12px_34px_rgba(0,0,0,.18)] backdrop-blur-md"
+              ? "flex items-center gap-1 rounded-full border border-[#b98b5f]/35 bg-[#fff8f1]/82 p-1 text-[#8a6240] shadow-[0_12px_34px_rgba(111,77,56,.14)] backdrop-blur-md"
               : "flex items-center gap-1 rounded-full border border-gold/25 bg-black/35 p-1.5 text-pearl shadow-[0_18px_60px_rgba(0,0,0,.22)] backdrop-blur-xl"
           }
         >
@@ -223,7 +223,7 @@ export function LuxuryAudioPlayer({
             onClick={() => (isPlaying ? pauseSoftly() : playSoftly())}
             className={
               isInvitationPage
-                ? "grid h-8 w-8 place-items-center rounded-full bg-[#f8e8bf] text-[#17110d] transition hover:bg-[#d8ad5e]"
+                ? "grid h-8 w-8 place-items-center rounded-full bg-[#c99780] text-white transition hover:bg-[#b98b5f]"
                 : "grid h-9 w-9 place-items-center rounded-full bg-pearl text-night transition hover:bg-gold"
             }
             aria-label={isPlaying ? "Pause music" : "Play music"}
@@ -235,7 +235,7 @@ export function LuxuryAudioPlayer({
             onClick={() => setIsMuted((current) => !current)}
             className={
               isInvitationPage
-                ? "grid h-8 w-8 place-items-center rounded-full text-[#f8e8bf]/80 transition hover:bg-white/10"
+                ? "grid h-8 w-8 place-items-center rounded-full text-[#8a6240]/80 transition hover:bg-[#fff4ef]"
                 : "grid h-9 w-9 place-items-center rounded-full text-pearl/80 transition hover:bg-white/10"
             }
             aria-label={isMuted ? "Unmute music" : "Mute music"}
@@ -243,7 +243,7 @@ export function LuxuryAudioPlayer({
             {isMuted ? <VolumeX className={isInvitationPage ? "h-3.5 w-3.5" : "h-4 w-4"} /> : <Volume2 className={isInvitationPage ? "h-3.5 w-3.5" : "h-4 w-4"} />}
           </button>
           {needsGesture ? (
-            <button type="button" onClick={playSoftly} className={isInvitationPage ? "rounded-full px-2 py-1.5 text-[10px] font-bold text-[#f8d88a]" : "rounded-full px-3 py-2 text-xs font-bold text-gold"}>
+            <button type="button" onClick={playSoftly} className={isInvitationPage ? "rounded-full px-2 py-1.5 text-[10px] font-bold text-[#8a6240]" : "rounded-full px-3 py-2 text-xs font-bold text-gold"}>
               Enable
             </button>
           ) : null}

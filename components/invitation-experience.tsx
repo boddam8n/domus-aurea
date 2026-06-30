@@ -1,290 +1,214 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import type { CSSProperties, FormEvent, ReactNode } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Music2 } from "lucide-react";
-import { invitationContent, type InvitationLanguage } from "@/src/data/invitation";
+import { Check, Heart, Home, Instagram, MapPin, MessageCircle, Music2, Send, UserRound } from "lucide-react";
+import { invitationData, type InvitationLanguage, type LocalizedText } from "@/src/data/invitation";
 import type { PublicInvitation } from "@/lib/invitations";
 
-type RsvpResponse = "accepted" | "declined";
+type RsvpChoice = "accepted" | "apologized";
 
 type DateParts = {
   weekday: string;
   day: string;
   month: string;
   year: string;
-  time: string;
   fullDate: string;
 };
 
-function MonogramMark({ value, className = "", style }: { value: string; className?: string; style?: CSSProperties }) {
-  const parts = value.includes("+") ? value.split("+").map((part) => part.trim()) : null;
-
-  if (parts?.length === 2) {
-    return (
-      <span dir="ltr" className={`inline-flex items-center justify-center gap-1 [unicode-bidi:isolate] ${className}`} style={style}>
-        <span>{parts[0]}</span>
-        <span className="text-[.74em] opacity-80">+</span>
-        <span>{parts[1]}</span>
-      </span>
-    );
-  }
-
-  return (
-    <span dir="ltr" className={`inline-flex items-center justify-center [unicode-bidi:isolate] ${className}`} style={style}>
-      {value}
-    </span>
-  );
-}
-
 const assets = {
-  background: "/assets/invitation/bg-soft-ivory.webp",
-  paper: "/assets/invitation/bg-paper-texture.webp",
-  closedEnvelope: "/assets/invitation/closed-envelope.webp",
-  openedEnvelope: "/assets/invitation/opened-envelope.webp",
-  waxSeal: "/assets/invitation/wax-seal.webp",
-  waxSealOpen: "/assets/invitation/wax-seal-open.webp",
-  heroFrame: "/assets/invitation/invitation-hero-frame.webp",
-  floralTop: "/assets/invitation/floral-top-frame.webp",
-  floralBottom: "/assets/invitation/floral-bottom-frame.webp",
-  swans: "/assets/invitation/swans-lake.webp",
-  venue: "/assets/invitation/venue-illustration.webp",
-  mapFrame: "/assets/invitation/map-frame.webp",
-  petals: "/assets/invitation/petals.webp",
-  floralDivider: "/assets/invitation/floral-divider.svg",
-  goldDivider: "/assets/invitation/gold-divider.svg",
-  ornamentalCorners: "/assets/invitation/ornamental-corners.svg"
+  introVideo: "/invitation/intro-opening.mp4",
+  introPoster: "/invitation/closed-invitation.webp",
+  swanHero: "/invitation/swan-hero.webp",
+  paper: "/invitation/paper-bg.webp",
+  floralFrame: "/invitation/floral-frame.webp",
+  countdownFrame: "/invitation/countdown-frame.webp",
+  locationPalace: "/invitation/location-palace.webp",
+  rsvpEnvelope: "/invitation/rsvp-envelope.webp",
+  petals: "/invitation/petals.svg",
+  goldDivider: "/invitation/gold-divider.svg",
+  ornament: "/invitation/ornament.svg"
 };
 
 const nameMap: Record<string, { ar: string; en: string }> = {
-  "أحمد": { ar: "أحمد", en: "Ahmed" },
-  "احمد": { ar: "أحمد", en: "Ahmed" },
+  أحمد: { ar: "أحمد", en: "Ahmed" },
+  احمد: { ar: "أحمد", en: "Ahmed" },
   Ahmed: { ar: "أحمد", en: "Ahmed" },
-  "مايار": { ar: "مايار", en: "Mayar" },
+  مايار: { ar: "مايار", en: "Mayar" },
   Mayar: { ar: "مايار", en: "Mayar" },
-  "بودي": { ar: "أحمد", en: "Ahmed" },
+  بودي: { ar: "أحمد", en: "Ahmed" },
   bobi: { ar: "أحمد", en: "Ahmed" },
-  "يوري": { ar: "مايار", en: "Mayar" },
+  يوري: { ar: "مايار", en: "Mayar" },
   yori: { ar: "مايار", en: "Mayar" }
 };
 
-function getSafeDate(value?: string | null) {
-  const date = new Date(value || invitationContent.event.date);
-  return Number.isFinite(date.getTime()) ? date : new Date(invitationContent.event.date);
+const easing = [0.22, 1, 0.36, 1] as const;
+
+function text(value: LocalizedText, language: InvitationLanguage) {
+  return value[language];
 }
 
-function formatDateParts(value: string, language: InvitationLanguage): DateParts {
-  const date = getSafeDate(value);
-  const locale = language === "ar" ? "ar-EG" : "en-US";
-  const weekday = new Intl.DateTimeFormat(locale, { weekday: "long" }).format(date);
-  const day = new Intl.DateTimeFormat(locale, { day: "numeric" }).format(date);
-  const month = new Intl.DateTimeFormat(locale, { month: "long" }).format(date);
-  const year = new Intl.DateTimeFormat(locale, { year: "numeric" }).format(date);
-  const rawTime = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", hour12: true }).format(date);
-  const time =
-    language === "ar"
-      ? rawTime.replace(/\s?م$/, " مساءً").replace(/\s?ص$/, " صباحًا")
-      : rawTime.replace(/\s/g, " ");
-
-  return {
-    weekday,
-    day,
-    month,
-    year,
-    time,
-    fullDate: language === "ar" ? `${weekday}، ${day} ${month} ${year}` : `${weekday}, ${month} ${day}, ${year}`
-  };
+function containsArabic(value: string) {
+  return /[\u0600-\u06FF]/.test(value);
 }
 
-function localizeName(value: string | null | undefined, fallback: { ar: string; en: string }, language: InvitationLanguage) {
+function localizeName(value: string | null | undefined, fallback: LocalizedText, language: InvitationLanguage) {
   const cleaned = (value || "").trim();
-  if (!cleaned) return fallback[language];
+  if (!cleaned) return text(fallback, language);
   return nameMap[cleaned]?.[language] || cleaned;
 }
 
-function getMonogram(groomName: string, brideName: string, language: InvitationLanguage) {
-  const groom = groomName.trim().charAt(0);
-  const bride = brideName.trim().charAt(0);
-  if (!groom && !bride) return language === "ar" ? "أ م" : "A & M";
-  return language === "ar" ? `${groom} ${bride}` : `${groom.toUpperCase()} & ${bride.toUpperCase()}`;
+function localizeExternalText(value: string | null | undefined, fallback: LocalizedText, language: InvitationLanguage) {
+  const cleaned = (value || "").trim();
+  if (!cleaned) return text(fallback, language);
+  const isArabicValue = containsArabic(cleaned);
+  if (language === "ar" && isArabicValue) return cleaned;
+  if (language === "en" && !isArabicValue) return cleaned;
+  return text(fallback, language);
 }
 
-function cleanCustomMessage(message?: string | null) {
-  const value = (message || "").trim();
-  const blocked = ["بكل الحب والفرحة", "من العريس", "اختارها قلبي", "from the groom", "heart chose"];
-  if (!value || blocked.some((phrase) => value.toLowerCase().includes(phrase.toLowerCase()))) return "";
-  return value;
+function safeDate(value?: string | null) {
+  const date = new Date(value || invitationData.wedding.dateISO);
+  return Number.isFinite(date.getTime()) ? date : new Date(invitationData.wedding.dateISO);
 }
 
-function playOpenSound() {
-  if (typeof window === "undefined") return;
-  try {
-    const AudioContextClass = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextClass) return;
-    const context = new AudioContextClass();
-    const master = context.createGain();
-    const filter = context.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 2600;
-    master.gain.value = 0.035;
-    master.connect(filter);
-    filter.connect(context.destination);
+function formatDateParts(value: string | null | undefined, language: InvitationLanguage): DateParts {
+  const date = safeDate(value);
+  const locale = language === "ar" ? "ar-EG" : "en-US";
+  return {
+    weekday: new Intl.DateTimeFormat(locale, { weekday: "long" }).format(date),
+    day: new Intl.DateTimeFormat(locale, { day: "numeric" }).format(date),
+    month: new Intl.DateTimeFormat(locale, { month: "long" }).format(date),
+    year: new Intl.DateTimeFormat(locale, { year: "numeric" }).format(date),
+    fullDate:
+      language === "ar"
+        ? new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(date)
+        : new Intl.DateTimeFormat(locale, { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(date)
+  };
+}
 
-    [523.25, 659.25, 783.99].forEach((frequency, index) => {
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-      oscillator.type = "sine";
-      oscillator.frequency.value = frequency;
-      gain.gain.setValueAtTime(0.0001, context.currentTime + index * 0.06);
-      gain.gain.exponentialRampToValueAtTime(0.04, context.currentTime + 0.12 + index * 0.06);
-      gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 1.15 + index * 0.07);
-      oscillator.connect(gain);
-      gain.connect(master);
-      oscillator.start(context.currentTime + index * 0.06);
-      oscillator.stop(context.currentTime + 1.4 + index * 0.07);
-    });
+function getRemaining(target: string) {
+  const difference = Math.max(0, safeDate(target).getTime() - Date.now());
+  const days = Math.floor(difference / 86_400_000);
+  const hours = Math.floor((difference / 3_600_000) % 24);
+  const minutes = Math.floor((difference / 60_000) % 60);
+  const seconds = Math.floor((difference / 1_000) % 60);
+  return [days, hours, minutes, seconds].map((value) => String(Number.isFinite(value) ? value : 0).padStart(2, "0"));
+}
 
-    window.setTimeout(() => void context.close(), 1600);
-  } catch {
-    // The invitation must never depend on sound.
+function getMapUrl(invitation: PublicInvitation) {
+  if (invitation.venue_lat && invitation.venue_lng) {
+    return `https://maps.google.com/?q=${invitation.venue_lat},${invitation.venue_lng}`;
   }
+  return invitationData.venue.mapUrl;
 }
 
 export function InvitationExperience({ invitation }: { invitation: PublicInvitation }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [language, setLanguage] = useState<InvitationLanguage>("ar");
-  const [guestName, setGuestName] = useState("");
-  const [response, setResponse] = useState<RsvpResponse>("accepted");
-  const [status, setStatus] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const reduceMotion = useReducedMotion();
-
+  const [language, setLanguage] = useState<InvitationLanguage>(invitationData.languageDefault);
+  const [intro, setIntro] = useState<"checking" | "show" | "done">("checking");
   const isArabic = language === "ar";
-  const copy = invitationContent.copy[language];
-  const dateParts = useMemo(() => formatDateParts(invitation.wedding_date || invitationContent.event.date, language), [invitation.wedding_date, language]);
-  const groomName = localizeName(invitation.groom_name, invitationContent.couple.groom, language);
-  const brideName = localizeName(invitation.bride_name, invitationContent.couple.bride, language);
-  const monogram = getMonogram(groomName, brideName, language);
-  const defaultVenue = invitationContent.event.venue[language];
-  const venue = invitation.venue || defaultVenue;
-  const address = invitation.venue_address || invitationContent.event.address[language];
-  const customMessage = cleanCustomMessage(invitation.invitation_text);
-  const mapsUrl =
-    invitation.venue_lat && invitation.venue_lng
-      ? `https://www.google.com/maps?q=${invitation.venue_lat},${invitation.venue_lng}`
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue)}`;
+  const copy = invitationData.copy[language];
+  const groomName = localizeName(invitation.groom_name, invitationData.couple.groom, language);
+  const brideName = localizeName(invitation.bride_name, invitationData.couple.bride, language);
+  const dateParts = useMemo(() => formatDateParts(invitation.wedding_date, language), [invitation.wedding_date, language]);
+  const venueName = localizeExternalText(invitation.venue, invitationData.venue.name, language);
+  const venueAddress = localizeExternalText(invitation.venue_address, invitationData.venue.address, language);
+  const mapUrl = getMapUrl(invitation);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("resetInvite") === "true") window.localStorage.removeItem("invitationOpened");
+    const hasOpened = window.localStorage.getItem("invitationOpened") === "true";
+    setIntro(hasOpened ? "done" : "show");
+  }, []);
+
+  useEffect(() => {
+    if (intro !== "show") return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [intro]);
 
   useEffect(() => {
     if (invitation.id === "demo") return;
     fetch(`/api/invitations/${invitation.slug}/view`, { method: "POST" }).catch(() => undefined);
   }, [invitation.id, invitation.slug]);
 
-  function openInvitation() {
-    if (isOpen) return;
-    playOpenSound();
-    setIsOpen(true);
-  }
-
-  async function submitRsvp(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError("");
-    setStatus("");
-    setLoading(true);
-
-    if (invitation.id === "demo") {
-      window.setTimeout(() => {
-        setStatus(copy.success);
-        setGuestName("");
-        setLoading(false);
-      }, 420);
-      return;
-    }
-
-    try {
-      const result = await fetch(`/api/invitations/${invitation.slug}/rsvp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ guestName, response })
-      });
-      const json = await result.json();
-      if (!result.ok) throw new Error(json.error || copy.error);
-      setStatus(copy.success);
-      setGuestName("");
-    } catch (rsvpError) {
-      setError(rsvpError instanceof Error ? rsvpError.message : copy.error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const finishIntro = () => {
+    window.localStorage.setItem("invitationOpened", "true");
+    setIntro("done");
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  };
 
   return (
-    <section
-      dir={isArabic ? "rtl" : "ltr"}
-      className="relative min-h-[100svh] overflow-x-hidden bg-[#fff6ed] text-[#3f291e] [color-scheme:light]"
-      aria-label={isArabic ? "دعوة زفاف رقمية" : "Digital wedding invitation"}
-    >
-      <Image src={assets.background} alt="" fill priority sizes="100vw" className="fixed inset-0 object-cover" />
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_7%,rgba(255,255,255,.62),transparent_30%),linear-gradient(180deg,rgba(255,246,237,.74),rgba(252,236,225,.94))]" />
-      <SoftParticles />
-      <LanguageToggle language={language} onChange={setLanguage} />
+    <section dir={isArabic ? "rtl" : "ltr"} className="relative min-h-screen overflow-x-hidden bg-[#f8ddd5] text-[#6f4d38] [color-scheme:light]">
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,#fff8f1_0,#f9e5dc_38%,#f8ddd5_100%)]" />
+      <div className="fixed inset-0 -z-10 opacity-[.55]" style={{ backgroundImage: `url(${assets.paper})`, backgroundSize: "cover", backgroundPosition: "center top" }} />
+      <FloatingPetals />
+      <LanguageSwitcher language={language} onChange={setLanguage} />
 
-      <main className="relative z-10 mx-auto min-h-[100svh] w-full max-w-[430px] px-3 pb-7 pt-[calc(env(safe-area-inset-top)+4.2rem)] sm:px-4">
-        <ClosedEnvelope
-          isOpen={isOpen}
-          language={language}
-          monogram={monogram}
-          sealImageUrl={invitation.seal_image_url}
-          onOpen={openInvitation}
-        />
-
-        <AnimatePresence>
-          {isOpen ? (
-            <motion.div
-              className="relative w-full"
-              initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 30, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: reduceMotion ? 0 : 1.05, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <InvitationHero
-                language={language}
-                copy={copy}
-                groomName={groomName}
-                brideName={brideName}
-                monogram={monogram}
-                dateParts={dateParts}
-                customMessage={customMessage}
-              />
-              <BismillahSection language={language} />
-              <CountdownSection target={invitation.wedding_date || invitationContent.event.date} language={language} />
-              <ScheduleSection language={language} />
-              <LocationSection copy={copy} venue={venue} address={address} language={language} />
-              <MapSection copy={copy} mapsUrl={mapsUrl} />
-              <DressCodeSection copy={copy} language={language} />
-              <RsvpSection
-                copy={copy}
-                guestName={guestName}
-                response={response}
-                loading={loading}
-                error={error}
-                status={status}
-                onGuestNameChange={setGuestName}
-                onResponseChange={setResponse}
-                onSubmit={submitRsvp}
-              />
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+      <main
+        className={`mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#fff4ef] shadow-[0_0_80px_rgba(111,77,56,.16)] transition-opacity duration-700 ${
+          intro === "show" || intro === "checking" ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        <SwanHeroSection language={language} groomName={groomName} brideName={brideName} />
+        <VenueSection language={language} />
+        <CountdownSection language={language} target={invitation.wedding_date || invitationData.wedding.dateISO} />
+        <WeddingTimeSection language={language} />
+        <LocationSection language={language} venueName={venueName} venueAddress={venueAddress} mapUrl={mapUrl} />
+        <RSVPSection invitation={invitation} language={language} />
+        <FooterSection language={language} />
       </main>
+
+      <AnimatePresence>
+        {intro === "show" ? <IntroVideo key="intro" language={language} onComplete={finishIntro} /> : null}
+      </AnimatePresence>
     </section>
   );
 }
 
-function LanguageToggle({ language, onChange }: { language: InvitationLanguage; onChange: (language: InvitationLanguage) => void }) {
+function IntroVideo({ language, onComplete }: { language: InvitationLanguage; onComplete: () => void }) {
+  const [isFading, setIsFading] = useState(false);
+  const copy = invitationData.copy[language];
+
+  const finish = () => {
+    setIsFading(true);
+    window.setTimeout(onComplete, 700);
+  };
+
   return (
-    <div className="fixed left-3 top-[calc(env(safe-area-inset-top)+.75rem)] z-50 rounded-full border border-[#d7b98a]/34 bg-[#fffaf2]/78 p-1 text-[11px] font-extrabold text-[#8a5b25] shadow-[0_12px_34px_rgba(135,91,50,.12)] backdrop-blur-md">
+    <motion.div
+      className="fixed inset-0 z-[80] grid place-items-center bg-[#f8ddd5]"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: isFading ? 0 : 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.7, ease: easing }}
+    >
+      <div className="relative h-full w-full max-w-[430px] overflow-hidden bg-[#fff4ef] shadow-[0_0_80px_rgba(111,77,56,.28)]">
+        <video className="h-full w-full object-cover" src={assets.introVideo} poster={assets.introPoster} autoPlay muted playsInline onEnded={finish} />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(248,221,213,.08),rgba(71,44,29,.12))]" />
+        <button
+          type="button"
+          onClick={finish}
+          className="absolute bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 -translate-x-1/2 rounded-full border border-[#b98b5f]/45 bg-[#fff8f1]/76 px-4 py-2 text-xs font-semibold text-[#8a6240] shadow-[0_14px_32px_rgba(111,77,56,.18)] backdrop-blur-md"
+        >
+          {copy.introSkip}
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+function LanguageSwitcher({ language, onChange }: { language: InvitationLanguage; onChange: (language: InvitationLanguage) => void }) {
+  return (
+    <div className="fixed left-3 top-[calc(env(safe-area-inset-top)+.75rem)] z-[70] rounded-full border border-[#b98b5f]/35 bg-[#fff8f1]/82 p-1 text-[11px] font-semibold text-[#8a6240] shadow-[0_12px_34px_rgba(111,77,56,.14)] backdrop-blur-md">
       <div className="flex gap-1">
         {(["ar", "en"] as const).map((item) => (
           <button
@@ -292,7 +216,7 @@ function LanguageToggle({ language, onChange }: { language: InvitationLanguage; 
             type="button"
             onClick={() => onChange(item)}
             className={`rounded-full px-3 py-1.5 transition ${
-              language === item ? "bg-[#c88f82] text-white shadow-[0_8px_20px_rgba(175,111,96,.22)]" : "hover:bg-white/70"
+              language === item ? "bg-[#c99780] text-white shadow-[0_8px_18px_rgba(168,120,90,.24)]" : "hover:bg-white/65"
             }`}
           >
             {item === "ar" ? "عربي" : "EN"}
@@ -303,410 +227,437 @@ function LanguageToggle({ language, onChange }: { language: InvitationLanguage; 
   );
 }
 
-function ClosedEnvelope({
-  isOpen,
+function SwanHeroSection({
   language,
-  monogram,
-  sealImageUrl,
-  onOpen
-}: {
-  isOpen: boolean;
-  language: InvitationLanguage;
-  monogram: string;
-  sealImageUrl?: string | null;
-  onOpen: () => void;
-}) {
-  const reduceMotion = useReducedMotion();
-  const copy = invitationContent.copy[language];
-
-  return (
-    <motion.div
-      className={`grid min-h-[calc(100svh-6rem)] w-full place-items-center ${isOpen ? "pointer-events-none absolute inset-x-3 top-16 opacity-0" : "relative"}`}
-      animate={isOpen ? { opacity: 0, y: -24, scale: 0.95 } : { opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: reduceMotion ? 0.01 : 0.95, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <div className="w-full">
-        <motion.button
-          type="button"
-          onClick={onOpen}
-          className="group relative mx-auto block aspect-[900/1220] w-[min(88vw,360px)] outline-none"
-          whileTap={reduceMotion ? undefined : { scale: 0.985 }}
-          aria-label={copy.openHint}
-        >
-          <motion.div
-            className="relative h-full w-full"
-            animate={reduceMotion ? undefined : { y: [0, -5, 0] }}
-            transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Image src={assets.closedEnvelope} alt="" fill priority sizes="360px" className="object-contain drop-shadow-[0_28px_58px_rgba(125,86,52,.24)]" />
-            <AnimatePresence>
-              {isOpen ? (
-                <motion.div className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <Image src={assets.openedEnvelope} alt="" fill sizes="360px" className="object-contain" />
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-            <div className="absolute inset-x-[19%] top-[28%] text-center">
-              <p className="text-xs font-extrabold tracking-[0.18em] text-[#8a5b25]/72">{copy.closedLabel}</p>
-            </div>
-            <motion.span className="absolute left-1/2 top-[56%] grid h-[clamp(82px,22vw,110px)] w-[clamp(82px,22vw,110px)] -translate-x-1/2 -translate-y-1/2 place-items-center">
-              <Image
-                src={isOpen ? assets.waxSealOpen : sealImageUrl || assets.waxSeal}
-                alt=""
-                fill
-                sizes="120px"
-                className="object-contain drop-shadow-[0_18px_32px_rgba(120,72,58,.3)] transition duration-500 group-hover:scale-[1.03]"
-                unoptimized={Boolean(sealImageUrl)}
-              />
-              {!isOpen ? <MonogramMark value={language === "ar" ? "DA" : monogram} className="relative z-10 font-display text-[clamp(1.02rem,5vw,1.42rem)] font-bold text-[#fff4da]" /> : null}
-            </motion.span>
-          </motion.div>
-        </motion.button>
-
-        <motion.p
-          className="mx-auto mt-4 w-fit rounded-full border border-[#d7b98a]/34 bg-[#fffaf2]/76 px-5 py-2 text-center text-xs font-extrabold text-[#8a5b25]/78 shadow-[0_14px_34px_rgba(135,91,50,.1)] backdrop-blur-md"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.7 }}
-        >
-          {copy.openHint}
-        </motion.p>
-      </div>
-    </motion.div>
-  );
-}
-
-function InvitationHero({
-  language,
-  copy,
   groomName,
-  brideName,
-  monogram,
-  dateParts,
-  customMessage
+  brideName
 }: {
   language: InvitationLanguage;
-  copy: (typeof invitationContent.copy)[InvitationLanguage];
   groomName: string;
   brideName: string;
-  monogram: string;
-  dateParts: DateParts;
-  customMessage: string;
 }) {
+  const copy = invitationData.copy[language];
   const isArabic = language === "ar";
 
   return (
-    <motion.section
-      className="relative min-h-[calc(100svh-5.2rem)] overflow-hidden rounded-[2rem] text-center shadow-[0_30px_82px_rgba(125,86,52,.16)]"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <Image src={assets.heroFrame} alt="" fill priority sizes="430px" className="object-cover" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,250,243,.3),rgba(255,250,243,.04)_52%,rgba(255,246,237,.44))]" />
-      <div className="relative z-10 flex min-h-[calc(100svh-5.2rem)] flex-col items-center px-7 pb-8 pt-8">
-        <motion.p className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-[#a7792d]/76" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-          {copy.heroLabel}
-        </motion.p>
-        <p className="mt-2 text-xs font-bold text-[#8a5b25]/62">{dateParts.fullDate}</p>
-        <div className="mt-6 grid place-items-center">
-          <MonogramMark
-            value={monogram}
-            className="text-[clamp(1.35rem,8vw,2rem)] font-bold leading-none text-[#b48245]"
-            style={{ fontFamily: isArabic ? "var(--font-arabic-luxury)" : "var(--font-cormorant)" }}
-          />
-        </div>
+    <section className="relative min-h-[100svh] overflow-hidden">
+      <Image src={assets.swanHero} alt="" fill priority sizes="430px" className="object-cover object-top" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,244,239,.2)_0%,rgba(255,244,239,.08)_46%,rgba(61,38,26,.1)_100%)]" />
+      <motion.div
+        className="relative z-10 mx-auto flex min-h-[100svh] w-full flex-col items-center px-7 pt-[calc(env(safe-area-inset-top)+4.3rem)] text-center"
+        initial={{ opacity: 0, y: 26 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.1, ease: easing, delay: 0.15 }}
+      >
+        <p className={`text-[1.05rem] text-[#8a6240] ${isArabic ? "arabic-body" : "serif-text"}`}>{copy.heroLabel}</p>
+        <Image src={assets.goldDivider} alt="" width={190} height={22} className="mt-1 h-auto w-28 opacity-85" />
         <h1
-          className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[clamp(2.4rem,13vw,4rem)] font-bold leading-[.98] text-[#493023]"
-          style={{ fontFamily: isArabic ? "var(--font-arabic-luxury)" : "var(--font-cormorant)" }}
+          className={`mt-1 text-[#8a6240] drop-shadow-[0_2px_5px_rgba(255,248,241,.72)] ${
+            isArabic ? "arabic-title text-[3.25rem] leading-[1.02]" : "script-title text-[4.1rem] leading-[.88]"
+          }`}
         >
-          <span>{groomName}</span>
-          <span className="text-[#c88f82]">&</span>
-          <span>{brideName}</span>
+          <span className="block">{groomName}</span>
+          <span className={`block text-[#9b7358] ${isArabic ? "text-3xl" : "text-4xl"}`}>&</span>
+          <span className="block">{brideName}</span>
         </h1>
-        <Image src={assets.floralDivider} alt="" width={260} height={28} className="mt-4 h-auto w-44 opacity-80" />
-        <div className="mt-5 space-y-3 text-[clamp(.95rem,4vw,1.12rem)] font-bold leading-8 text-[#5c3a2a]">
-          <p>{copy.opening}</p>
-          <p>{copy.formal}</p>
-          {customMessage ? <p className="text-[#8a5b25]/86">{customMessage}</p> : null}
-        </div>
-        <div className="mt-auto w-full">
-          <Image src={assets.swans} alt="" width={900} height={520} priority sizes="430px" className="mx-auto h-auto w-full opacity-95" />
-          <motion.p
-            className="mx-auto -mt-2 w-fit rounded-full bg-white/62 px-4 py-1.5 text-[11px] font-extrabold text-[#8a5b25]/65 shadow-[0_10px_28px_rgba(135,91,50,.1)]"
-            animate={{ y: [0, 5, 0] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-          >
-            {copy.scrollHint}
-          </motion.p>
-        </div>
-      </div>
-    </motion.section>
+        <Image src={assets.goldDivider} alt="" width={240} height={28} className="mt-3 h-auto w-36 opacity-90" />
+        <p
+          className={`mt-4 whitespace-pre-line text-[1.04rem] font-medium leading-6 text-[#6f4d38] ${
+            isArabic ? "arabic-body" : "serif-text"
+          }`}
+        >
+          {copy.heroText}
+        </p>
+      </motion.div>
+    </section>
   );
 }
 
-function PaperSection({ children, className = "" }: { children: ReactNode; className?: string }) {
+function RevealSection({ children, className = "" }: { children: ReactNode; className?: string }) {
+  const reduceMotion = useReducedMotion();
   return (
     <motion.section
-      className={`relative mt-4 overflow-hidden rounded-[1.8rem] border border-[#d7b98a]/28 bg-[#fffaf2]/76 px-6 py-8 text-center shadow-[0_22px_62px_rgba(125,86,52,.1)] backdrop-blur-sm ${className}`}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 45, scale: 0.985, filter: "blur(14px)" }}
+      whileInView={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+      viewport={{ once: false, amount: 0.22 }}
+      transition={{ duration: reduceMotion ? 0.01 : 1, ease: easing }}
     >
-      <Image src={assets.paper} alt="" fill sizes="430px" className="object-cover opacity-[.58]" />
-      <Image src={assets.ornamentalCorners} alt="" fill sizes="430px" className="object-cover opacity-20" />
-      <div className="relative z-10">{children}</div>
+      {children}
     </motion.section>
   );
 }
 
-function BismillahSection({ language }: { language: InvitationLanguage }) {
-  const copy = invitationContent.copy[language];
-  const isArabic = language === "ar";
+function SectionShell({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <PaperSection>
-      <p className="text-xs font-extrabold uppercase tracking-[0.24em] text-[#a7792d]/70">{language === "ar" ? "بداية مباركة" : "Blessed Beginning"}</p>
-      <p
-        className="mt-5 text-[clamp(1.55rem,7vw,2.15rem)] font-bold leading-[1.35] text-[#5a3628]"
-        style={{ fontFamily: isArabic ? "var(--font-arabic-luxury)" : "var(--font-cormorant)" }}
-      >
-        {copy.bismillah}
-      </p>
-      <Image src={assets.floralDivider} alt="" width={300} height={32} className="mx-auto mt-5 h-auto w-48 opacity-70" />
-    </PaperSection>
-  );
-}
-
-function CountdownSection({ target, language }: { target: string; language: InvitationLanguage }) {
-  const [now, setNow] = useState(() => Date.now());
-  const copy = invitationContent.copy[language];
-  const labels = invitationContent.countdownLabels[language];
-
-  useEffect(() => {
-    const interval = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(interval);
-  }, []);
-
-  const units = useMemo(() => {
-    const targetMs = getSafeDate(target).getTime();
-    const diff = Math.max(0, targetMs - now);
-    return [
-      Math.floor(diff / 86_400_000),
-      Math.floor((diff % 86_400_000) / 3_600_000),
-      Math.floor((diff % 3_600_000) / 60_000),
-      Math.floor((diff % 60_000) / 1000)
-    ];
-  }, [now, target]);
-
-  return (
-    <PaperSection>
-      <p className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-[#a7792d]/74">{copy.countdownTitle}</p>
-      <div className="mt-6 grid grid-cols-4 divide-x divide-[#c8a36a]/28 rtl:divide-x-reverse">
-        {units.map((value, index) => (
-          <div key={labels[index]} className="px-1">
-            <p className="font-display text-[clamp(2.05rem,10vw,3rem)] leading-none text-[#7a1d21]">{String(value).padStart(2, "0")}</p>
-            <p className="mt-1 text-[10px] font-extrabold text-[#8a5b25]/62">{labels[index]}</p>
-          </div>
-        ))}
-      </div>
-    </PaperSection>
-  );
-}
-
-function ScheduleSection({ language }: { language: InvitationLanguage }) {
-  const copy = invitationContent.copy[language];
-  return (
-    <PaperSection>
-      <SectionTitle title={copy.scheduleTitle} />
-      <div className="relative mt-7 space-y-5 text-start">
-        <span className="absolute bottom-2 top-2 h-auto w-px bg-[#d7b98a]/42 ltr:left-4 rtl:right-4" />
-        {invitationContent.schedule.map((item, index) => (
-          <motion.div
-            key={`${item.time.en}-${item.title.en}`}
-            className="relative grid grid-cols-[2rem_1fr] gap-3 rtl:grid-cols-[1fr_2rem]"
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.08, duration: 0.45 }}
-          >
-            <span className="relative z-10 mt-1 grid h-8 w-8 place-items-center rounded-full border border-[#d7b98a]/40 bg-[#fffaf2] text-[#c88f82] rtl:order-2">
-              ✦
-            </span>
-            <div className="rounded-[1rem] bg-white/42 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,.55)]">
-              <p className="text-xs font-extrabold text-[#a7792d]">{item.time[language]}</p>
-              <p className="mt-1 text-sm font-bold text-[#4d3021]">{item.title[language]}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </PaperSection>
-  );
-}
-
-function LocationSection({ copy, venue, address, language }: { copy: (typeof invitationContent.copy)[InvitationLanguage]; venue: string; address: string; language: InvitationLanguage }) {
-  return (
-    <PaperSection>
-      <SectionTitle title={copy.locationTitle} />
-      <Image src={assets.venue} alt="" width={900} height={520} sizes="430px" className="mx-auto mt-4 h-auto w-full opacity-90" />
-      <p className="mt-2 text-lg font-extrabold text-[#4d3021]">{venue}</p>
-      <p className="mt-1 text-sm font-bold text-[#8a5b25]/66">{address}</p>
-      {language === "ar" ? <p className="mt-4 text-xs font-bold text-[#8a5b25]/56">يسعدنا حضوركم في الموعد المحدد.</p> : null}
-    </PaperSection>
-  );
-}
-
-function MapSection({ copy, mapsUrl }: { copy: (typeof invitationContent.copy)[InvitationLanguage]; mapsUrl: string }) {
-  return (
-    <PaperSection>
-      <SectionTitle title={copy.mapTitle} />
-      <div className="relative mt-4 overflow-hidden rounded-[1.35rem]">
-        <Image src={assets.mapFrame} alt="" width={900} height={560} sizes="430px" className="h-auto w-full" />
-      </div>
-      <a
-        href={mapsUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-4 inline-flex rounded-full border border-[#d7b98a]/38 bg-white/60 px-5 py-2.5 text-xs font-extrabold text-[#7a1d21] shadow-[0_12px_28px_rgba(125,86,52,.1)] transition hover:-translate-y-0.5"
-      >
-        {copy.openMaps}
-      </a>
-    </PaperSection>
-  );
-}
-
-function DressCodeSection({ copy, language }: { copy: (typeof invitationContent.copy)[InvitationLanguage]; language: InvitationLanguage }) {
-  return (
-    <PaperSection>
-      <SectionTitle title={copy.dressTitle} />
-      <div className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full border border-[#d7b98a]/28 bg-white/46 px-4 py-2">
-        {["#fffaf2", "#ead8c0", "#c88f82", "#7a1d21"].map((color) => (
-          <span key={color} className="h-6 w-6 rounded-full border border-[#d7b98a]/38" style={{ backgroundColor: color }} />
-        ))}
-      </div>
-      <p className="mt-4 text-lg font-extrabold text-[#4d3021]">{copy.dressValue}</p>
-      <p className="mt-2 text-xs font-bold text-[#8a5b25]/58">{language === "ar" ? "ألوان هادئة ولمسة أنيقة تكمل جمال اليوم." : "Soft tones and elegant details for a beautiful day."}</p>
-    </PaperSection>
-  );
-}
-
-function RsvpSection({
-  copy,
-  guestName,
-  response,
-  loading,
-  error,
-  status,
-  onGuestNameChange,
-  onResponseChange,
-  onSubmit
-}: {
-  copy: (typeof invitationContent.copy)[InvitationLanguage];
-  guestName: string;
-  response: RsvpResponse;
-  loading: boolean;
-  error: string;
-  status: string;
-  onGuestNameChange: (value: string) => void;
-  onResponseChange: (value: RsvpResponse) => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-}) {
-  return (
-    <PaperSection className="mb-3">
-      <form onSubmit={onSubmit}>
-        <SectionTitle title={copy.rsvpTitle} />
-        <label className="mt-5 block text-start">
-          <span className="mb-2 block text-xs font-extrabold text-[#8a5b25]/64">{copy.guestName}</span>
-          <input
-            value={guestName}
-            onChange={(event) => onGuestNameChange(event.target.value)}
-            className="w-full rounded-full border border-[#d7b98a]/30 bg-white/72 px-4 py-3 text-sm font-bold text-[#3f291e] outline-none transition placeholder:text-[#8a5b25]/34 focus:border-[#c88f82] focus:bg-white"
-            placeholder={copy.guestName}
-            required
-          />
-        </label>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <RsvpChoice active={response === "accepted"} onClick={() => onResponseChange("accepted")} label={copy.accept} />
-          <RsvpChoice active={response === "declined"} onClick={() => onResponseChange("declined")} label={copy.decline} />
-        </div>
-        <button
-          disabled={loading}
-          className="mt-3 w-full rounded-full bg-[linear-gradient(135deg,#c88f82,#7a1d21)] px-5 py-3 text-sm font-extrabold text-white shadow-[0_14px_34px_rgba(122,29,33,.16)] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
-        >
-          {loading ? copy.sending : copy.send}
-        </button>
-        {error ? <p className="mt-3 rounded-xl border border-red-400/25 bg-red-500/10 p-2.5 text-xs font-bold text-red-800">{error}</p> : null}
-        {status ? <p className="mt-3 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-2.5 text-xs font-bold text-emerald-800">{status}</p> : null}
-      </form>
-    </PaperSection>
-  );
-}
-
-function SectionTitle({ title }: { title: string }) {
-  return (
-    <div className="text-center">
-      <p className="font-display text-[clamp(1.65rem,7vw,2.2rem)] font-semibold leading-none text-[#7a1d21]">{title}</p>
-      <Image src={assets.floralDivider} alt="" width={260} height={28} className="mx-auto mt-3 h-auto w-44 opacity-72" />
+    <div
+      className={`relative overflow-hidden border-y border-[#b98b5f]/24 bg-[#fff4ef] px-4 py-7 shadow-[inset_0_1px_rgba(255,255,255,.72)] ${className}`}
+      style={{ backgroundImage: `linear-gradient(rgba(255,244,239,.72),rgba(255,244,239,.88)), url(${assets.paper})`, backgroundSize: "cover" }}
+    >
+      {children}
     </div>
   );
 }
 
-function RsvpChoice({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+function ScriptHeading({ children, language }: { children: ReactNode; language: InvitationLanguage }) {
+  return (
+    <h2 className={`text-center text-[#8a6240] ${language === "ar" ? "arabic-title text-[2.05rem]" : "script-title text-[2.85rem] leading-none"}`}>
+      {children}
+    </h2>
+  );
+}
+
+function VenueSection({ language }: { language: InvitationLanguage }) {
+  const copy = invitationData.copy[language];
+  return (
+    <RevealSection>
+      <SectionShell className="pt-8">
+        <CornerOrnaments />
+        <ScriptHeading language={language}>{copy.venueTitle}</ScriptHeading>
+        <Image src={assets.goldDivider} alt="" width={240} height={28} className="mx-auto mt-1 h-auto w-36 opacity-80" />
+        <p className={`mt-2 text-center text-[1rem] text-[#7b5941] ${language === "ar" ? "arabic-body" : "serif-text"}`}>{copy.venueSubtitle}</p>
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          {invitationData.venueOptions.map((venue) => {
+            const selected = venue.id === invitationData.venue.selected;
+            return (
+              <motion.div
+                key={venue.id}
+                className={`relative overflow-hidden rounded-[1.15rem] border p-1.5 shadow-[0_12px_30px_rgba(111,77,56,.1)] ${
+                  selected ? "border-[#7b9a5b]/70 bg-[#dfead0]/68" : "border-[#b98b5f]/45 bg-[#fff8f1]/72"
+                }`}
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.35 }}
+              >
+                <div className="relative aspect-[1.18/1] overflow-hidden rounded-[.9rem] border border-[#b98b5f]/20 bg-[#f9efe6]">
+                  <Image src={venue.image} alt="" fill sizes="190px" className="object-cover object-left" />
+                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#fff8f1] to-transparent" />
+                </div>
+                <p className={`mt-2 text-center text-[#8a6240] ${language === "ar" ? "arabic-title text-xl" : "script-title text-[1.72rem] leading-none"}`}>
+                  {text(venue.name, language)}
+                </p>
+                <div className="mx-auto mt-2 grid h-6 w-6 place-items-center rounded-full border border-[#b98b5f] bg-[#fff8f1] text-[#7b9a5b]">
+                  {selected ? <Check className="h-4 w-4 stroke-[2.8]" /> : null}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </SectionShell>
+    </RevealSection>
+  );
+}
+
+function CountdownSection({ language, target }: { language: InvitationLanguage; target: string }) {
+  const copy = invitationData.copy[language];
+  const [remaining, setRemaining] = useState(() => getRemaining(target));
+
+  useEffect(() => {
+    const tick = () => setRemaining(getRemaining(target));
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    return () => window.clearInterval(timer);
+  }, [target]);
+
+  return (
+    <RevealSection>
+      <SectionShell className="px-5 py-6">
+        <FloralSprig side="left" />
+        <FloralSprig side="right" />
+        <ScriptHeading language={language}>{copy.countdownTitle}</ScriptHeading>
+        <Image src={assets.goldDivider} alt="" width={240} height={28} className="mx-auto mt-1 h-auto w-40 opacity-90" />
+        <div className="relative mx-auto mt-5 rounded-[1.65rem] border border-[#b98b5f]/70 bg-[#fff8f1]/52 px-2 py-5 shadow-[inset_0_0_0_1px_rgba(255,255,255,.62),0_18px_42px_rgba(111,77,56,.08)]">
+          <div className="grid grid-cols-4 divide-x divide-[#b98b5f]/34 rtl:divide-x-reverse">
+            {remaining.map((value, index) => (
+              <div key={copy.countdownLabels[index]} className="px-1 text-center">
+                <p className="display-serif text-[2.05rem] leading-none text-[#8a6240]">{value}</p>
+                <p className={`mt-2 text-[.63rem] uppercase tracking-[.12em] text-[#9b7358] ${language === "ar" ? "arabic-body" : "serif-text"}`}>
+                  {copy.countdownLabels[index]}
+                </p>
+              </div>
+            ))}
+          </div>
+          <Heart className="absolute -bottom-3 left-1/2 h-6 w-6 -translate-x-1/2 fill-[#efc0b2] stroke-[#b98b5f]" />
+        </div>
+      </SectionShell>
+    </RevealSection>
+  );
+}
+
+function WeddingTimeSection({ language }: { language: InvitationLanguage }) {
+  const copy = invitationData.copy[language];
+  return (
+    <RevealSection>
+      <SectionShell className="px-6 py-5 text-center">
+        <FloralSprig side="left" />
+        <FloralSprig side="right" />
+        <ScriptHeading language={language}>{copy.weddingTimeTitle}</ScriptHeading>
+        <Image src={assets.goldDivider} alt="" width={220} height={24} className="mx-auto mt-1 h-auto w-36 opacity-85" />
+        <p className={`mt-4 text-[1.45rem] text-[#8a6240] ${language === "ar" ? "arabic-title" : "display-serif italic"}`}>
+          {copy.weddingTimeText}
+        </p>
+      </SectionShell>
+    </RevealSection>
+  );
+}
+
+function LocationSection({
+  language,
+  venueName,
+  venueAddress,
+  mapUrl
+}: {
+  language: InvitationLanguage;
+  venueName: string;
+  venueAddress: string;
+  mapUrl: string;
+}) {
+  const copy = invitationData.copy[language];
+  return (
+    <RevealSection>
+      <SectionShell className="px-4 py-5">
+        <CornerOrnaments />
+        <div className="grid grid-cols-[1.05fr_.95fr] items-center gap-3">
+          <div className="relative aspect-[1.25/1] overflow-hidden rounded-[1rem] border border-[#b98b5f]/35 bg-[#fff8f1] shadow-[0_12px_28px_rgba(111,77,56,.1)]">
+            <Image src={assets.locationPalace} alt="" fill sizes="210px" className="object-cover" />
+          </div>
+          <div className="text-center">
+            <ScriptHeading language={language}>{copy.locationTitle}</ScriptHeading>
+            <Image src={assets.goldDivider} alt="" width={180} height={20} className="mx-auto mt-1 h-auto w-28 opacity-80" />
+            <h3 className={`mt-3 text-[1.28rem] font-semibold text-[#8a6240] ${language === "ar" ? "arabic-title" : "serif-text"}`}>{venueName}</h3>
+            <p className={`mt-1 text-[.85rem] leading-5 text-[#7b5941] ${language === "ar" ? "arabic-body" : "serif-text"}`}>{venueAddress}</p>
+            <a
+              href={mapUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mx-auto mt-3 inline-flex items-center gap-1.5 rounded-full border border-[#b98b5f]/55 bg-[#fff8f1]/72 px-3.5 py-2 text-[.78rem] font-semibold text-[#8a6240] shadow-[0_8px_20px_rgba(111,77,56,.1)]"
+            >
+              <MapPin className="h-3.5 w-3.5" />
+              {copy.openMaps}
+            </a>
+          </div>
+        </div>
+      </SectionShell>
+    </RevealSection>
+  );
+}
+
+function RSVPSection({ invitation, language }: { invitation: PublicInvitation; language: InvitationLanguage }) {
+  const copy = invitationData.copy[language];
+  const [guestName, setGuestName] = useState("");
+  const [choice, setChoice] = useState<RsvpChoice>("accepted");
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!guestName.trim()) return;
+    setStatus("submitting");
+
+    if (invitation.id === "demo") {
+      window.setTimeout(() => setStatus("success"), 520);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/invitations/${invitation.slug}/rsvp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          guestName: guestName.trim(),
+          response: choice === "accepted" ? "accepted" : "declined",
+          language,
+          invitationId: invitation.id,
+          submittedAt: new Date().toISOString()
+        })
+      });
+      if (!response.ok) throw new Error("RSVP failed");
+      setStatus("success");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  return (
+    <RevealSection>
+      <SectionShell className="px-4 py-6">
+        <CornerOrnaments />
+        <div className="relative overflow-hidden rounded-[1.35rem] border border-[#b98b5f]/42 bg-[#fff8f1]/72 px-4 pb-5 pt-5 shadow-[0_18px_42px_rgba(111,77,56,.1)]">
+          <Image src={assets.rsvpEnvelope} alt="" width={230} height={166} className="pointer-events-none absolute -bottom-6 -left-10 w-44 opacity-70" />
+          <div className="relative z-10 mx-auto max-w-[310px] text-center">
+            <ScriptHeading language={language}>{copy.rsvpTitle}</ScriptHeading>
+            <Image src={assets.goldDivider} alt="" width={210} height={24} className="mx-auto mt-1 h-auto w-32 opacity-85" />
+            <p className={`mt-2 text-[.92rem] text-[#7b5941] ${language === "ar" ? "arabic-body" : "serif-text"}`}>{copy.rsvpSubtitle}</p>
+
+            {status === "success" ? (
+              <div className="mt-5 rounded-[1rem] border border-[#b98b5f]/38 bg-[#fff4ef]/72 px-4 py-4 text-[#8a6240]">
+                <p className={`text-xl ${language === "ar" ? "arabic-title" : "script-title"}`}>{copy.successTitle}</p>
+                <p className={`mt-1 text-sm ${language === "ar" ? "arabic-body" : "serif-text"}`}>{copy.successBody}</p>
+              </div>
+            ) : (
+              <form onSubmit={submit} className="mt-4 space-y-3">
+                <label className="relative block">
+                  <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#b98b5f] rtl:left-auto rtl:right-3" />
+                  <input
+                    value={guestName}
+                    onChange={(event) => setGuestName(event.target.value)}
+                    placeholder={copy.guestName}
+                    className="h-12 w-full rounded-[.7rem] border border-[#b98b5f]/45 bg-[#fff8f1]/82 px-10 text-sm text-[#6f4d38] outline-none shadow-[inset_0_1px_0_rgba(255,255,255,.65)] placeholder:text-[#9b7358]/70 focus:border-[#a8785a]"
+                  />
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <ChoiceButton active={choice === "accepted"} onClick={() => setChoice("accepted")}>
+                    <Heart className="h-3.5 w-3.5 fill-current" />
+                    {copy.accept}
+                  </ChoiceButton>
+                  <ChoiceButton active={choice === "apologized"} onClick={() => setChoice("apologized")}>
+                    <Send className="h-3.5 w-3.5" />
+                    {copy.apologize}
+                  </ChoiceButton>
+                </div>
+                <button
+                  type="submit"
+                  disabled={status === "submitting"}
+                  className="serif-text mx-auto flex h-12 min-w-40 items-center justify-center gap-2 rounded-[.85rem] border border-[#8a6240]/40 bg-[linear-gradient(180deg,#c69a63,#98683c)] px-7 text-base font-semibold text-[#fff8f1] shadow-[inset_0_1px_rgba(255,255,255,.45),0_10px_24px_rgba(111,77,56,.2)] transition hover:brightness-105 disabled:opacity-60"
+                >
+                  <Send className="h-4 w-4" />
+                  {status === "submitting" ? copy.sending : copy.send}
+                </button>
+                {status === "error" ? <p className="text-sm text-[#9d473f]">{copy.error}</p> : null}
+              </form>
+            )}
+          </div>
+        </div>
+      </SectionShell>
+    </RevealSection>
+  );
+}
+
+function ChoiceButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border px-3 py-2.5 text-xs font-extrabold transition ${
-        active
-          ? "border-[#c88f82]/50 bg-[#7a1d21] text-white shadow-[0_12px_26px_rgba(122,29,33,.15)]"
-          : "border-[#d7b98a]/30 bg-white/56 text-[#8a5b25]/72 hover:border-[#c88f82]/45 hover:bg-white"
+      className={`flex h-11 items-center justify-center gap-1.5 rounded-[.7rem] border px-2 text-[.76rem] font-semibold transition ${
+        active ? "border-[#b98b5f]/60 bg-[#dfead0]/78 text-[#6f5f38]" : "border-[#b98b5f]/38 bg-[#fff4ef]/58 text-[#8a6240]"
       }`}
     >
-      {label}
+      {children}
     </button>
   );
 }
 
-function SoftParticles() {
-  const reduceMotion = useReducedMotion();
-  const particles = useMemo(
+function FooterSection({ language }: { language: InvitationLanguage }) {
+  const copy = invitationData.copy[language];
+  return (
+    <RevealSection>
+      <footer className="relative bg-[#fff4ef] px-4 pb-[calc(env(safe-area-inset-bottom)+1.35rem)] pt-5 text-center">
+        <div className="relative rounded-[1.25rem] border border-[#b98b5f]/30 bg-[#fff8f1]/46 px-5 py-5">
+          <CornerOrnaments />
+          <ScriptHeading language={language}>{copy.thankYou}</ScriptHeading>
+          <p className={`mt-1 text-sm text-[#7b5941] ${language === "ar" ? "arabic-body" : "serif-text"}`}>{copy.thankYouBody}</p>
+          <Link
+            href={invitationData.mainWebsiteUrl}
+            className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full border border-[#b98b5f]/42 bg-[#fff8f1] px-5 py-2 text-sm font-semibold text-[#8a6240] shadow-[0_8px_18px_rgba(111,77,56,.1)]"
+          >
+            <Home className="h-4 w-4" />
+            {copy.backHome}
+          </Link>
+        </div>
+        <div className="mt-4 flex items-center justify-center gap-5 text-[#8a6240]">
+          <Instagram className="h-4 w-4" />
+          <MessageCircle className="h-4 w-4" />
+          <Heart className="h-4 w-4 fill-current" />
+        </div>
+        <div className="mt-3 flex items-center justify-center gap-5 text-[.75rem] text-[#8a6240]/72">
+          <span>{copy.designed}</span>
+          <span>•</span>
+          <span>{copy.copyright}</span>
+        </div>
+      </footer>
+    </RevealSection>
+  );
+}
+
+function ChoiceMiniCard({
+  image,
+  label,
+  selected
+}: {
+  image: string;
+  label: string;
+  selected?: boolean;
+}) {
+  return (
+    <div className={`overflow-hidden rounded-[1rem] border bg-[#fff8f1]/82 p-1 ${selected ? "border-[#7b9a5b]" : "border-[#b98b5f]/45"}`}>
+      <div className="relative aspect-[1.22/1] overflow-hidden rounded-[.75rem]">
+        <Image src={image} alt="" fill sizes="160px" className="object-cover" />
+      </div>
+      <p className="script-title mt-1 text-center text-xl text-[#8a6240]">{label}</p>
+    </div>
+  );
+}
+
+function FloatingPetals() {
+  const petals = useMemo(
     () =>
-      Array.from({ length: 16 }, (_, index) => ({
+      Array.from({ length: 14 }, (_, index) => ({
         id: index,
-        left: (index * 43) % 100,
-        delay: (index % 8) * 0.75,
-        duration: 13 + (index % 5) * 1.8,
-        size: 5 + (index % 4)
+        left: `${8 + ((index * 23) % 84)}%`,
+        delay: (index % 7) * 1.3,
+        duration: 16 + (index % 5) * 3,
+        size: 18 + (index % 4) * 6
       })),
     []
   );
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[1] overflow-hidden" aria-hidden="true">
-      <Image src={assets.petals} alt="" fill sizes="100vw" className="object-cover opacity-[0.14] mix-blend-multiply" />
-      {particles.map((particle) => (
-        <motion.span
-          key={particle.id}
-          className="absolute top-[-7%] rounded-full bg-[#c88f82] shadow-[0_0_14px_rgba(200,143,130,.32)]"
-          style={{ left: `${particle.left}%`, width: particle.size, height: Math.max(3, particle.size - 2), opacity: 0.22 }}
-          animate={
-            reduceMotion
-              ? { opacity: [0.12, 0.2, 0.12] }
-              : { y: ["0vh", "112vh"], x: [0, particle.id % 2 ? 16 : -14, 0], rotate: [0, 32, -16], opacity: [0, 0.28, 0.16, 0] }
-          }
-          transition={{ duration: particle.duration, repeat: Infinity, delay: particle.delay, ease: "linear" }}
+    <div className="pointer-events-none fixed inset-0 z-[3] mx-auto max-w-[430px] overflow-hidden opacity-70">
+      {petals.map((petal) => (
+        <motion.img
+          key={petal.id}
+          src={assets.petals}
+          alt=""
+          className="absolute -top-16"
+          style={{ left: petal.left, width: petal.size }}
+          animate={{ y: ["0vh", "112vh"], x: [0, petal.id % 2 ? 18 : -14, 0], rotate: [0, 25, -12], opacity: [0, 0.4, 0.18, 0] }}
+          transition={{ duration: petal.duration, repeat: Infinity, delay: petal.delay, ease: "linear" }}
         />
       ))}
     </div>
   );
 }
 
+function CornerOrnaments() {
+  return (
+    <>
+      <Image src={assets.ornament} alt="" width={72} height={72} className="pointer-events-none absolute left-3 top-3 h-10 w-10 opacity-45" />
+      <Image src={assets.ornament} alt="" width={72} height={72} className="pointer-events-none absolute right-3 top-3 h-10 w-10 rotate-90 opacity-45" />
+      <Image src={assets.ornament} alt="" width={72} height={72} className="pointer-events-none absolute bottom-3 left-3 h-10 w-10 -rotate-90 opacity-40" />
+      <Image src={assets.ornament} alt="" width={72} height={72} className="pointer-events-none absolute bottom-3 right-3 h-10 w-10 rotate-180 opacity-40" />
+    </>
+  );
+}
+
+function FloralSprig({ side }: { side: "left" | "right" }) {
+  return (
+    <Image
+      src={assets.petals}
+      alt=""
+      width={140}
+      height={90}
+      className={`pointer-events-none absolute top-4 h-12 w-20 opacity-45 ${side === "left" ? "left-1 -rotate-12" : "right-1 rotate-12"}`}
+    />
+  );
+}
+
 export function LuxuryInvitationMiniature({ className = "" }: { className?: string }) {
   return (
-    <div className={`relative h-full w-full overflow-hidden bg-[#fff6ed] ${className}`}>
-      <Image src={assets.background} alt="" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover" />
-      <Image src={assets.closedEnvelope} alt="" fill sizes="(min-width: 768px) 35vw, 100vw" className="object-contain p-[9%] drop-shadow-[0_24px_54px_rgba(125,86,52,.22)]" />
-      <Image src={assets.waxSeal} alt="" width={90} height={90} className="absolute left-1/2 top-[55%] h-[21%] w-auto -translate-x-1/2 -translate-y-1/2" />
+    <div className={`relative h-full w-full overflow-hidden bg-[#fff4ef] ${className}`}>
+      <Image src={assets.swanHero} alt="" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover object-top" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,244,239,.08),rgba(255,244,239,.2)_55%,rgba(255,244,239,.65))]" />
+      <div className="absolute inset-x-4 top-[16%] text-center">
+        <p className="serif-text text-sm text-[#8a6240]">Wedding Invitation</p>
+        <p className="script-title text-5xl leading-[.92] text-[#8a6240]">Ahmed<br />&<br />Mayar</p>
+      </div>
     </div>
   );
 }
@@ -714,14 +665,11 @@ export function LuxuryInvitationMiniature({ className = "" }: { className?: stri
 export function LuxuryInvitationArtifact({
   isOpen,
   onOpen,
-  language = "ar",
+  language = "en",
   brideName,
   groomName,
-  initials,
   date,
-  venue,
-  message,
-  sealImageUrl
+  venue
 }: {
   isOpen: boolean;
   onOpen: () => void;
@@ -737,28 +685,31 @@ export function LuxuryInvitationArtifact({
   sealImageUrl?: string | null;
   onRsvpClick?: () => void;
 }) {
-  const copy = invitationContent.copy[language];
-  const dateParts = formatDateParts(date || invitationContent.event.date, language);
+  const groom = localizeName(groomName, invitationData.couple.groom, language);
+  const bride = localizeName(brideName, invitationData.couple.bride, language);
+  const dateParts = formatDateParts(date, language);
 
   return (
-    <div className="relative mx-auto grid min-h-[680px] max-w-[430px] place-items-center overflow-hidden rounded-[2rem] bg-[#fff6ed] p-3">
-      <Image src={assets.background} alt="" fill sizes="430px" className="object-cover" />
+    <div className="relative mx-auto min-h-[680px] max-w-[430px] overflow-hidden rounded-[1.8rem] bg-[#fff4ef]">
       {!isOpen ? (
-        <button type="button" onClick={onOpen} className="relative aspect-[900/1220] w-[min(84vw,360px)]">
-          <Image src={assets.closedEnvelope} alt="" fill sizes="360px" className="object-contain" />
-          <Image src={sealImageUrl || assets.waxSeal} alt="" width={90} height={90} className="absolute left-1/2 top-[56%] -translate-x-1/2 -translate-y-1/2" />
-          <MonogramMark value={language === "ar" ? "DA" : initials} className="absolute left-1/2 top-[56%] -translate-x-1/2 -translate-y-1/2 font-display text-[#fff4da]" />
+        <button type="button" onClick={onOpen} className="relative block h-[680px] w-full overflow-hidden">
+          <Image src={assets.introPoster} alt="" fill sizes="430px" className="object-cover" />
+          <div className="serif-text absolute inset-x-0 bottom-8 text-center text-sm font-semibold text-[#8a6240]">Tap to preview</div>
         </button>
       ) : (
-        <InvitationHero
-          language={language}
-          copy={copy}
-          groomName={localizeName(groomName, invitationContent.couple.groom, language)}
-          brideName={localizeName(brideName, invitationContent.couple.bride, language)}
-          monogram={initials || getMonogram(groomName, brideName, language)}
-          dateParts={dateParts}
-          customMessage={cleanCustomMessage(message)}
-        />
+        <>
+          <div className="relative h-[430px]">
+            <Image src={assets.swanHero} alt="" fill sizes="430px" className="object-cover object-top" />
+            <div className="absolute inset-x-6 top-16 text-center">
+              <p className="serif-text text-sm text-[#8a6240]">{dateParts.fullDate}</p>
+              <p className="script-title text-5xl leading-none text-[#8a6240]">{groom}<br />&<br />{bride}</p>
+            </div>
+          </div>
+          <div className="p-5 text-center">
+            <ScriptHeading language={language}>{language === "ar" ? "المكان" : "Venue"}</ScriptHeading>
+            <ChoiceMiniCard image="/invitation/venue-hall.webp" label={venue || text(invitationData.venue.name, language)} selected />
+          </div>
+        </>
       )}
     </div>
   );
