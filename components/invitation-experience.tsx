@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check, Heart, Home, Instagram, MapPin, MessageCircle, Music2, Send, UserRound } from "lucide-react";
@@ -21,7 +21,8 @@ type DateParts = {
 
 const assets = {
   introVideo: "/invitation/intro-opening.mp4",
-  introPoster: "/invitation/closed-invitation.webp",
+  introPoster: "/invitation/closed-invitation.png",
+  swanHeroVideo: "/invitation/swan-hero.mp4",
   swanHero: "/invitation/swan-hero.webp",
   paper: "/invitation/paper-bg.webp",
   floralFrame: "/invitation/floral-frame.webp",
@@ -109,7 +110,7 @@ function getMapUrl(invitation: PublicInvitation) {
 export function InvitationExperience({ invitation }: { invitation: PublicInvitation }) {
   const reduceMotion = useReducedMotion();
   const [language, setLanguage] = useState<InvitationLanguage>(invitationData.languageDefault);
-  const [intro, setIntro] = useState<"checking" | "show" | "done">("checking");
+  const [intro, setIntro] = useState<"show" | "done">("show");
   const isArabic = language === "ar";
   const copy = invitationData.copy[language];
   const groomName = localizeName(invitation.groom_name, invitationData.couple.groom, language);
@@ -155,7 +156,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
 
       <main
         className={`mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#fff4ef] shadow-[0_0_80px_rgba(111,77,56,.16)] transition-opacity duration-700 ${
-          intro === "show" || intro === "checking" ? "opacity-0" : "opacity-100"
+          intro === "show" ? "opacity-0" : "opacity-100"
         }`}
       >
         <SwanHeroSection language={language} groomName={groomName} brideName={brideName} />
@@ -175,25 +176,81 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
 }
 
 function IntroVideo({ language, onComplete }: { language: InvitationLanguage; onComplete: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [phase, setPhase] = useState<"closed" | "playing">("closed");
   const [isFading, setIsFading] = useState(false);
   const copy = invitationData.copy[language];
+  const openLabel = language === "ar" ? "اضغط على الختم لفتح الدعوة" : "Tap the seal to open the invitation";
 
   const finish = () => {
+    if (isFading) return;
     setIsFading(true);
     window.setTimeout(onComplete, 700);
   };
 
+  const startOpening = () => {
+    setPhase("playing");
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = 0;
+    video.play().catch(() => finish());
+  };
+
+  useEffect(() => {
+    if (phase !== "playing") return;
+    const fallbackTimer = window.setTimeout(finish, 9500);
+    return () => window.clearTimeout(fallbackTimer);
+  }, [phase]);
+
   return (
     <motion.div
-      className="fixed inset-0 z-[80] grid place-items-center bg-[#f8ddd5]"
+      className="fixed left-0 right-0 top-0 z-[80] grid h-[100dvh] min-h-[100svh] place-items-center overflow-hidden bg-[#f8ddd5]"
       initial={{ opacity: 1 }}
       animate={{ opacity: isFading ? 0 : 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.7, ease: easing }}
     >
-      <div className="relative h-full w-full max-w-[430px] overflow-hidden bg-[#fff4ef] shadow-[0_0_80px_rgba(111,77,56,.28)]">
-        <video className="h-full w-full object-cover" src={assets.introVideo} poster={assets.introPoster} autoPlay muted playsInline onEnded={finish} />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(248,221,213,.08),rgba(71,44,29,.12))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_16%,#fff9f4_0,#f8ddd5_50%,#eec8bd_100%)]" />
+      <div className="relative flex h-[100dvh] min-h-[100svh] w-full max-w-[430px] items-center justify-center overflow-hidden bg-[#fff4ef] shadow-[0_0_80px_rgba(111,77,56,.28)]">
+        <video
+          ref={videoRef}
+          className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-500 ${phase === "playing" ? "opacity-100" : "opacity-0"}`}
+          src={assets.introVideo}
+          poster={assets.introPoster}
+          muted
+          playsInline
+          preload="auto"
+          onEnded={finish}
+          onError={finish}
+        />
+        <AnimatePresence>
+          {phase === "closed" ? (
+            <motion.div
+              key="closed-invitation"
+              className="absolute inset-0"
+              initial={{ opacity: 0, scale: 0.985 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.012 }}
+              transition={{ duration: 0.75, ease: easing }}
+            >
+              <Image src={assets.introPoster} alt="" fill priority sizes="430px" className="object-contain" />
+              <button
+                type="button"
+                onClick={startOpening}
+                aria-label={openLabel}
+                className="absolute left-1/2 top-[48%] h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#c99b65] focus-visible:ring-offset-4 focus-visible:ring-offset-[#fff4ef]"
+              >
+                <span className="absolute inset-3 animate-pulse rounded-full border border-[#d2a06b]/35 bg-[#fff4ef]/0 shadow-[0_0_34px_rgba(201,155,101,.32)]" />
+              </button>
+              <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+5.1rem)] px-5 text-center">
+                <p className={`text-sm font-semibold text-[#8a6240] drop-shadow-[0_1px_0_rgba(255,248,241,.8)] ${language === "ar" ? "arabic-body" : "serif-text"}`}>
+                  {openLabel}
+                </p>
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(248,221,213,.04),rgba(71,44,29,.08))]" />
         <button
           type="button"
           onClick={finish}
@@ -238,13 +295,27 @@ function SwanHeroSection({
 }) {
   const copy = invitationData.copy[language];
   const isArabic = language === "ar";
+  const [videoFailed, setVideoFailed] = useState(false);
 
   return (
     <section className="relative min-h-[100svh] overflow-hidden">
       <Image src={assets.swanHero} alt="" fill priority sizes="430px" className="object-cover object-top" />
+      {!videoFailed ? (
+        <video
+          className="absolute inset-0 h-full w-full object-cover object-top"
+          src={assets.swanHeroVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster={assets.swanHero}
+          onError={() => setVideoFailed(true)}
+        />
+      ) : null}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,244,239,.2)_0%,rgba(255,244,239,.08)_46%,rgba(61,38,26,.1)_100%)]" />
       <motion.div
-        className="relative z-10 mx-auto flex min-h-[100svh] w-full flex-col items-center px-7 pt-[calc(env(safe-area-inset-top)+4.3rem)] text-center"
+        className="relative z-10 mx-auto flex min-h-[100svh] w-full flex-col items-center px-7 pt-[calc(env(safe-area-inset-top)+4rem)] text-center"
         initial={{ opacity: 0, y: 26 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.1, ease: easing, delay: 0.15 }}
