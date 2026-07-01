@@ -27,7 +27,6 @@ const assets = {
   paper: "/invitation/paper-bg.webp",
   sectionDivider: "/invitation/section-divider-floral.svg",
   locationPalace: "/invitation/location-palace.webp",
-  rsvpEnvelope: "/invitation/rsvp-envelope.webp",
   petals: "/invitation/petals.svg",
   goldDivider: "/invitation/gold-divider.svg",
   ornament: "/invitation/ornament.svg"
@@ -489,11 +488,11 @@ function VenueSection({ language }: { language: InvitationLanguage }) {
                 transition={{ duration: 0.35 }}
               >
                 {selected ? <div className="pointer-events-none absolute inset-1 rounded-[1rem] ring-1 ring-[#f7d9a4]/65" /> : null}
-                <div className="relative aspect-[1.08/1] overflow-hidden rounded-[.9rem] border border-[#b98b5f]/22 bg-[#fff8f1]">
+                <div className="relative aspect-square overflow-hidden rounded-[.9rem] border border-[#b98b5f]/22 bg-[#fff8f1]">
                   <Image src={venue.image} alt="" fill sizes="(max-width: 430px) 45vw, 190px" className="object-cover object-center" />
                   <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#fff8f1] to-transparent" />
                 </div>
-                <p className={`mt-2 text-center text-[#8a6240] ${language === "ar" ? "arabic-title text-xl" : "script-title text-[1.72rem] leading-none"}`}>
+                <p className={`mt-2 px-1 text-center text-[#8a6240] ${language === "ar" ? "arabic-title text-xl" : "script-title whitespace-nowrap text-[clamp(1.35rem,6vw,1.68rem)] leading-none"}`}>
                   {text(venue.name, language)}
                 </p>
                 <div
@@ -645,18 +644,20 @@ function RSVPSection({ invitation, language }: { invitation: PublicInvitation; l
     <RevealSection>
       <SectionShell className="px-4 py-6">
         <CornerOrnaments />
-        <div className="relative overflow-hidden rounded-[1.35rem] border border-[#b98b5f]/42 bg-[#fff8f1]/72 px-4 pb-5 pt-5 shadow-[0_18px_42px_rgba(111,77,56,.1)]">
-          <div className="pointer-events-none absolute -bottom-8 -left-8 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(247,207,194,.38),transparent_68%)]" />
-          <Image src={assets.rsvpEnvelope} alt="" width={230} height={166} className="pointer-events-none absolute -bottom-1 left-3 z-0 w-24 opacity-48 drop-shadow-[0_14px_20px_rgba(111,77,56,.12)]" />
-          <div className="relative z-10 mx-auto max-w-[310px] text-center">
+        <div className="relative overflow-hidden rounded-[1.45rem] border border-[#b98b5f]/45 bg-[#fff8f1]/78 px-4 pb-5 pt-6 shadow-[inset_0_1px_rgba(255,255,255,.72),0_18px_42px_rgba(111,77,56,.1)]">
+          <div className="pointer-events-none absolute inset-x-4 top-3 h-20 rounded-full bg-[radial-gradient(circle,rgba(255,244,239,.9),rgba(255,244,239,0)_70%)]" />
+          <div className="relative z-10 mx-auto max-w-[318px] text-center">
             <ScriptHeading language={language}>{copy.rsvpTitle}</ScriptHeading>
             <Image src={assets.goldDivider} alt="" width={210} height={24} className="mx-auto mt-1 h-auto w-32 opacity-85" />
             <p className={`mt-2 text-[.92rem] text-[#7b5941] ${language === "ar" ? "arabic-body" : "serif-text"}`}>{copy.rsvpSubtitle}</p>
 
             {status === "success" ? (
-              <div className="mt-5 rounded-[1rem] border border-[#b98b5f]/38 bg-[#fff4ef]/72 px-4 py-4 text-[#8a6240]">
-                <p className={`text-xl ${language === "ar" ? "arabic-title" : "script-title"}`}>{copy.successTitle}</p>
-                <p className={`mt-1 text-sm ${language === "ar" ? "arabic-body" : "serif-text"}`}>{copy.successBody}</p>
+              <div className="mt-5 rounded-[1.1rem] border border-[#b98b5f]/38 bg-[#fff4ef]/72 px-4 py-5 text-[#8a6240] shadow-[inset_0_1px_rgba(255,255,255,.7)]">
+                <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-full border border-[#7b9a5b]/70 bg-[#eef3e2] text-[#6e8e52] shadow-[0_10px_24px_rgba(123,154,91,.14)]">
+                  <Check className="h-8 w-8 stroke-[1.8]" />
+                </div>
+                <p className={`text-2xl ${language === "ar" ? "arabic-title" : "script-title"}`}>{copy.successTitle}</p>
+                <p className={`mx-auto mt-2 max-w-[220px] text-sm leading-5 ${language === "ar" ? "arabic-body" : "serif-text"}`}>{copy.successBody}</p>
               </div>
             ) : (
               <form onSubmit={submit} className="mt-4 space-y-3">
@@ -666,7 +667,7 @@ function RSVPSection({ invitation, language }: { invitation: PublicInvitation; l
                     value={guestName}
                     onChange={(event) => setGuestName(event.target.value)}
                     placeholder={copy.guestName}
-                    className="h-12 w-full rounded-[.7rem] border border-[#b98b5f]/45 bg-[#fff8f1]/82 px-10 text-sm text-[#6f4d38] outline-none shadow-[inset_0_1px_0_rgba(255,255,255,.65)] placeholder:text-[#9b7358]/70 focus:border-[#a8785a]"
+                    className="h-12 w-full rounded-[.78rem] border border-[#b98b5f]/45 bg-[#fffdf8]/88 px-10 text-sm text-[#6f4d38] outline-none shadow-[inset_0_1px_0_rgba(255,255,255,.78),0_8px_20px_rgba(111,77,56,.06)] placeholder:text-[#9b7358]/62 focus:border-[#a8785a]"
                   />
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -682,7 +683,7 @@ function RSVPSection({ invitation, language }: { invitation: PublicInvitation; l
                 <button
                   type="submit"
                   disabled={status === "submitting"}
-                  className="serif-text mx-auto flex h-12 min-w-40 items-center justify-center gap-2 rounded-[.85rem] border border-[#8a6240]/40 bg-[linear-gradient(180deg,#c69a63,#98683c)] px-7 text-base font-semibold text-[#fff8f1] shadow-[inset_0_1px_rgba(255,255,255,.45),0_10px_24px_rgba(111,77,56,.2)] transition hover:brightness-105 disabled:opacity-60"
+                  className="serif-text mx-auto flex h-11 min-w-44 items-center justify-center gap-2 rounded-[.85rem] border border-[#8a6240]/40 bg-[linear-gradient(180deg,#cda66e,#a97943)] px-7 text-base font-semibold text-[#fff8f1] shadow-[inset_0_1px_rgba(255,255,255,.45),0_10px_24px_rgba(111,77,56,.18)] transition hover:brightness-105 disabled:opacity-60"
                 >
                   <Send className="h-4 w-4" />
                   {status === "submitting" ? copy.sending : copy.send}
@@ -690,6 +691,13 @@ function RSVPSection({ invitation, language }: { invitation: PublicInvitation; l
                 {status === "error" ? <p className="text-sm text-[#9d473f]">{copy.error}</p> : null}
               </form>
             )}
+            <div className="mt-5 flex items-center justify-center gap-3">
+              <span className="h-px w-16 bg-gradient-to-r from-transparent to-[#b98b5f]/40" />
+              <span className="grid h-12 w-12 place-items-center rounded-full border border-[#8a6240]/35 bg-[radial-gradient(circle_at_35%_28%,#e4bd80,#b67b42_62%,#8f5d33)] text-[#fff8f1] shadow-[inset_0_1px_rgba(255,255,255,.45),0_8px_18px_rgba(111,77,56,.18)]">
+                <Heart className="h-5 w-5 fill-current stroke-[1.2]" />
+              </span>
+              <span className="h-px w-16 bg-gradient-to-l from-transparent to-[#b98b5f]/40" />
+            </div>
           </div>
         </div>
       </SectionShell>
@@ -703,7 +711,9 @@ function ChoiceButton({ active, onClick, children }: { active: boolean; onClick:
       type="button"
       onClick={onClick}
       className={`flex h-11 items-center justify-center gap-1.5 rounded-[.7rem] border px-2 text-[.76rem] font-semibold transition ${
-        active ? "border-[#b98b5f]/60 bg-[#dfead0]/78 text-[#6f5f38]" : "border-[#b98b5f]/38 bg-[#fff4ef]/58 text-[#8a6240]"
+        active
+          ? "border-[#9aaa67]/62 bg-[#edf3df]/84 text-[#6f5f38] shadow-[0_8px_18px_rgba(123,154,91,.12)]"
+          : "border-[#b98b5f]/34 bg-[#fff8f1]/62 text-[#8a6240] shadow-[inset_0_1px_rgba(255,255,255,.52)]"
       }`}
     >
       {children}
@@ -884,7 +894,7 @@ export function LuxuryInvitationArtifact({
           </div>
           <div className="p-5 text-center">
             <ScriptHeading language={language}>{language === "ar" ? "المكان" : "Venue"}</ScriptHeading>
-            <ChoiceMiniCard image="/invitation/venue-hall.webp" label={venue || text(invitationData.venue.name, language)} selected />
+            <ChoiceMiniCard image="/invitation/venue-wedding-hall.webp" label={venue || text(invitationData.venue.name, language)} selected />
           </div>
         </>
       )}

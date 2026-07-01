@@ -57,7 +57,7 @@ export const invitationData = {
     {
       id: "weddingHall",
       name: { ar: "قاعة زفاف", en: "Wedding Hall" },
-      image: "/invitation/venue-hall.webp"
+      image: "/invitation/venue-wedding-hall.webp"
     },
     {
       id: "sea",
