@@ -25,7 +25,7 @@ const assets = {
   swanHeroVideo: "/invitation/swan-hero.mp4",
   swanHero: "/invitation/swan-hero.webp",
   paper: "/invitation/paper-bg.webp",
-  sectionDivider: "/invitation/gold-heart-divider.svg",
+  sectionDivider: "/invitation/section-divider-floral.svg",
   locationPalace: "/invitation/location-palace.webp",
   rsvpEnvelope: "/invitation/rsvp-envelope.webp",
   petals: "/invitation/petals.svg",
@@ -167,9 +167,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
       <LanguageSwitcher language={language} onChange={setLanguage} />
 
       <main
-        className={`mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#fff4ef] shadow-[0_0_80px_rgba(111,77,56,.16)] transition-opacity duration-700 ${
-          intro === "show" ? "opacity-0" : "opacity-100"
-        }`}
+        className="mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#fff4ef] opacity-100 shadow-[0_0_80px_rgba(111,77,56,.16)]"
       >
         <SwanHeroSection language={language} groomName={groomName} brideName={brideName} />
         <SectionDivider />
@@ -197,8 +195,12 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
   const videoRef = useRef<HTMLVideoElement>(null);
   const [phase, setPhase] = useState<"closed" | "playing">("closed");
   const [isFading, setIsFading] = useState(false);
+  const [posterReady, setPosterReady] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
   const copy = invitationData.copy[language];
   const openLabel = language === "ar" ? "اضغط على الختم لفتح الدعوة" : "Tap the seal to open the invitation";
+  const canOpen = posterReady && videoReady && !isFading;
 
   const finish = () => {
     if (isFading) return;
@@ -207,6 +209,8 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
   };
 
   const startOpening = () => {
+    if (!canOpen || phase === "playing") return;
+    setIsPressed(true);
     setPhase("playing");
     const video = videoRef.current;
     if (!video) return;
@@ -219,6 +223,18 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
     const fallbackTimer = window.setTimeout(finish, 9500);
     return () => window.clearTimeout(fallbackTimer);
   }, [phase]);
+
+  useEffect(() => {
+    if (videoReady) return;
+    const video = videoRef.current;
+    if (!video) return;
+    const syncVideoReady = () => {
+      if (video.readyState >= 2) setVideoReady(true);
+    };
+    syncVideoReady();
+    const timer = window.setInterval(syncVideoReady, 250);
+    return () => window.clearInterval(timer);
+  }, [videoReady]);
 
   return (
     <motion.div
@@ -238,9 +254,19 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
           muted
           playsInline
           preload="auto"
+          onLoadedData={() => setVideoReady(true)}
+          onCanPlay={() => setVideoReady(true)}
           onEnded={finish}
-          onError={finish}
+          onError={() => setVideoReady(true)}
         />
+        {phase === "playing" ? (
+          <motion.div
+            className="pointer-events-none absolute left-1/2 top-[48%] h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,236,195,.82)_0%,rgba(218,170,101,.42)_34%,transparent_72%)] blur-sm"
+            initial={{ opacity: 0.65, scale: 0.75 }}
+            animate={{ opacity: 0, scale: 2.45 }}
+            transition={{ duration: 1.05, ease: easing }}
+          />
+        ) : null}
         <AnimatePresence>
           {phase === "closed" ? (
             <motion.div
@@ -251,17 +277,44 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
               exit={{ opacity: 0, scale: 1.012 }}
               transition={{ duration: 0.75, ease: easing }}
             >
-              <Image src={assets.introPoster} alt="" fill priority sizes="430px" draggable={false} className="select-none object-contain" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#fff8f1_0%,#f8ddd5_52%,#e9beb1_100%)]" />
+              <Image
+                src={assets.introPoster}
+                alt=""
+                fill
+                priority
+                sizes="430px"
+                draggable={false}
+                className={`select-none object-contain transition-opacity duration-500 ${posterReady ? "opacity-100" : "opacity-0"}`}
+                onLoad={() => setPosterReady(true)}
+                onError={() => setPosterReady(true)}
+              />
               <button
                 type="button"
                 onClick={startOpening}
+                disabled={!canOpen}
                 aria-label={openLabel}
-                className="absolute left-1/2 top-[48%] h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#c99b65] focus-visible:ring-offset-4 focus-visible:ring-offset-[#fff4ef]"
+                aria-disabled={!canOpen}
+                className={`absolute left-1/2 top-[48%] h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full outline-none transition-opacity focus-visible:ring-2 focus-visible:ring-[#c99b65] focus-visible:ring-offset-4 focus-visible:ring-offset-[#fff4ef] ${
+                  canOpen ? "cursor-pointer opacity-100" : "cursor-default opacity-60"
+                }`}
               >
-                <span className="absolute inset-3 animate-pulse rounded-full border border-[#d2a06b]/35 bg-[#fff4ef]/0 shadow-[0_0_34px_rgba(201,155,101,.32)]" />
+                <motion.span
+                  className="absolute inset-3 rounded-full border border-[#d2a06b]/35 bg-[#fff4ef]/0 shadow-[0_0_34px_rgba(201,155,101,.32)]"
+                  animate={
+                    canOpen
+                      ? { opacity: isPressed ? [0.75, 0.35] : [0.28, 0.48, 0.28], scale: isPressed ? [1, 1.18] : [1, 1.04, 1] }
+                      : { opacity: 0.16, scale: 1 }
+                  }
+                  transition={{ duration: isPressed ? 0.38 : 2.4, repeat: isPressed ? 0 : Infinity, ease: easing }}
+                />
               </button>
               <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+5.1rem)] px-5 text-center">
-                <p className={`text-sm font-semibold text-[#8a6240] drop-shadow-[0_1px_0_rgba(255,248,241,.8)] ${language === "ar" ? "arabic-body" : "serif-text"}`}>
+                <p
+                  className={`text-[11px] font-medium tracking-[.08em] text-[#8a6240]/72 drop-shadow-[0_1px_0_rgba(255,248,241,.8)] transition-opacity duration-500 ${
+                    canOpen ? "opacity-100" : "opacity-45"
+                  } ${language === "ar" ? "arabic-body" : "serif-text"}`}
+                >
                   {openLabel}
                 </p>
               </div>
@@ -372,9 +425,8 @@ function SectionDivider({ compact = false }: { compact?: boolean }) {
       viewport={{ once: false, amount: 0.45 }}
       transition={{ duration: reduceMotion ? 0.01 : 0.95, ease: easing }}
     >
-      <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#c99b65]/30 to-transparent" />
-      <Image src={assets.sectionDivider} alt="" width={320} height={32} draggable={false} className="mx-auto h-auto w-52 opacity-75" />
-      <div className="absolute inset-x-10 bottom-0 h-px bg-gradient-to-r from-transparent via-[#e8b7aa]/24 to-transparent" />
+      <div className="absolute inset-x-10 top-1/2 h-px bg-gradient-to-r from-transparent via-[#c99b65]/20 to-transparent" />
+      <Image src={assets.sectionDivider} alt="" width={360} height={58} draggable={false} className="mx-auto h-auto w-60 opacity-82 drop-shadow-[0_6px_12px_rgba(185,139,95,.12)]" />
     </motion.div>
   );
 }
@@ -429,19 +481,26 @@ function VenueSection({ language }: { language: InvitationLanguage }) {
               <motion.div
                 key={venue.id}
                 className={`relative overflow-hidden rounded-[1.15rem] border p-1.5 shadow-[0_12px_30px_rgba(111,77,56,.1)] ${
-                  selected ? "border-[#7b9a5b]/70 bg-[#dfead0]/68" : "border-[#b98b5f]/45 bg-[#fff8f1]/72"
+                  selected
+                    ? "border-[#8ba367]/85 bg-[#e6efd8]/78 shadow-[0_16px_36px_rgba(113,139,76,.18)]"
+                    : "border-[#b98b5f]/45 bg-[#fff8f1]/72"
                 }`}
                 whileHover={{ y: -2 }}
                 transition={{ duration: 0.35 }}
               >
-                <div className="relative aspect-[1.18/1] overflow-hidden rounded-[.9rem] border border-[#b98b5f]/20 bg-[#f9efe6]">
-                  <Image src={venue.image} alt="" fill sizes="190px" className="object-cover object-left" />
+                {selected ? <div className="pointer-events-none absolute inset-1 rounded-[1rem] ring-1 ring-[#f7d9a4]/65" /> : null}
+                <div className="relative aspect-[1.08/1] overflow-hidden rounded-[.9rem] border border-[#b98b5f]/22 bg-[#fff8f1]">
+                  <Image src={venue.image} alt="" fill sizes="(max-width: 430px) 45vw, 190px" className="object-cover object-center" />
                   <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#fff8f1] to-transparent" />
                 </div>
                 <p className={`mt-2 text-center text-[#8a6240] ${language === "ar" ? "arabic-title text-xl" : "script-title text-[1.72rem] leading-none"}`}>
                   {text(venue.name, language)}
                 </p>
-                <div className="mx-auto mt-2 grid h-6 w-6 place-items-center rounded-full border border-[#b98b5f] bg-[#fff8f1] text-[#7b9a5b]">
+                <div
+                  className={`mx-auto mt-2 grid h-6 w-6 place-items-center rounded-full border ${
+                    selected ? "border-[#7b9a5b] bg-[#fff8f1] text-[#6e8e52] shadow-[0_5px_12px_rgba(123,154,91,.2)]" : "border-[#b98b5f] bg-[#fff8f1] text-[#7b9a5b]"
+                  }`}
+                >
                   {selected ? <Check className="h-4 w-4 stroke-[2.8]" /> : null}
                 </div>
               </motion.div>
@@ -522,9 +581,9 @@ function LocationSection({
     <RevealSection>
       <SectionShell className="px-4 py-5">
         <CornerOrnaments />
-        <div className="grid grid-cols-[1.05fr_.95fr] items-center gap-3">
-          <div className="relative aspect-[1.25/1] overflow-hidden rounded-[1rem] border border-[#b98b5f]/35 bg-[#fff8f1] shadow-[0_12px_28px_rgba(111,77,56,.1)]">
-            <Image src={assets.locationPalace} alt="" fill sizes="210px" className="object-cover" />
+        <div className="grid grid-cols-[1.08fr_.92fr] items-center gap-3">
+          <div className="relative aspect-[1.34/1] overflow-hidden rounded-[1rem] border border-[#b98b5f]/35 bg-[#fff8f1] p-1.5 shadow-[0_12px_28px_rgba(111,77,56,.1)]">
+            <Image src={assets.locationPalace} alt="" fill sizes="210px" className="object-contain object-left-bottom p-1" />
           </div>
           <div className="text-center">
             <ScriptHeading language={language}>{copy.locationTitle}</ScriptHeading>
@@ -587,7 +646,8 @@ function RSVPSection({ invitation, language }: { invitation: PublicInvitation; l
       <SectionShell className="px-4 py-6">
         <CornerOrnaments />
         <div className="relative overflow-hidden rounded-[1.35rem] border border-[#b98b5f]/42 bg-[#fff8f1]/72 px-4 pb-5 pt-5 shadow-[0_18px_42px_rgba(111,77,56,.1)]">
-          <Image src={assets.rsvpEnvelope} alt="" width={230} height={166} className="pointer-events-none absolute -bottom-6 -left-10 w-44 opacity-70" />
+          <div className="pointer-events-none absolute -bottom-8 -left-8 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(247,207,194,.38),transparent_68%)]" />
+          <Image src={assets.rsvpEnvelope} alt="" width={230} height={166} className="pointer-events-none absolute -bottom-1 left-3 z-0 w-24 opacity-48 drop-shadow-[0_14px_20px_rgba(111,77,56,.12)]" />
           <div className="relative z-10 mx-auto max-w-[310px] text-center">
             <ScriptHeading language={language}>{copy.rsvpTitle}</ScriptHeading>
             <Image src={assets.goldDivider} alt="" width={210} height={24} className="mx-auto mt-1 h-auto w-32 opacity-85" />
@@ -706,14 +766,14 @@ function FloatingPetals() {
   const reduceMotion = useReducedMotion();
   const petals = useMemo(
     () =>
-      Array.from({ length: reduceMotion ? 0 : 20 }, (_, index) => ({
+      Array.from({ length: reduceMotion ? 0 : 22 }, (_, index) => ({
         id: index,
         left: `${5 + ((index * 29) % 90)}%`,
         delay: (index % 10) * 1.15,
-        duration: 14 + (index % 7) * 1.32,
-        size: 11 + (index % 6) * 3,
+        duration: 15 + (index % 8) * 1.22,
+        size: 10 + (index % 6) * 2.6,
         drift: index % 2 ? 16 + (index % 4) * 5 : -14 - (index % 4) * 5,
-        peakOpacity: 0.28 + (index % 5) * 0.055
+        peakOpacity: 0.25 + (index % 5) * 0.052
       })),
     [reduceMotion]
   );
