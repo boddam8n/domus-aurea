@@ -45,6 +45,7 @@ const nameMap: Record<string, { ar: string; en: string }> = {
 };
 
 const easing = [0.22, 1, 0.36, 1] as const;
+const INTRO_VIDEO_START_TIME = 1.85;
 
 function text(value: LocalizedText, language: InvitationLanguage) {
   return value[language];
@@ -162,11 +163,13 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
     <section dir={isArabic ? "rtl" : "ltr"} className="relative min-h-screen overflow-x-hidden bg-[#f8ddd5] text-[#6f4d38] [color-scheme:light]">
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,#fff8f1_0,#f9e5dc_38%,#f8ddd5_100%)]" />
       <div className="fixed inset-0 -z-10 opacity-[.55]" style={{ backgroundImage: `url(${assets.paper})`, backgroundSize: "cover", backgroundPosition: "center top" }} />
+      <div className="fixed inset-0 -z-10 hidden bg-[#f8ddd5] opacity-45 blur-2xl md:block" style={{ backgroundImage: `url(${assets.swanHero})`, backgroundSize: "cover", backgroundPosition: "center top" }} />
+      <div className="fixed inset-0 -z-10 hidden bg-[linear-gradient(90deg,rgba(248,221,213,.96),rgba(255,248,241,.34)_50%,rgba(248,221,213,.96))] md:block" />
       <FloatingPetals />
       <LanguageSwitcher language={language} onChange={setLanguage} />
 
       <main
-        className="mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#fff4ef] opacity-100 shadow-[0_0_80px_rgba(111,77,56,.16)]"
+        className="mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#fff4ef] opacity-100 shadow-[0_0_80px_rgba(111,77,56,.16)] md:my-8 md:min-h-[calc(100vh-4rem)] md:max-w-[480px] md:rounded-[2rem] md:border md:border-[#d7b48c]/35 md:shadow-[0_24px_110px_rgba(111,77,56,.22)]"
       >
         <SwanHeroSection language={language} groomName={groomName} brideName={brideName} />
         <SectionDivider />
@@ -192,14 +195,14 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
 
 function IntroVideo({ language, onComplete }: { language: InvitationLanguage; onComplete: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const openingRequestedRef = useRef(false);
   const [phase, setPhase] = useState<"closed" | "playing">("closed");
   const [isFading, setIsFading] = useState(false);
   const [posterReady, setPosterReady] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
-  const [isPressed, setIsPressed] = useState(false);
   const copy = invitationData.copy[language];
   const openLabel = language === "ar" ? "اضغط على الختم لفتح الدعوة" : "Tap the seal to open the invitation";
-  const canOpen = posterReady && videoReady && !isFading;
+  const canOpen = phase === "closed" && posterReady && videoReady && !isFading;
 
   const finish = () => {
     if (isFading) return;
@@ -207,19 +210,34 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
     window.setTimeout(onComplete, 700);
   };
 
-  const startOpening = () => {
-    if (!canOpen || phase === "playing") return;
-    setIsPressed(true);
-    setPhase("playing");
+  const startOpening = (event?: { preventDefault?: () => void }) => {
+    event?.preventDefault?.();
+    if (!canOpen || openingRequestedRef.current) return;
     const video = videoRef.current;
-    if (!video) return;
-    video.currentTime = 0;
-    video.play().catch(() => finish());
+    if (!video) {
+      return;
+    }
+    openingRequestedRef.current = true;
+    video.currentTime = INTRO_VIDEO_START_TIME;
+    const revealVideo = () => setPhase("playing");
+    video.addEventListener("playing", revealVideo, { once: true });
+    const playPromise = video.play();
+    if (playPromise) {
+      playPromise
+        .then(() => window.setTimeout(revealVideo, 40))
+        .catch(() => {
+          openingRequestedRef.current = false;
+          video.removeEventListener("playing", revealVideo);
+          video.load();
+        });
+    } else {
+      revealVideo();
+    }
   };
 
   useEffect(() => {
     if (phase !== "playing") return;
-    const fallbackTimer = window.setTimeout(finish, 9500);
+    const fallbackTimer = window.setTimeout(finish, 4500);
     return () => window.clearTimeout(fallbackTimer);
   }, [phase]);
 
@@ -228,8 +246,9 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
     const video = videoRef.current;
     if (!video) return;
     const syncVideoReady = () => {
-      if (video.readyState >= 2) setVideoReady(true);
+      if (video.readyState >= 1) setVideoReady(true);
     };
+    video.load();
     syncVideoReady();
     const timer = window.setInterval(syncVideoReady, 250);
     return () => window.clearInterval(timer);
@@ -244,7 +263,7 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
       transition={{ duration: 0.7, ease: easing }}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_16%,#fff9f4_0,#f8ddd5_50%,#eec8bd_100%)]" />
-      <div className="relative flex h-[100dvh] min-h-[100svh] w-full max-w-[430px] items-center justify-center overflow-hidden bg-[#fff4ef] shadow-[0_0_80px_rgba(111,77,56,.28)]">
+      <div className="relative flex h-[100dvh] min-h-[100svh] w-full max-w-[430px] items-center justify-center overflow-hidden bg-[#fff4ef] shadow-[0_0_80px_rgba(111,77,56,.28)] md:h-[calc(100dvh-4rem)] md:min-h-[calc(100svh-4rem)] md:max-w-[480px] md:rounded-[2rem] md:border md:border-[#d7b48c]/35">
         <video
           ref={videoRef}
           className={`absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-500 ${phase === "playing" ? "opacity-100" : "opacity-0"}`}
@@ -258,14 +277,6 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
           onEnded={finish}
           onError={() => setVideoReady(true)}
         />
-        {phase === "playing" ? (
-          <motion.div
-            className="pointer-events-none absolute left-1/2 top-[48%] h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,236,195,.82)_0%,rgba(218,170,101,.42)_34%,transparent_72%)] blur-sm"
-            initial={{ opacity: 0.65, scale: 0.75 }}
-            animate={{ opacity: 0, scale: 2.45 }}
-            transition={{ duration: 1.05, ease: easing }}
-          />
-        ) : null}
         <AnimatePresence>
           {phase === "closed" ? (
             <motion.div
@@ -291,23 +302,14 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
               <button
                 type="button"
                 onClick={startOpening}
-                disabled={!canOpen}
+                onPointerUp={startOpening}
+                onTouchEnd={startOpening}
                 aria-label={openLabel}
                 aria-disabled={!canOpen}
-                className={`absolute left-1/2 top-[48%] h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full outline-none transition-opacity focus-visible:ring-2 focus-visible:ring-[#c99b65] focus-visible:ring-offset-4 focus-visible:ring-offset-[#fff4ef] ${
-                  canOpen ? "cursor-pointer opacity-100" : "cursor-default opacity-60"
+                className={`absolute inset-0 z-20 touch-manipulation outline-none transition-opacity focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#c99b65] ${
+                  canOpen ? "cursor-pointer opacity-100" : "cursor-default opacity-70"
                 }`}
-              >
-                <motion.span
-                  className="absolute inset-3 rounded-full border border-[#d2a06b]/35 bg-[#fff4ef]/0 shadow-[0_0_34px_rgba(201,155,101,.32)]"
-                  animate={
-                    canOpen
-                      ? { opacity: isPressed ? [0.75, 0.35] : [0.28, 0.48, 0.28], scale: isPressed ? [1, 1.18] : [1, 1.04, 1] }
-                      : { opacity: 0.16, scale: 1 }
-                  }
-                  transition={{ duration: isPressed ? 0.38 : 2.4, repeat: isPressed ? 0 : Infinity, ease: easing }}
-                />
-              </button>
+              />
               <div className="pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+5.1rem)] px-5 text-center">
                 <p
                   className={`text-[11px] font-medium tracking-[.08em] text-[#8a6240]/72 drop-shadow-[0_1px_0_rgba(255,248,241,.8)] transition-opacity duration-500 ${
@@ -324,7 +326,7 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
         <button
           type="button"
           onClick={finish}
-          className="absolute bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 -translate-x-1/2 rounded-full border border-[#b98b5f]/45 bg-[#fff8f1]/76 px-4 py-2 text-xs font-semibold text-[#8a6240] shadow-[0_14px_32px_rgba(111,77,56,.18)] backdrop-blur-md"
+          className="absolute bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-30 -translate-x-1/2 rounded-full border border-[#b98b5f]/45 bg-[#fff8f1]/76 px-4 py-2 text-xs font-semibold text-[#8a6240] shadow-[0_14px_32px_rgba(111,77,56,.18)] backdrop-blur-md"
         >
           {copy.introSkip}
         </button>
@@ -385,7 +387,7 @@ function SwanHeroSection({
       ) : null}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,244,239,.2)_0%,rgba(255,244,239,.08)_46%,rgba(61,38,26,.1)_100%)]" />
       <motion.div
-        className="relative z-10 mx-auto flex min-h-[100svh] w-full flex-col items-center px-7 pt-[calc(env(safe-area-inset-top)+5.5rem)] text-center"
+        className="relative z-10 mx-auto flex min-h-[100svh] w-full flex-col items-center px-7 pt-[calc(env(safe-area-inset-top)+6.9rem)] text-center"
         initial={{ opacity: 0, y: 26 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.1, ease: easing, delay: 0.15 }}
