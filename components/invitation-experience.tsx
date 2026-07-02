@@ -306,6 +306,11 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
             <motion.div
               key="closed-invitation"
               className="absolute inset-0"
+              onClick={startOpening}
+              onMouseDown={startOpening}
+              onPointerDown={startOpening}
+              onTouchStart={startOpening}
+              onTouchEnd={startOpening}
               initial={{ opacity: 0, scale: 0.985 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.012 }}
