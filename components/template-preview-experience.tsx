@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Play, X } from "lucide-react";
-import { LuxuryInvitationArtifact } from "@/components/invitation-experience";
 
 export type TemplatePreviewSample = {
   brideName: string;
@@ -23,37 +22,24 @@ type TemplatePreviewModalProps = {
   sample?: TemplatePreviewSample;
 };
 
-const defaultSample: TemplatePreviewSample = {
-  brideName: "مايار",
-  groomName: "أحمد",
-  date: "12 December 2026",
-  venue: "فندق ريتز كارلتون - القاهرة",
-  message: "بكل الحب والفرحة، ندعوكم لحضور حفل زفافنا ومشاركتنا أجمل لحظات العمر."
-};
+const launchPreviewVideo = "/invitation/intro-opening.mp4";
+const launchPreviewPoster = "/invitation/closed-invitation.png";
 
-function getPreviewInitials(brideName: string, groomName: string) {
-  return `${brideName.trim().charAt(0)}${groomName.trim().charAt(0)}`.toUpperCase() || "DA";
+function isLaunchTemplateName(templateName: string) {
+  return ["test", "test invitation", "domus aurea invitation"].includes(templateName.toLowerCase());
 }
 
-export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = defaultSample }: TemplatePreviewModalProps) {
+export function TemplatePreviewModal({ isOpen, templateName, onClose }: TemplatePreviewModalProps) {
   const [isMounted, setIsMounted] = useState(false);
-  const [isInvitationOpen, setIsInvitationOpen] = useState(false);
-  const data = { ...defaultSample, ...sample };
-  const isTest = ["test", "test invitation"].includes(templateName.toLowerCase());
+  const isLaunchTemplate = isLaunchTemplateName(templateName);
 
   useEffect(() => setIsMounted(true), []);
 
   useEffect(() => {
-    if (!isOpen) {
-      setIsInvitationOpen(false);
-      return;
-    }
+    if (!isOpen) return;
 
     document.body.style.overflow = "hidden";
-    const timer = window.setTimeout(() => setIsInvitationOpen(true), 520);
-
     return () => {
-      window.clearTimeout(timer);
       document.body.style.overflow = "";
     };
   }, [isOpen]);
@@ -98,30 +84,31 @@ export function TemplatePreviewModal({ isOpen, templateName, onClose, sample = d
           >
             <div className="mx-auto max-w-3xl text-center">
               <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#b77a5a]">
-                {isTest ? "Launch-ready template" : "Under development"}
+                {isLaunchTemplate ? "Launch-ready template" : "Under development"}
               </p>
               <h2 className="mt-4 font-display text-4xl leading-tight md:text-6xl">
-                {isTest ? "TEST INVITATION" : templateName}
+                {isLaunchTemplate ? "Domus Aurea Invitation" : templateName}
               </h2>
               <p className="mx-auto mt-4 max-w-2xl leading-8 text-[#6e4a35]/70">
-                {isTest
-                  ? "قالب الإنتاج الحالي بتجربة أبواب ملكية، ختم وردي، وحالة نهائية كاملة القراءة."
-                  : "هذا القالب ما زال تحت التطوير وغير متاح للاختيار الآن."}
+                {isLaunchTemplate
+                  ? "Luxury floral wedding invitation with the real wax seal opening animation."
+                  : "This template is still under development and is not available for selection yet."}
               </p>
             </div>
 
-            {isTest ? (
-              <div className="mx-auto w-full max-w-6xl">
-                <LuxuryInvitationArtifact
-                  isOpen={isInvitationOpen}
-                  onOpen={() => setIsInvitationOpen(true)}
-                  brideName={data.brideName}
-                  groomName={data.groomName}
-                  initials={getPreviewInitials(data.brideName, data.groomName)}
-                  date={data.date}
-                  venue={data.venue}
-                  message={data.message || defaultSample.message || ""}
-                  sealImageUrl={data.sealImageUrl}
+            {isLaunchTemplate ? (
+              <div className="mx-auto w-full max-w-[460px] overflow-hidden rounded-[2rem] border border-[#d9a681]/35 bg-[#fff0ea] p-3 shadow-[0_36px_110px_rgba(145,78,61,.24)]">
+                <video
+                  src={launchPreviewVideo}
+                  poster={launchPreviewPoster}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  controls={false}
+                  className="block aspect-[853/1280] w-full rounded-[1.45rem] bg-[#f9e5dc] object-contain"
+                  aria-label="Domus Aurea invitation opening preview"
                 />
               </div>
             ) : (
@@ -150,7 +137,7 @@ export function PlayPreviewButton({ onClick, isArabic, disabled = false }: { onC
       className="inline-flex items-center gap-2 rounded-full border border-[#d8b15f]/40 bg-black/35 px-5 py-3 text-sm font-bold text-white shadow-[0_16px_40px_rgba(0,0,0,.18)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-[#f0cf84] hover:bg-[#d8b15f] hover:text-[#120d08] disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/10 disabled:text-white/45 disabled:hover:translate-y-0"
     >
       <Play className="h-4 w-4" />
-      {isArabic ? "تشغيل المعاينة" : "Play Preview"}
+      {isArabic ? "????? ????????" : "Play Preview"}
     </button>
   );
 }

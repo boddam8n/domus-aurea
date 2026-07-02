@@ -12,7 +12,10 @@ export const invitationRequestSchema = z.object({
   templateName: z
     .string()
     .trim()
-    .refine((value) => value === "TEST INVITATION", "TEST INVITATION is the only launch-ready template."),
+    .refine(
+      (value) => ["TEST INVITATION", "Domus Aurea Invitation"].includes(value),
+      "Domus Aurea Invitation is the only launch-ready template."
+    ),
   packageName: z.string().trim().min(2).max(80),
   countdownStyle: z.string().trim().min(2).max(80),
   musicFileName: z.string().trim().max(160).optional(),

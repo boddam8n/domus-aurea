@@ -26,26 +26,25 @@ const assets = {
   swanHero: "/invitation/swan-hero.webp",
   paper: "/invitation/paper-bg.webp",
   sectionDivider: "/invitation/section-divider-floral.svg",
-  locationPalace: "/invitation/location-palace.webp",
+  locationPalace: "/invitation/location-venue.webp",
   petals: "/invitation/petals.svg",
   goldDivider: "/invitation/gold-divider.svg",
   ornament: "/invitation/ornament.svg"
 };
 
 const nameMap: Record<string, { ar: string; en: string }> = {
-  أحمد: { ar: "أحمد", en: "Ahmed" },
-  احمد: { ar: "أحمد", en: "Ahmed" },
-  Ahmed: { ar: "أحمد", en: "Ahmed" },
-  مايار: { ar: "مايار", en: "Mayar" },
-  Mayar: { ar: "مايار", en: "Mayar" },
-  بودي: { ar: "أحمد", en: "Ahmed" },
-  bobi: { ar: "أحمد", en: "Ahmed" },
-  يوري: { ar: "مايار", en: "Mayar" },
-  yori: { ar: "مايار", en: "Mayar" }
+  ????: { ar: "????", en: "Ahmed" },
+  ????: { ar: "????", en: "Ahmed" },
+  Ahmed: { ar: "????", en: "Ahmed" },
+  ?????: { ar: "?????", en: "Mayar" },
+  Mayar: { ar: "?????", en: "Mayar" },
+  ????: { ar: "????", en: "Ahmed" },
+  bobi: { ar: "????", en: "Ahmed" },
+  ????: { ar: "?????", en: "Mayar" },
+  yori: { ar: "?????", en: "Mayar" }
 };
 
 const easing = [0.22, 1, 0.36, 1] as const;
-const INTRO_VIDEO_START_TIME = 1.85;
 
 function text(value: LocalizedText, language: InvitationLanguage) {
   return value[language];
@@ -195,18 +194,26 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
 
 function IntroVideo({ language, onComplete }: { language: InvitationLanguage; onComplete: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const closedLayerRef = useRef<HTMLDivElement>(null);
   const openingRequestedRef = useRef(false);
-  const queuedOpeningRef = useRef(false);
+  const finishTimerRef = useRef<number | null>(null);
+  const finishedRef = useRef(false);
   const [phase, setPhase] = useState<"closed" | "playing">("closed");
+  const [openingVisible, setOpeningVisible] = useState(false);
   const [isFading, setIsFading] = useState(false);
   const [posterReady, setPosterReady] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const copy = invitationData.copy[language];
-  const openLabel = language === "ar" ? "اضغط على الختم لفتح الدعوة" : "Tap the seal to open the invitation";
-  const canOpen = phase === "closed" && videoReady && !isFading;
+  const openLabel = language === "ar" ? "???? ??? ????? ???? ??????" : "Tap the seal to open the invitation";
+  const canOpen = phase === "closed" && !openingVisible && videoReady && !isFading;
 
   const finish = () => {
-    if (isFading) return;
+    if (isFading || finishedRef.current) return;
+    finishedRef.current = true;
+    if (finishTimerRef.current) {
+      window.clearTimeout(finishTimerRef.current);
+      finishTimerRef.current = null;
+    }
     setIsFading(true);
     window.setTimeout(onComplete, 700);
   };
@@ -218,22 +225,57 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
       return;
     }
     openingRequestedRef.current = true;
-    queuedOpeningRef.current = false;
-    video.currentTime = INTRO_VIDEO_START_TIME;
-    const revealVideo = () => setPhase("playing");
-    video.addEventListener("playing", revealVideo, { once: true });
+    video.currentTime = 0;
+    video.classList.remove("opacity-0");
+    video.classList.add("opacity-100");
+    video.style.opacity = "1";
+    video.style.zIndex = "30";
+    const closedLayer = closedLayerRef.current;
+    if (closedLayer) {
+      closedLayer.style.opacity = "0";
+      closedLayer.style.pointerEvents = "none";
+      window.setTimeout(() => {
+        closedLayer.style.display = "none";
+      }, 320);
+    }
+    setOpeningVisible(true);
+    setPhase("playing");
+    const finishFromVideoProgress = () => {
+      if (!video.duration || !Number.isFinite(video.duration)) return;
+      if (video.ended || video.currentTime >= video.duration - 0.08) {
+        video.removeEventListener("timeupdate", finishFromVideoProgress);
+        video.removeEventListener("ended", finishFromVideoProgress);
+        finish();
+      }
+    };
+    video.addEventListener("timeupdate", finishFromVideoProgress);
+    video.addEventListener("ended", finishFromVideoProgress, { once: true });
+    const durationMs = Number.isFinite(video.duration) && video.duration > 0 ? video.duration * 1000 : 3400;
+    finishTimerRef.current = window.setTimeout(finish, durationMs + 420);
     const playPromise = video.play();
     if (playPromise) {
       playPromise
-        .then(() => window.setTimeout(revealVideo, 40))
         .catch(() => {
           openingRequestedRef.current = false;
-          queuedOpeningRef.current = true;
-          video.removeEventListener("playing", revealVideo);
+          if (finishTimerRef.current) {
+            window.clearTimeout(finishTimerRef.current);
+            finishTimerRef.current = null;
+          }
+          video.removeEventListener("timeupdate", finishFromVideoProgress);
+          video.removeEventListener("ended", finishFromVideoProgress);
+          video.classList.remove("opacity-100");
+          video.classList.add("opacity-0");
+          video.style.opacity = "";
+          video.style.zIndex = "";
+          if (closedLayer) {
+            closedLayer.style.display = "";
+            closedLayer.style.opacity = "";
+            closedLayer.style.pointerEvents = "";
+          }
+          setOpeningVisible(false);
+          setPhase("closed");
           video.load();
         });
-    } else {
-      revealVideo();
     }
   }, [isFading, phase]);
 
@@ -242,13 +284,7 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
     event?.stopPropagation?.();
     if (phase !== "closed" || isFading || openingRequestedRef.current) return;
     if (!videoReady) {
-      queuedOpeningRef.current = true;
       videoRef.current?.load();
-      window.setTimeout(() => {
-        if (!queuedOpeningRef.current || openingRequestedRef.current) return;
-        queuedOpeningRef.current = false;
-        finish();
-      }, 1300);
       return;
     }
     playOpeningVideo();
@@ -265,18 +301,13 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
     const video = videoRef.current;
     if (!video) return;
     const syncVideoReady = () => {
-      if (video.readyState >= 1) setVideoReady(true);
+      if (video.readyState >= 3) setVideoReady(true);
     };
     video.load();
     syncVideoReady();
     const timer = window.setInterval(syncVideoReady, 250);
     return () => window.clearInterval(timer);
   }, [videoReady]);
-
-  useEffect(() => {
-    if (!videoReady || !queuedOpeningRef.current || phase !== "closed" || isFading) return;
-    playOpeningVideo();
-  }, [isFading, phase, playOpeningVideo, videoReady]);
 
   return (
     <motion.div
@@ -290,7 +321,7 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
       <div className="relative flex h-[100dvh] min-h-[100svh] w-full max-w-[430px] items-center justify-center overflow-hidden bg-[#fff4ef] shadow-[0_0_80px_rgba(111,77,56,.28)] md:h-[calc(100dvh-4rem)] md:min-h-[calc(100svh-4rem)] md:max-w-[480px] md:rounded-[2rem] md:border md:border-[#d7b48c]/35">
         <video
           ref={videoRef}
-          className={`absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-500 ${phase === "playing" ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-300 ${openingVisible ? "opacity-100" : "opacity-0"}`}
           src={assets.introVideo}
           poster={assets.introPoster}
           muted
@@ -299,12 +330,14 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
           onLoadedData={() => setVideoReady(true)}
           onCanPlay={() => setVideoReady(true)}
           onEnded={finish}
-          onError={() => setVideoReady(true)}
+          onError={() => setVideoReady(false)}
         />
         <AnimatePresence>
-          {phase === "closed" ? (
+          {!openingVisible ? (
             <motion.div
+              ref={closedLayerRef}
               key="closed-invitation"
+              data-intro-closed-layer="true"
               className="absolute inset-0"
               onClick={startOpening}
               onMouseDown={startOpening}
@@ -380,7 +413,7 @@ function LanguageSwitcher({ language, onChange }: { language: InvitationLanguage
               language === item ? "bg-[#c99780] text-white shadow-[0_8px_18px_rgba(168,120,90,.24)]" : "hover:bg-white/65"
             }`}
           >
-            {item === "ar" ? "عربي" : "EN"}
+            {item === "ar" ? "????" : "EN"}
           </button>
         ))}
       </div>
@@ -615,8 +648,8 @@ function LocationSection({
       <SectionShell className="px-4 py-5">
         <CornerOrnaments />
         <div className="grid grid-cols-[1.08fr_.92fr] items-center gap-3">
-          <div className="relative aspect-[1.34/1] overflow-hidden rounded-[1rem] border border-[#b98b5f]/35 bg-[#fff8f1] p-1.5 shadow-[0_12px_28px_rgba(111,77,56,.1)]">
-            <Image src={assets.locationPalace} alt="" fill sizes="210px" className="object-contain object-left-bottom p-1" />
+          <div className="relative aspect-[1.34/1] overflow-hidden rounded-[1rem] border border-[#b98b5f]/35 bg-[#fff8f1] shadow-[0_12px_28px_rgba(111,77,56,.1)]">
+            <Image src={assets.locationPalace} alt="" fill sizes="210px" className="object-cover object-center" />
           </div>
           <div className="text-center">
             <ScriptHeading language={language}>{copy.locationTitle}</ScriptHeading>
@@ -779,7 +812,7 @@ function FooterSection({ language }: { language: InvitationLanguage }) {
         </div>
         <div className="mt-3 flex items-center justify-center gap-5 text-[.75rem] text-[#8a6240]/72">
           <span>{copy.designed}</span>
-          <span>•</span>
+          <span>?</span>
           <span>{copy.copyright}</span>
         </div>
       </footer>
@@ -927,7 +960,7 @@ export function LuxuryInvitationArtifact({
             </div>
           </div>
           <div className="p-5 text-center">
-            <ScriptHeading language={language}>{language === "ar" ? "المكان" : "Venue"}</ScriptHeading>
+            <ScriptHeading language={language}>{language === "ar" ? "??????" : "Venue"}</ScriptHeading>
             <ChoiceMiniCard image="/invitation/venue-wedding-hall.webp" label={venue || text(invitationData.venue.name, language)} selected />
           </div>
         </>

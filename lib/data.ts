@@ -17,6 +17,7 @@ export type InvitationTemplate = {
   name: string;
   nameAr: string;
   image: string;
+  previewVideo?: string;
   description: string;
   status: InvitationTemplateStatus;
   badge: string;
@@ -25,11 +26,11 @@ export type InvitationTemplate = {
 
 export const wedding = {
   brand: "Domus Aurea",
-  arabicBrand: "دوموس أوريا",
-  couple: "ليان و ياسين",
+  arabicBrand: "????? ?????",
+  couple: "???? ? ?????",
   coupleEn: "Layan & Yassin",
   date: "2026-12-12T20:00:00+02:00",
-  venue: "قصر الزمرد",
+  venue: "??? ??????",
   venueEn: "Emerald Palace",
   city: "Cairo",
   whatsapp: "https://wa.me/201000000000",
@@ -38,11 +39,11 @@ export const wedding = {
 };
 
 export const navItems = [
-  { href: "/", label: "Home", ar: "الرئيسية" },
-  { href: "/templates", label: "Templates", ar: "القوالب" },
-  { href: "/design", label: "Design Invitation", ar: "صمّم دعوتك" },
-  { href: "/pricing", label: "Pricing", ar: "الأسعار" },
-  { href: "/#faq", label: "FAQ", ar: "الأسئلة" }
+  { href: "/", label: "Home", ar: "????????" },
+  { href: "/templates", label: "Templates", ar: "???????" },
+  { href: "/design", label: "Design Invitation", ar: "???? ?????" },
+  { href: "/pricing", label: "Pricing", ar: "???????" },
+  { href: "/#faq", label: "FAQ", ar: "???????" }
 ];
 
 export const features = [
@@ -87,95 +88,96 @@ export const themes = [
 const developmentBadge = {
   status: "development" as const,
   badge: "Coming Soon",
-  badgeAr: "قريبًا"
+  badgeAr: "??????"
 };
 
 export const invitationTemplates: InvitationTemplate[] = [
   {
     name: "Mirror Acrylic",
-    nameAr: "أكريليك مرايا",
+    nameAr: "??????? ?????",
     image: "/assets/templates/mirror-acrylic-reference.webp",
     description: "Reflective champagne acrylic, white floral linework, and polished layered typography.",
     ...developmentBadge
   },
   {
     name: "Burgundy Scroll",
-    nameAr: "لفافة عنابية",
+    nameAr: "????? ??????",
     image: "/assets/invitation-sequences/burgundy-scroll/closed.png",
     description: "Velvet burgundy scroll mood with a warm wax seal and ceremonial reveal.",
     ...developmentBadge
   },
   {
     name: "Ocean Floral Arch",
-    nameAr: "قوس ورد على البحر",
+    nameAr: "??? ??? ??? ?????",
     image: "/assets/templates/ocean-floral-arch-reference.webp",
     description: "White floral arches, sea horizon light, and a clean romantic ceremony rhythm.",
     ...developmentBadge
   },
   {
     name: "Royal Scroll",
-    nameAr: "مخطوطة ملكية",
+    nameAr: "?????? ?????",
     image: "/assets/templates/royal-scroll-reference.webp",
     description: "Parchment scroll layout with gold rods, ornate spacing, and classic script hierarchy.",
     ...developmentBadge
   },
   {
     name: "Message Bottle",
-    nameAr: "رسالة في زجاجة",
+    nameAr: "????? ?? ?????",
     image: "/assets/templates/message-bottle-reference.webp",
     description: "Seaside bottle concept with sand, shell detail, and a private handwritten feeling.",
     ...developmentBadge
   },
   {
     name: "Navy Laser Gate",
-    nameAr: "بوابة كحلية محفورة",
+    nameAr: "????? ????? ??????",
     image: "/assets/invitation-sequences/navy-gate/closed.png",
     description: "Navy laser-cut gate pattern with a gold monogram and crisp inner card.",
     ...developmentBadge
   },
   {
     name: "Emerald Velvet",
-    nameAr: "مخمل زمردي",
+    nameAr: "???? ?????",
     image: "/assets/templates/emerald-velvet-reference.webp",
     description: "Deep velvet green, transparent acrylic feeling, ornate crest, and gold border lines.",
     ...developmentBadge
   },
   {
     name: "Vintage Letterpress",
-    nameAr: "طباعة كلاسيكية",
+    nameAr: "????? ????????",
     image: "/assets/templates/vintage-letterpress-reference.webp",
     description: "Ivory letterpress paper, antique floral border, olive envelope energy, and soft shadows.",
     ...developmentBadge
   },
   {
     name: "Noir Gold Pocket",
-    nameAr: "جيب أسود وذهبي",
+    nameAr: "??? ???? ?????",
     image: "/assets/templates/noir-gold-pocket-reference.webp",
     description: "Black pocket invitation with gold initials, modern QR-like structure, and editorial contrast.",
     ...developmentBadge
   },
   {
-    name: "TEST INVITATION",
-    nameAr: "TEST INVITATION",
-    image: "/assets/templates/test-invitation-preview.webp",
-    description: "A launch-ready blush royal invitation with ivory sliding doors, a rose wax seal, and a full-screen floral card reveal.",
+    name: "Domus Aurea Invitation",
+    nameAr: "???? ????? ?????",
+    image: "/invitation/closed-invitation.png",
+    previewVideo: "/invitation/intro-opening.mp4",
+    description: "Luxury floral wedding invitation with wax seal opening animation.",
     status: "available",
     badge: "Launch Ready",
-    badgeAr: "جاهز للإطلاق"
+    badgeAr: "???? ???????"
   }
 ];
 
 export const pricingPlans = [
   {
     name: "Basic Package",
-    nameAr: "الباقة الأساسية",
+    nameAr: "?????? ????????",
     price: "30 EGP",
     description: "A refined digital invitation request with one elegant direction.",
     features: ["Invitation style consultation", "Basic wedding details", "WhatsApp-ready summary", "Arabic or English"]
   },
   {
     name: "Premium Package",
-    nameAr: "الباقة المميزة",
+    nameAr: "?????? ???????",
     price: "500 EGP",
     description: "For couples who want a richer custom invitation direction.",
     featured: true,
@@ -183,7 +185,7 @@ export const pricingPlans = [
   },
   {
     name: "Royal Package",
-    nameAr: "الباقة الملكية",
+    nameAr: "?????? ???????",
     price: "900 EGP",
     description: "A complete luxury request for a memorable guest experience.",
     features: ["Full creative direction", "Opening animation choice", "Premium RSVP direction", "Music support", "Priority delivery"]
