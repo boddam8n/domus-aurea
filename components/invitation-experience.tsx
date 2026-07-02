@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check, Heart, Home, Instagram, MapPin, MessageCircle, Music2, Send, UserRound } from "lucide-react";
@@ -196,13 +196,14 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
 function IntroVideo({ language, onComplete }: { language: InvitationLanguage; onComplete: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const openingRequestedRef = useRef(false);
+  const queuedOpeningRef = useRef(false);
   const [phase, setPhase] = useState<"closed" | "playing">("closed");
   const [isFading, setIsFading] = useState(false);
   const [posterReady, setPosterReady] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const copy = invitationData.copy[language];
   const openLabel = language === "ar" ? "اضغط على الختم لفتح الدعوة" : "Tap the seal to open the invitation";
-  const canOpen = phase === "closed" && posterReady && videoReady && !isFading;
+  const canOpen = phase === "closed" && videoReady && !isFading;
 
   const finish = () => {
     if (isFading) return;
@@ -210,14 +211,14 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
     window.setTimeout(onComplete, 700);
   };
 
-  const startOpening = (event?: { preventDefault?: () => void }) => {
-    event?.preventDefault?.();
-    if (!canOpen || openingRequestedRef.current) return;
+  const playOpeningVideo = useCallback(() => {
+    if (phase !== "closed" || isFading || openingRequestedRef.current) return;
     const video = videoRef.current;
     if (!video) {
       return;
     }
     openingRequestedRef.current = true;
+    queuedOpeningRef.current = false;
     video.currentTime = INTRO_VIDEO_START_TIME;
     const revealVideo = () => setPhase("playing");
     video.addEventListener("playing", revealVideo, { once: true });
@@ -227,12 +228,25 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
         .then(() => window.setTimeout(revealVideo, 40))
         .catch(() => {
           openingRequestedRef.current = false;
+          queuedOpeningRef.current = true;
           video.removeEventListener("playing", revealVideo);
           video.load();
         });
     } else {
       revealVideo();
     }
+  }, [isFading, phase]);
+
+  const startOpening = (event?: { preventDefault?: () => void; stopPropagation?: () => void }) => {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    if (phase !== "closed" || isFading || openingRequestedRef.current) return;
+    if (!videoReady) {
+      queuedOpeningRef.current = true;
+      videoRef.current?.load();
+      return;
+    }
+    playOpeningVideo();
   };
 
   useEffect(() => {
@@ -253,6 +267,11 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
     const timer = window.setInterval(syncVideoReady, 250);
     return () => window.clearInterval(timer);
   }, [videoReady]);
+
+  useEffect(() => {
+    if (!videoReady || !queuedOpeningRef.current || phase !== "closed" || isFading) return;
+    playOpeningVideo();
+  }, [isFading, phase, playOpeningVideo, videoReady]);
 
   return (
     <motion.div
@@ -302,7 +321,10 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
               <button
                 type="button"
                 onClick={startOpening}
+                onMouseDown={startOpening}
+                onPointerDown={startOpening}
                 onPointerUp={startOpening}
+                onTouchStart={startOpening}
                 onTouchEnd={startOpening}
                 aria-label={openLabel}
                 aria-disabled={!canOpen}
