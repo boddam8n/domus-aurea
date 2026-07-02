@@ -56,7 +56,7 @@ export default function DesignInvitationPage() {
 
     const parsed = invitationRequestSchema.safeParse(payload);
     if (!parsed.success) {
-      setError(Object.values(parsed.error.flatten().fieldErrors).flat()[0] || "????? ?????? ?????? ??????.");
+      setError(Object.values(parsed.error.flatten().fieldErrors).flat()[0] || "برجاء مراجعة بيانات الدعوة.");
       return;
     }
 
@@ -78,10 +78,10 @@ export default function DesignInvitationPage() {
         body: JSON.stringify(parsed.data)
       });
       const json = await response.json();
-      if (!response.ok) throw new Error(json.error || "?? ??? ????? ??????.");
+      if (!response.ok) throw new Error(json.error || "لم يتم إنشاء الدعوة.");
       setPublicUrl(json.publicUrl);
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "??? ??? ??? ?????.");
+      setError(submitError instanceof Error ? submitError.message : "حدث خطأ غير متوقع.");
     } finally {
       setLoading(false);
     }
@@ -100,13 +100,13 @@ export default function DesignInvitationPage() {
     setError("");
 
     if (file.type !== "image/png") {
-      setError("?? ???? ???? ???? ??? ????? PNG ???? ????? ?????? ?????.");
+      setError("من فضلك ارفع صورة ختم بصيغة PNG فقط، ويفضل بخلفية شفافة.");
       event.target.value = "";
       return;
     }
 
     if (file.size > 620 * 1024) {
-      setError("???? ????? ????? ????. ?????? ?? ???? ??? ?? 620KB ?????? ??? ???? ??????.");
+      setError("صورة الختم كبيرة جدًا. الأفضل أن تكون أقل من 620KB للحفاظ على سرعة الدعوة.");
       event.target.value = "";
       return;
     }
@@ -115,7 +115,7 @@ export default function DesignInvitationPage() {
     reader.onload = () => {
       setForm((current) => ({ ...current, sealImageUrl: typeof reader.result === "string" ? reader.result : "" }));
     };
-    reader.onerror = () => setError("?? ????? ?? ????? ???? ?????. ???? ???? PNG ????.");
+    reader.onerror = () => setError("لم نتمكن من قراءة صورة الختم. جرّب صورة PNG أخرى.");
     reader.readAsDataURL(file);
   }
 
@@ -124,19 +124,19 @@ export default function DesignInvitationPage() {
       <section className="px-4 py-32 md:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-3xl">
-            <p className="text-sm font-bold uppercase tracking-[0.24em] text-gold">????? ????</p>
+            <p className="text-sm font-bold uppercase tracking-[0.24em] text-gold">إنشاء دعوة</p>
             <h1 className="mt-5 font-display text-5xl leading-tight text-[var(--color-text)] md:text-7xl">
-              ???? ???? ???? ????? ????? ???????.
+              صمّم دعوة زفاف ملكية جاهزة للإطلاق.
             </h1>
             <p className="mt-5 leading-8 text-[var(--color-muted)]">
-              ???? ?????? ??????? ???? ??????? ????? ????? ?????? ?? ????. ??? ????? ????? ???? ??? ???? ???????? ?????.
+              أدخل بيانات الزفاف، اختر الباقة، وارفع ختمًا مخصصًا إن أردت. بعد الحفظ سيظهر رابط عام جاهز للمشاركة فورًا.
             </p>
           </div>
 
           <form onSubmit={submit} className="mt-12 grid gap-8 lg:grid-cols-[1fr_.82fr]">
             <div className="grid gap-8">
               <section className="glass rounded-[2.25rem] p-6">
-                <h2 className="font-display text-3xl text-[var(--color-text)]">?. ???? ??????</h2>
+                <h2 className="font-display text-3xl text-[var(--color-text)]">١. قالب الدعوة</h2>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {invitationTemplates.map((item) =>
                     item.status === "available" ? (
@@ -171,12 +171,12 @@ export default function DesignInvitationPage() {
                           <span className="absolute inset-0 bg-black/50" />
                           <span className="absolute inset-x-4 bottom-4 inline-flex items-center justify-center gap-2 rounded-full border border-[#d8b15f]/30 bg-black/45 px-4 py-2 text-xs font-bold text-[#f7efe2] backdrop-blur-md">
                             <Lock className="h-3.5 w-3.5 text-gold" />
-                            ??? ???????
+                            تحت التطوير
                           </span>
                         </span>
                         <span className="block p-4">
                           <span className="block font-bold text-[var(--color-text)]">{item.nameAr}</span>
-                          <span className="mt-1 block text-sm leading-6 text-[var(--color-muted)]">??????? ???? ???? ???????? ????.</span>
+                          <span className="mt-1 block text-sm leading-6 text-[var(--color-muted)]">قريبًا، وغير متاح للاختيار الآن.</span>
                         </span>
                       </div>
                     )
@@ -185,12 +185,12 @@ export default function DesignInvitationPage() {
               </section>
 
               <section className="glass rounded-[2.25rem] p-6">
-                <h2 className="font-display text-3xl text-[var(--color-text)]">?. ?????? ??????</h2>
+                <h2 className="font-display text-3xl text-[var(--color-text)]">٢. بيانات الزفاف</h2>
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <TextField label="??? ???????" value={form.brideName} onChange={(value) => setForm((current) => ({ ...current, brideName: value }))} />
-                  <TextField label="??? ??????" value={form.groomName} onChange={(value) => setForm((current) => ({ ...current, groomName: value }))} />
-                  <TextField label="????? ???? ?????" type="datetime-local" value={form.weddingDate} onChange={(value) => setForm((current) => ({ ...current, weddingDate: value }))} />
-                  <TextField label="??? ??????" value={form.phone} onChange={(value) => setForm((current) => ({ ...current, phone: value }))} />
+                  <TextField label="اسم العروسة" value={form.brideName} onChange={(value) => setForm((current) => ({ ...current, brideName: value }))} />
+                  <TextField label="اسم العريس" value={form.groomName} onChange={(value) => setForm((current) => ({ ...current, groomName: value }))} />
+                  <TextField label="تاريخ ووقت الفرح" type="datetime-local" value={form.weddingDate} onChange={(value) => setForm((current) => ({ ...current, weddingDate: value }))} />
+                  <TextField label="رقم واتساب" value={form.phone} onChange={(value) => setForm((current) => ({ ...current, phone: value }))} />
                   <VenueAutocomplete
                     value={{
                       name: form.venue,
@@ -212,10 +212,10 @@ export default function DesignInvitationPage() {
               </section>
 
               <section className="glass rounded-[2.25rem] p-6">
-                <h2 className="font-display text-3xl text-[var(--color-text)]">?. ????? ?????????</h2>
+                <h2 className="font-display text-3xl text-[var(--color-text)]">٣. الختم والتفاصيل</h2>
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
                   <div>
-                    <span className="mb-2 block text-sm font-bold text-[var(--color-muted)]">??????</span>
+                    <span className="mb-2 block text-sm font-bold text-[var(--color-muted)]">الباقة</span>
                     <div className="grid gap-2">
                       {pricingPlans.map((plan) => (
                         <button key={plan.name} type="button" onClick={() => setPkg(plan.name)} className={`rounded-2xl border px-4 py-3 text-right transition ${pkg === plan.name ? "border-gold bg-gold/10" : "border-white/10 hover:bg-white/10"}`}>
@@ -226,7 +226,7 @@ export default function DesignInvitationPage() {
                     </div>
                   </div>
                   <div>
-                    <span className="mb-2 block text-sm font-bold text-[var(--color-muted)]">??? ??????</span>
+                    <span className="mb-2 block text-sm font-bold text-[var(--color-muted)]">شكل العداد</span>
                     <div className="grid gap-2">
                       {countdownStyles.map((style) => (
                         <button key={style.name} type="button" onClick={() => setCountdown(style.name)} className={`rounded-2xl border px-4 py-3 text-right transition ${countdown === style.name ? "border-gold bg-gold/10" : "border-white/10 hover:bg-white/10"}`}>
@@ -241,7 +241,7 @@ export default function DesignInvitationPage() {
                 <label className="mt-6 grid gap-2 rounded-[1.5rem] border border-gold/20 bg-black/10 p-5">
                   <span className="flex items-center gap-2 text-sm font-bold text-[var(--color-text)]">
                     <Music className="h-4 w-4 text-gold" />
-                    ??? ??? ???????? ?????????
+                    اسم ملف الموسيقى الاختياري
                   </span>
                   <input value={musicName} onChange={(event) => setMusicName(event.target.value)} className="rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-4 text-[var(--color-text)] outline-none" />
                 </label>
@@ -250,7 +250,7 @@ export default function DesignInvitationPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <span className="block text-sm font-bold uppercase tracking-[0.16em] text-gold">Wax Seal</span>
-                      <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">???? ????? ?????? ????? PNG ?????? ????? ????? ?? ????? ????? ??????.</p>
+                      <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">ارفع ختمًا مخصصًا بصيغة PNG بخلفية شفافة ليظهر في منتصف أبواب الدعوة.</p>
                     </div>
                     <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full border border-gold/40 bg-[radial-gradient(circle_at_30%_25%,#fff1f0,#d89588_48%,#8f5d55)] shadow-[0_14px_38px_rgba(0,0,0,.18)]">
                       {form.sealImageUrl ? (
@@ -275,7 +275,7 @@ export default function DesignInvitationPage() {
                         className="inline-flex items-center justify-center gap-2 rounded-[1.2rem] border border-red-300/30 px-5 py-4 text-sm font-bold text-red-200 transition hover:bg-red-500/10"
                       >
                         <Trash2 className="h-4 w-4" />
-                        ????? ?????
+                        إزالة الختم
                       </button>
                     ) : null}
                   </div>
@@ -288,34 +288,34 @@ export default function DesignInvitationPage() {
                 <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-[#fff2ee]">
                   <LuxuryInvitationMiniature />
                 </div>
-                <p className="mt-6 text-sm font-bold uppercase tracking-[0.22em] text-[#9b7330]">?????? ??????</p>
+                <p className="mt-6 text-sm font-bold uppercase tracking-[0.22em] text-[#9b7330]">مراجعة الدعوة</p>
                 <h2 className="mt-3 font-display text-4xl text-[#24170f]">{launchTemplate.nameAr}</h2>
                 <div className="mt-5 space-y-2 text-sm leading-7 text-night/65">
-                  <p>???????: {form.brideName || "-"}</p>
-                  <p>??????: {form.groomName || "-"}</p>
-                  <p>???????: {form.weddingDate || "-"}</p>
-                  <p>??????: {form.venue || "-"}</p>
-                  <p>??????: {selectedPackage.nameAr} - {selectedPackage.price}</p>
-                  <p>??????: {countdown}</p>
+                  <p>العروسة: {form.brideName || "-"}</p>
+                  <p>العريس: {form.groomName || "-"}</p>
+                  <p>التاريخ: {form.weddingDate || "-"}</p>
+                  <p>المكان: {form.venue || "-"}</p>
+                  <p>الباقة: {selectedPackage.nameAr} - {selectedPackage.price}</p>
+                  <p>العداد: {countdown}</p>
                 </div>
                 {error ? <p className="mt-5 rounded-2xl border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-900">{error}</p> : null}
                 <button disabled={loading} className="mt-7 w-full rounded-full bg-night px-6 py-4 font-bold text-[#f7efe2] transition hover:bg-[#9b7330] disabled:opacity-60">
-                  {loading ? "???? ????? ??????..." : "????? ?????? ???????"}
+                  {loading ? "جاري إنشاء الرابط..." : "إنشاء الدعوة والرابط"}
                 </button>
                 {publicUrl ? (
                   <div className="mt-5 rounded-[1.5rem] border border-[#b8894b]/25 bg-white/55 p-4">
                     <p className="flex items-center gap-2 font-bold text-night">
                       <CheckCircle2 className="h-5 w-5 text-[#174c3f]" />
-                      ?? ????? ??????
+                      تم إنشاء الدعوة
                     </p>
                     <p className="mt-2 break-all text-sm leading-6 text-night/65">{publicUrl}</p>
                     <div className="mt-4 grid gap-2 sm:grid-cols-2">
                       <button type="button" onClick={copyLink} className="rounded-full bg-[#174c3f] px-4 py-3 text-center text-sm font-bold text-white">
                         <Copy className="ml-1 inline h-4 w-4" />
-                        {copied ? "?? ?????" : "??? ??????"}
+                        {copied ? "تم النسخ" : "نسخ الرابط"}
                       </button>
                       <Link href="/dashboard" className="rounded-full border border-[#b8894b]/40 px-4 py-3 text-center text-sm font-bold text-night">
-                        ???? ??????
+                        لوحة العميل
                       </Link>
                     </div>
                   </div>
@@ -331,11 +331,11 @@ export default function DesignInvitationPage() {
         templateName={launchTemplate.name}
         onClose={() => setPreviewOpen(false)}
         sample={{
-          brideName: form.brideName || "?????",
-          groomName: form.groomName || "????",
+          brideName: form.brideName || "مايار",
+          groomName: form.groomName || "أحمد",
           date: form.weddingDate || "12 December 2026",
-          venue: form.venue || "???? ???? ??????? - ???????",
-          message: "??? ???? ???????? ?????? ????? ??? ?????? ????????? ???? ????? ?????.",
+          venue: form.venue || "فندق ريتز كارلتون - القاهرة",
+          message: "بكل الحب والفرحة، ندعوكم لحضور حفل زفافنا ومشاركتنا أجمل لحظات العمر.",
           musicSrc: musicName ? `/audio/${musicName}` : "/audio/wedding-music.mp3",
           sealImageUrl: form.sealImageUrl
         }}

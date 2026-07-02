@@ -137,7 +137,7 @@ export function PlayPreviewButton({ onClick, isArabic, disabled = false }: { onC
       className="inline-flex items-center gap-2 rounded-full border border-[#d8b15f]/40 bg-black/35 px-5 py-3 text-sm font-bold text-white shadow-[0_16px_40px_rgba(0,0,0,.18)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-[#f0cf84] hover:bg-[#d8b15f] hover:text-[#120d08] disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/10 disabled:text-white/45 disabled:hover:translate-y-0"
     >
       <Play className="h-4 w-4" />
-      {isArabic ? "????? ????????" : "Play Preview"}
+      {isArabic ? "تشغيل المعاينة" : "Play Preview"}
     </button>
   );
 }

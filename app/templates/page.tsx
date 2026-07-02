@@ -34,15 +34,15 @@ export default function TemplatesPage() {
             <div>
               <p className="inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-gold">
                 <Sparkles className="h-4 w-4" />
-                {isArabic ? "?????? ???????" : "Template Collection"}
+                {isArabic ? "مجموعة القوالب" : "Template Collection"}
               </p>
               <h1 className="mt-6 max-w-4xl font-display text-5xl leading-tight text-[var(--color-text)] md:text-7xl">
-                {isArabic ? "???? ???? ???? ???????? ??????? ??? ???????." : "One launch-ready invitation, with the wider collection under development."}
+                {isArabic ? "قالب واحد جاهز للإطلاق، والباقي تحت التطوير." : "One launch-ready invitation, with the wider collection under development."}
               </h1>
             </div>
             <p className="max-w-2xl leading-8 text-[var(--color-muted)] lg:justify-self-end">
               {isArabic
-                ? "????? ??????? ????? ???????? ?????? ?????? ?????? ??? ??????? ??????? ?? ???? ????? ??????? ??? ?????. ???? ????? ????? ?? ???? ??????? ??????."
+                ? "حللنا اتجاهات الصور المرفوعة كخامات ومراجع بصرية، لكن القوالب الحالية لن تكون متاحة للعملاء حتى تكتمل. دعوة دوموس أوريا هي قالب الإنتاج الحالي."
                 : "The uploaded references are being treated as visual inspiration for future directions. Current collection cards are locked until polished. Domus Aurea Invitation is the production-ready template."}
             </p>
           </div>
@@ -92,7 +92,7 @@ function DevelopmentTemplateCard({ template, index, isArabic }: { template: Invi
               </span>
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#d8b15f]">{isArabic ? template.badgeAr : template.badge}</p>
-                <p className="mt-1 text-sm text-white/70">{isArabic ? "??? ??????? ???? ???? ???????? ????" : "Under Development and not selectable yet"}</p>
+                <p className="mt-1 text-sm text-white/70">{isArabic ? "تحت التطوير وغير متاح للاختيار الآن" : "Under Development and not selectable yet"}</p>
               </div>
             </div>
           </div>
@@ -109,8 +109,8 @@ function DevelopmentTemplateCard({ template, index, isArabic }: { template: Invi
             </span>
           </div>
           <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-5 text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">
-            <span>{isArabic ? "??????" : "Coming Soon"}</span>
-            <span className="text-gold">{isArabic ? "??? ???????" : "Under Development"}</span>
+            <span>{isArabic ? "قريبًا" : "Coming Soon"}</span>
+            <span className="text-gold">{isArabic ? "تحت التطوير" : "Under Development"}</span>
           </div>
         </div>
       </div>
@@ -143,7 +143,7 @@ function LaunchTemplateCard({ template, isArabic, onPreview }: { template: Invit
           <h2 className="mt-5 font-display text-5xl leading-tight text-[var(--color-text)] md:text-7xl">{template.name}</h2>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-muted)]">
             {isArabic
-              ? "???? ???? ???? ????? ???????: ??? ????? ????? ??? ????? ???? ????? ????? ???????? ????? ??? ????? ????? ??????."
+              ? "قالب دعوة واحد مصقول للإطلاق: ظرف زمردي فاخر، ختم ذهبي، ورقة عاجية قابلة للقراءة، وحركة فتح واحدة بطيئة وراقية."
               : template.description}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
@@ -152,14 +152,14 @@ function LaunchTemplateCard({ template, isArabic, onPreview }: { template: Invit
               href="/design?template=domus-aurea"
               className="inline-flex items-center gap-2 rounded-full bg-[#f7efe2] px-6 py-3 text-sm font-bold text-night shadow-[0_16px_40px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:bg-gold"
             >
-              {isArabic ? "????? ??????" : "Customize Invitation"}
+              {isArabic ? "تخصيص الدعوة" : "Customize Invitation"}
               <ArrowUpLeft className="h-4 w-4" />
             </Link>
           </div>
           <div className="mt-8 grid gap-3 text-sm text-[var(--color-muted)] sm:grid-cols-3">
-            <span className="rounded-2xl border border-gold/15 bg-gold/10 px-4 py-3">{isArabic ? "???? slideshow" : "No slideshow"}</span>
-            <span className="rounded-2xl border border-gold/15 bg-gold/10 px-4 py-3">{isArabic ? "???? ?????????" : "Dynamic fields"}</span>
-            <span className="rounded-2xl border border-gold/15 bg-gold/10 px-4 py-3">{isArabic ? "???? ????????" : "Mobile first"}</span>
+            <span className="rounded-2xl border border-gold/15 bg-gold/10 px-4 py-3">{isArabic ? "بدون slideshow" : "No slideshow"}</span>
+            <span className="rounded-2xl border border-gold/15 bg-gold/10 px-4 py-3">{isArabic ? "حقول ديناميكية" : "Dynamic fields"}</span>
+            <span className="rounded-2xl border border-gold/15 bg-gold/10 px-4 py-3">{isArabic ? "جاهز للموبايل" : "Mobile first"}</span>
           </div>
         </div>
       </div>

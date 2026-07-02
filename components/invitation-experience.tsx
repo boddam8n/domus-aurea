@@ -33,15 +33,15 @@ const assets = {
 };
 
 const nameMap: Record<string, { ar: string; en: string }> = {
-  ????: { ar: "????", en: "Ahmed" },
-  ????: { ar: "????", en: "Ahmed" },
-  Ahmed: { ar: "????", en: "Ahmed" },
-  ?????: { ar: "?????", en: "Mayar" },
-  Mayar: { ar: "?????", en: "Mayar" },
-  ????: { ar: "????", en: "Ahmed" },
-  bobi: { ar: "????", en: "Ahmed" },
-  ????: { ar: "?????", en: "Mayar" },
-  yori: { ar: "?????", en: "Mayar" }
+  أحمد: { ar: "أحمد", en: "Ahmed" },
+  احمد: { ar: "أحمد", en: "Ahmed" },
+  Ahmed: { ar: "أحمد", en: "Ahmed" },
+  مايار: { ar: "مايار", en: "Mayar" },
+  Mayar: { ar: "مايار", en: "Mayar" },
+  بودي: { ar: "أحمد", en: "Ahmed" },
+  bobi: { ar: "أحمد", en: "Ahmed" },
+  يوري: { ar: "مايار", en: "Mayar" },
+  yori: { ar: "مايار", en: "Mayar" }
 };
 
 const easing = [0.22, 1, 0.36, 1] as const;
@@ -204,7 +204,7 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
   const [posterReady, setPosterReady] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const copy = invitationData.copy[language];
-  const openLabel = language === "ar" ? "???? ??? ????? ???? ??????" : "Tap the seal to open the invitation";
+  const openLabel = language === "ar" ? "اضغط على الختم لفتح الدعوة" : "Tap the seal to open the invitation";
   const canOpen = phase === "closed" && !openingVisible && videoReady && !isFading;
 
   const finish = () => {
@@ -413,7 +413,7 @@ function LanguageSwitcher({ language, onChange }: { language: InvitationLanguage
               language === item ? "bg-[#c99780] text-white shadow-[0_8px_18px_rgba(168,120,90,.24)]" : "hover:bg-white/65"
             }`}
           >
-            {item === "ar" ? "????" : "EN"}
+            {item === "ar" ? "عربي" : "EN"}
           </button>
         ))}
       </div>
@@ -812,7 +812,7 @@ function FooterSection({ language }: { language: InvitationLanguage }) {
         </div>
         <div className="mt-3 flex items-center justify-center gap-5 text-[.75rem] text-[#8a6240]/72">
           <span>{copy.designed}</span>
-          <span>?</span>
+          <span>•</span>
           <span>{copy.copyright}</span>
         </div>
       </footer>
@@ -960,7 +960,7 @@ export function LuxuryInvitationArtifact({
             </div>
           </div>
           <div className="p-5 text-center">
-            <ScriptHeading language={language}>{language === "ar" ? "??????" : "Venue"}</ScriptHeading>
+            <ScriptHeading language={language}>{language === "ar" ? "المكان" : "Venue"}</ScriptHeading>
             <ChoiceMiniCard image="/invitation/venue-wedding-hall.webp" label={venue || text(invitationData.venue.name, language)} selected />
           </div>
         </>
