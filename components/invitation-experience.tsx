@@ -244,6 +244,11 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
     if (!videoReady) {
       queuedOpeningRef.current = true;
       videoRef.current?.load();
+      window.setTimeout(() => {
+        if (!queuedOpeningRef.current || openingRequestedRef.current) return;
+        queuedOpeningRef.current = false;
+        finish();
+      }, 1300);
       return;
     }
     playOpeningVideo();
