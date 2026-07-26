@@ -7,16 +7,22 @@ import {
   ProcessSection,
   TestimonialsSection,
 } from "@/components/home-sections";
+import { brandFontVariables } from "@/lib/brand-fonts";
+import { getPublicPricingPackages } from "@/lib/pricing";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const pricingPackages = await getPublicPricingPackages();
+
   return (
-    <PageShell>
-      <HeroSection />
-      <ProcessSection />
-      <PricingSection />
-      <TestimonialsSection />
-      <FaqSection />
-      <OrderCtaSection />
-    </PageShell>
+    <div className={`${brandFontVariables} homepage-type`}>
+      <PageShell>
+        <HeroSection />
+        <ProcessSection />
+        <PricingSection packages={pricingPackages} />
+        <TestimonialsSection />
+        <FaqSection />
+        <OrderCtaSection />
+      </PageShell>
+    </div>
   );
 }
