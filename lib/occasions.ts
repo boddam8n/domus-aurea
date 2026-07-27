@@ -16,6 +16,7 @@ export type Occasion = {
   label: string;
   labelAr: string;
   icon: LucideIcon;
+  href?: string;
 };
 
 export const occasions: Occasion[] = [
@@ -25,7 +26,7 @@ export const occasions: Occasion[] = [
   { id: "anniversary", label: "Anniversary", labelAr: "ذكرى سنوية", icon: Infinity },
   { id: "graduation", label: "Graduation", labelAr: "التخرج", icon: GraduationCap },
   { id: "baby-shower", label: "Baby Shower", labelAr: "استقبال مولود", icon: Baby },
-  { id: "romantic-message", label: "Romantic Message", labelAr: "رسالة رومانسية", icon: MessageCircleHeart },
+  { id: "romance", label: "Romance", labelAr: "الرومانسية", icon: MessageCircleHeart, href: "/romance" },
   { id: "apology", label: "Apology", labelAr: "اعتذار", icon: HeartHandshake },
   { id: "celebration", label: "Celebration", labelAr: "احتفال", icon: PartyPopper }
 ];

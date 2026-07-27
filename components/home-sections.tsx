@@ -300,7 +300,7 @@ export function TestimonialsSection() {
               className={`luxury-interactive glass rounded-[2rem] p-7 ${index === 1 ? "lg:mt-12" : ""}`}
             >
               <Gem className="h-6 w-6 text-gold" />
-              <blockquote className="brand-display mt-6 text-3xl font-medium leading-[1.3] text-[var(--color-text)]">"{item.quote}"</blockquote>
+              <blockquote className="brand-display mt-6 text-3xl font-medium leading-[1.3] text-[var(--color-text)]">&ldquo;{item.quote}&rdquo;</blockquote>
               <figcaption className="mt-6 text-sm text-[var(--color-muted)]">{item.name} - {item.role}</figcaption>
             </motion.figure>
           ))}

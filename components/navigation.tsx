@@ -123,7 +123,7 @@ export function Navigation() {
                   transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   className="overflow-hidden"
                 >
-                  <div className="grid gap-1 rounded-2xl border border-gold/15 bg-black/10 p-2 sm:grid-cols-2">
+                  <div className="grid gap-1.5 rounded-2xl border border-gold/30 bg-[#090d0c]/[0.97] p-3 shadow-[0_24px_70px_rgba(0,0,0,0.48),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[28px] sm:grid-cols-2">
                     {occasions.map((occasion) => (
                       <OccasionItem key={occasion.id} occasion={occasion} isArabic={isArabic} compact />
                     ))}
@@ -182,7 +182,7 @@ function OccasionsMenu({
       <button
         type="button"
         onClick={() => onOpenChange(!isOpen)}
-        className="flex items-center gap-1 rounded-full px-3 py-2 text-sm text-[var(--color-muted)] transition hover:bg-white/10 hover:text-[var(--color-text)]"
+        className="flex items-center gap-1.5 rounded-full border border-transparent px-3 py-2 text-sm text-[var(--color-muted)] transition duration-300 hover:border-gold/15 hover:bg-gold/[0.07] hover:text-[var(--color-text)]"
         aria-expanded={isOpen}
         aria-controls="desktop-occasions"
       >
@@ -198,18 +198,18 @@ function OccasionsMenu({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.985 }}
               transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-              className="origin-top overflow-hidden rounded-[1.6rem] border border-gold/20 bg-[var(--nav-bg)] p-3 shadow-[0_28px_80px_rgba(0,0,0,.32)] backdrop-blur-2xl"
+              className="origin-top overflow-hidden rounded-[1.6rem] border border-gold/35 bg-[#090d0c]/[0.97] p-5 shadow-[0_34px_100px_rgba(0,0,0,0.62),0_10px_30px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.045)] ring-1 ring-black/25 backdrop-blur-[32px]"
             >
-              <div className="flex items-center justify-between border-b border-white/10 px-3 pb-3">
+              <div className="flex items-center justify-between border-b border-gold/15 px-1 pb-4">
                 <div>
-                  <p className="brand-display text-xl font-medium text-[var(--color-text)]">{isArabic ? "كل لحظة تستحق دعوة" : "Every moment deserves an invitation"}</p>
-                  <p className="mt-1 text-xs text-[var(--color-faint)]">{isArabic ? "تصنيفات جديدة قيد الإعداد" : "New collections are being prepared"}</p>
+                  <p className="brand-display text-[1.35rem] font-semibold leading-tight text-[#f4ead7]">{isArabic ? "كل لحظة تستحق دعوة" : "Every moment deserves an invitation"}</p>
+                  <p className="mt-1.5 text-[11px] leading-5 text-[#9f9788]">{isArabic ? "تصنيفات جديدة قيد الإعداد" : "New collections are being prepared"}</p>
                 </div>
-                <span className="rounded-full border border-gold/25 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-gold">
+                <span className="rounded-full border border-gold/35 bg-gold/[0.07] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#d8b86e] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
                   {isArabic ? "قريبًا" : "Coming soon"}
                 </span>
               </div>
-              <div className="mt-2 grid grid-cols-3 gap-1">
+              <div className="mt-3 grid grid-cols-3 gap-2">
                 {occasions.map((occasion) => (
                   <OccasionItem key={occasion.id} occasion={occasion} isArabic={isArabic} />
                 ))}
@@ -232,17 +232,29 @@ function OccasionItem({
   compact?: boolean;
 }) {
   const Icon = occasion.icon;
-  return (
-    <div
-      aria-disabled="true"
-      className={`group flex items-center gap-3 rounded-xl px-3 text-[var(--color-muted)] transition duration-300 hover:bg-white/[0.07] hover:text-[var(--color-text)] ${
-        compact ? "py-2.5 text-xs" : "py-3 text-sm"
-      }`}
-    >
-      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-gold/20 bg-gold/[0.06] text-gold transition duration-300 group-hover:border-gold/40 group-hover:bg-gold/[0.12]">
-        <Icon className="h-3.5 w-3.5 stroke-[1.5]" />
+  const className = `group flex items-center gap-3.5 rounded-[0.95rem] border border-transparent px-3.5 text-[#bdb4a4] transition duration-300 ease-out hover:-translate-y-0.5 hover:border-gold/20 hover:bg-[#171a17] hover:text-[#f4ead7] hover:shadow-[0_12px_28px_rgba(0,0,0,0.24)] ${
+    compact ? "py-3 text-xs" : "py-3.5 text-sm"
+  }`;
+  const content = (
+    <>
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-gold/25 bg-gold/[0.07] text-[#d3b168] shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] transition duration-300 ease-out group-hover:scale-105 group-hover:border-gold/45 group-hover:bg-gold/[0.13] group-hover:shadow-[0_0_20px_rgba(201,162,84,0.13)]">
+        <Icon className="h-4 w-4 stroke-[1.35] transition duration-300 group-hover:scale-105" />
       </span>
-      <span>{isArabic ? occasion.labelAr : occasion.label}</span>
+      <span className="font-medium leading-5">{isArabic ? occasion.labelAr : occasion.label}</span>
+    </>
+  );
+
+  if (occasion.href) {
+    return (
+      <Link href={occasion.href} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div aria-disabled="true" className={className}>
+      {content}
     </div>
   );
 }

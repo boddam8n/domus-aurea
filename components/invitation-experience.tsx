@@ -207,7 +207,7 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
   const openLabel = language === "ar" ? "اضغط على الختم لفتح الدعوة" : "Tap the seal to open the invitation";
   const canOpen = phase === "closed" && !openingVisible && videoReady && !isFading;
 
-  const finish = () => {
+  const finish = useCallback(() => {
     if (isFading || finishedRef.current) return;
     finishedRef.current = true;
     if (finishTimerRef.current) {
@@ -216,7 +216,7 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
     }
     setIsFading(true);
     window.setTimeout(onComplete, 700);
-  };
+  }, [isFading, onComplete]);
 
   const playOpeningVideo = useCallback(() => {
     if (phase !== "closed" || isFading || openingRequestedRef.current) return;
@@ -277,7 +277,7 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
           video.load();
         });
     }
-  }, [isFading, phase]);
+  }, [finish, isFading, phase]);
 
   const startOpening = (event?: { preventDefault?: () => void; stopPropagation?: () => void }) => {
     event?.preventDefault?.();
@@ -294,7 +294,7 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
     if (phase !== "playing") return;
     const fallbackTimer = window.setTimeout(finish, 4500);
     return () => window.clearTimeout(fallbackTimer);
-  }, [phase]);
+  }, [finish, phase]);
 
   useEffect(() => {
     if (videoReady) return;

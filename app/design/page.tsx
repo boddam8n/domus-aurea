@@ -254,6 +254,8 @@ export default function DesignInvitationPage() {
                     </div>
                     <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full border border-gold/40 bg-[radial-gradient(circle_at_30%_25%,#fff1f0,#d89588_48%,#8f5d55)] shadow-[0_14px_38px_rgba(0,0,0,.18)]">
                       {form.sealImageUrl ? (
+                        // Custom user uploads use an in-memory data URL, so Next/Image cannot optimize them.
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={form.sealImageUrl} alt="Wax seal preview" className="h-full w-full object-contain p-1.5" />
                       ) : (
                         <span className="font-display text-xl text-[#fff7ee]">DA</span>
