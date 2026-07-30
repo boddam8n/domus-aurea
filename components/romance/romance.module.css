@@ -760,8 +760,8 @@
 
 .cursor {
   position: fixed;
-  top: -1rem;
-  left: -1rem;
+  top: 0;
+  left: 0;
   z-index: 80;
   display: grid;
   width: 1.8rem;

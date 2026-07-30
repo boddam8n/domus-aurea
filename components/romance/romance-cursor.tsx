@@ -19,8 +19,8 @@ export function RomanceCursor() {
     let y = -80;
 
     const updateCursor = (event: PointerEvent) => {
-      x = event.clientX;
-      y = event.clientY;
+      x = event.clientX - 14;
+      y = event.clientY - 14;
       window.cancelAnimationFrame(frameId);
       frameId = window.requestAnimationFrame(() => {
         cursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;

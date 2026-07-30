@@ -17,6 +17,18 @@ export type RomanceFeatureKey =
 
 export type RomanceType = {
   id: string;
+  icon:
+    | "heart"
+    | "coffee"
+    | "movie"
+    | "sunset"
+    | "letter"
+    | "cake"
+    | "gift"
+    | "anniversary"
+    | "proposal"
+    | "apology"
+    | "surprise";
   title: LocalizedCopy;
   description: LocalizedCopy;
   image: string;
@@ -36,6 +48,7 @@ export type RomanceTemplate = {
 export const romanceTypes: RomanceType[] = [
   {
     id: "ask-someone-out",
+    icon: "heart",
     title: { en: "Ask Someone Out", ar: "دعوة لموعد" },
     description: {
       en: "A small invitation that could begin a beautiful story.",
@@ -47,6 +60,7 @@ export const romanceTypes: RomanceType[] = [
   },
   {
     id: "coffee-date",
+    icon: "coffee",
     title: { en: "Coffee Date", ar: "موعد قهوة" },
     description: {
       en: "Warm coffee, an easy conversation, and time together.",
@@ -57,6 +71,7 @@ export const romanceTypes: RomanceType[] = [
   },
   {
     id: "movie-night",
+    icon: "movie",
     title: { en: "Movie Night", ar: "ليلة سينما" },
     description: {
       en: "Turn a favorite film into a memorable invitation.",
@@ -67,6 +82,7 @@ export const romanceTypes: RomanceType[] = [
   },
   {
     id: "sunset-walk",
+    icon: "sunset",
     title: { en: "Sunset Walk", ar: "نزهة الغروب" },
     description: {
       en: "A gentle plan for golden skies and unhurried moments.",
@@ -77,6 +93,7 @@ export const romanceTypes: RomanceType[] = [
   },
   {
     id: "love-letter",
+    icon: "letter",
     title: { en: "Love Letter", ar: "رسالة حب" },
     description: {
       en: "Send words that feel considered, personal, and timeless.",
@@ -88,6 +105,7 @@ export const romanceTypes: RomanceType[] = [
   },
   {
     id: "birthday-surprise",
+    icon: "cake",
     title: { en: "Birthday Surprise", ar: "مفاجأة عيد ميلاد" },
     description: {
       en: "A joyful reveal made especially for someone you love.",
@@ -98,6 +116,7 @@ export const romanceTypes: RomanceType[] = [
   },
   {
     id: "cute-gift",
+    icon: "gift",
     title: { en: "Cute Gift Invitation", ar: "دعوة بهدية" },
     description: {
       en: "Wrap an invitation with the feeling of a thoughtful gift.",
@@ -108,6 +127,7 @@ export const romanceTypes: RomanceType[] = [
   },
   {
     id: "anniversary",
+    icon: "anniversary",
     title: { en: "Anniversary", ar: "ذكرى سنوية" },
     description: {
       en: "Celebrate the chapter you share and the ones still ahead.",
@@ -118,6 +138,7 @@ export const romanceTypes: RomanceType[] = [
   },
   {
     id: "proposal",
+    icon: "proposal",
     title: { en: "Proposal", ar: "طلب زواج" },
     description: {
       en: "Create a beautiful beginning for one unforgettable question.",
@@ -129,6 +150,7 @@ export const romanceTypes: RomanceType[] = [
   },
   {
     id: "apology",
+    icon: "apology",
     title: { en: "Apology", ar: "اعتذار" },
     description: {
       en: "Say it softly, sincerely, and with space for a new beginning.",
@@ -139,6 +161,7 @@ export const romanceTypes: RomanceType[] = [
   },
   {
     id: "special-surprise",
+    icon: "surprise",
     title: { en: "Special Surprise", ar: "مفاجأة خاصة" },
     description: {
       en: "Make an ordinary day feel wonderfully unexpected.",
@@ -244,3 +267,25 @@ export const romanceFutureFeatures: Record<RomanceFeatureKey, { status: "planned
   "qr-sharing": { status: "planned" },
   reactions: { status: "planned" }
 };
+
+export function getRomanceType(id: string) {
+  return romanceTypes.find((item) => item.id === id);
+}
+
+export function getRomanceTemplatesForOccasion(occasionId: string) {
+  const offset = Math.max(
+    0,
+    romanceTypes.findIndex((item) => item.id === occasionId)
+  );
+
+  return romanceTemplates.map((_, index) => romanceTemplates[(index + offset) % romanceTemplates.length]);
+}
+
+export function getRomanceTemplateGalleryPath(occasionId: string) {
+  return `/romance/templates/${occasionId}`;
+}
+
+export function getFutureRomanceEditorPath(occasionId: string, templateId: string) {
+  const search = new URLSearchParams({ occasion: occasionId, template: templateId });
+  return `/romance/editor?${search.toString()}`;
+}

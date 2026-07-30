@@ -66,7 +66,7 @@ export function RomanceHero() {
             : "Warm romantic invitations and tiny experiences, made to turn a simple moment into something personal and unforgettable."}
         </p>
         <div className={styles.heroActions}>
-          <Link href="#romance-types" className={styles.primaryButton}>
+          <Link href="/romance/create" className={styles.primaryButton}>
             {isArabic ? "أنشئ دعوة رومانسية" : "Create Romantic Invitation"}
             <Arrow />
           </Link>
