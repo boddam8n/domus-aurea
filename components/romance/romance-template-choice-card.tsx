@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { Check, Heart } from "lucide-react";
 import type { RomanceTemplate } from "@/lib/romance";
 import styles from "./romance-journey.module.css";
@@ -11,7 +10,6 @@ type RomanceTemplateChoiceCardProps = {
   isArabic: boolean;
   isFavorite: boolean;
   isSelected: boolean;
-  index: number;
   onFavorite: (id: string) => void;
   onSelect: (id: string) => void;
 };
@@ -21,17 +19,13 @@ export function RomanceTemplateChoiceCard({
   isArabic,
   isFavorite,
   isSelected,
-  index,
   onFavorite,
   onSelect
 }: RomanceTemplateChoiceCardProps) {
   return (
-    <motion.article
+    <article
       className={`${styles.templateCard} ${styles[`accent-${item.accent}`]}`}
       data-selected={isSelected}
-      initial={{ opacity: 0, y: 28 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: Math.min(index * 0.05, 0.32), ease: [0.22, 1, 0.36, 1] }}
     >
       <button
         type="button"
@@ -79,6 +73,6 @@ export function RomanceTemplateChoiceCard({
       >
         <Heart aria-hidden="true" />
       </button>
-    </motion.article>
+    </article>
   );
 }

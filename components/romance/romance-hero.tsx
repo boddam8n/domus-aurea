@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowDown, ArrowLeft, ArrowRight, Heart, Languages } from "lucide-react";
+import { ArrowLeft, ArrowRight, Heart, Languages } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import styles from "./romance.module.css";
 
@@ -66,20 +66,15 @@ export function RomanceHero() {
             : "Warm romantic invitations and tiny experiences, made to turn a simple moment into something personal and unforgettable."}
         </p>
         <div className={styles.heroActions}>
-          <Link href="/romance/create" className={styles.primaryButton}>
+          <Link href="/romance/templates" className={styles.primaryButton}>
             {isArabic ? "أنشئ دعوة رومانسية" : "Create Romantic Invitation"}
             <Arrow />
           </Link>
-          <Link href="#romance-templates" className={styles.secondaryButton}>
+          <Link href="/romance/templates" className={styles.secondaryButton}>
             {isArabic ? "تصفح القوالب الرومانسية" : "Browse Romantic Templates"}
           </Link>
         </div>
       </motion.div>
-
-      <a href="#romance-types" className={styles.scrollCue} aria-label={isArabic ? "اكتشف عالم الرومانسية" : "Explore Romance"}>
-        <span>{isArabic ? "اكتشف العالم" : "Discover the world"}</span>
-        <ArrowDown />
-      </a>
     </section>
   );
 }
