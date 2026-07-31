@@ -14,10 +14,22 @@ export function Footer() {
           <Link href="/templates" className="text-sm text-[var(--color-muted)] transition hover:text-gold">Templates</Link>
           <Link href="/design" className="text-sm text-[var(--color-muted)] transition hover:text-gold">Design</Link>
           <Link href="/pricing" className="text-sm text-[var(--color-muted)] transition hover:text-gold">Pricing</Link>
-          <a href={wedding.whatsapp} className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-[var(--color-text)]">
+          <a
+            href={wedding.whatsapp}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Contact Domus Aurea on WhatsApp"
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-[var(--color-text)]"
+          >
             <MessageCircle className="h-4 w-4" />
           </a>
-          <a href={wedding.instagram} className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-[var(--color-text)]">
+          <a
+            href={wedding.instagram}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Domus Aurea on Instagram"
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-[var(--color-text)]"
+          >
             <Instagram className="h-4 w-4" />
           </a>
         </div>

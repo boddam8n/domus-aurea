@@ -1,28 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAnonSupabaseClient, createServiceSupabaseClient } from "@/lib/supabase/server";
-
-function getToken(request: NextRequest) {
-  return request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-}
+import { authenticateRequest } from "@/lib/request-auth";
+import { createServiceSupabaseClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   try {
-    const token = getToken(request);
-    if (!token) {
-      return NextResponse.json({ error: "Authentication required." }, { status: 401 });
-    }
-
-    const authClient = createAnonSupabaseClient(token);
-    const { data: userData, error: authError } = await authClient.auth.getUser(token);
-    if (authError || !userData.user) {
-      return NextResponse.json({ error: "Invalid session." }, { status: 401 });
-    }
+    const auth = await authenticateRequest(request);
+    if (auth.error) return auth.error;
 
     const service = createServiceSupabaseClient();
     const { data: invitations, error } = await service
       .from("invitations")
       .select("*, guest_responses(id, guest_name, response, created_at), invitation_analytics(visitor_id, event_type)")
-      .eq("user_id", userData.user.id)
+      .eq("user_id", auth.user.id)
       .order("created_at", { ascending: false });
 
     if (error) {

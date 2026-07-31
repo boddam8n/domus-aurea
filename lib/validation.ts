@@ -5,9 +5,16 @@ export const invitationRequestSchema = z.object({
   groomName: z.string().trim().min(2, "Groom name is required").max(80),
   weddingDate: z.string().trim().min(6, "Wedding date is required").max(80),
   venue: z.string().trim().min(2, "Venue is required").max(140),
-  venueAddress: z.string().trim().max(260).optional(),
-  venueLat: z.number().min(-90).max(90).optional(),
-  venueLng: z.number().min(-180).max(180).optional(),
+  venueAddress: z.string().trim().min(5, "Select a verified venue address").max(260),
+  venueLat: z.number().min(-90).max(90),
+  venueLng: z.number().min(-180).max(180),
+  venuePlaceId: z.string().trim().min(3, "Select a verified Google place").max(255),
+  venueMapsUrl: z
+    .url("A valid Google Maps URL is required")
+    .refine(
+      (value) => /^https:\/\/(www\.)?(google\.[^/]+\/maps|maps\.google\.[^/]+)\//i.test(value),
+      "Select a verified Google Maps location"
+    ),
   phone: z.string().trim().min(7, "WhatsApp number is required").max(32),
   templateName: z
     .string()

@@ -1,105 +1,90 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requestGooglePlaces } from "@/lib/google-places-server";
+import { authenticateRequest } from "@/lib/request-auth";
 
-type NominatimPlace = {
-  display_name: string;
-  lat: string;
-  lon: string;
-  name?: string;
-  importance?: number;
-  type?: string;
+type GoogleAutocompleteResponse = {
+  suggestions?: Array<{
+    placePrediction?: {
+      placeId?: string;
+      text?: { text?: string };
+      structuredFormat?: {
+        mainText?: { text?: string };
+        secondaryText?: { text?: string };
+      };
+      distanceMeters?: number;
+    };
+  }>;
 };
 
-function distanceKm(latA: number, lngA: number, latB: number, lngB: number) {
-  const radius = 6371;
-  const toRad = (value: number) => (value * Math.PI) / 180;
-  const dLat = toRad(latB - latA);
-  const dLng = toRad(lngB - lngA);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(latA)) * Math.cos(toRad(latB)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  return radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+function isCoordinate(value: number, min: number, max: number) {
+  return Number.isFinite(value) && value >= min && value <= max;
 }
 
 export async function GET(request: NextRequest) {
+  const auth = await authenticateRequest(request);
+  if (auth.error) return auth.error;
+
   const query = request.nextUrl.searchParams.get("q")?.trim();
+  const sessionToken = request.nextUrl.searchParams.get("sessionToken")?.trim();
   const lat = Number(request.nextUrl.searchParams.get("lat"));
   const lng = Number(request.nextUrl.searchParams.get("lng"));
-  const hasLocation = Number.isFinite(lat) && Number.isFinite(lng);
+  const hasLocation = isCoordinate(lat, -90, 90) && isCoordinate(lng, -180, 180);
 
-  if (!query || query.length < 2) {
+  if (!query || query.length < 3 || query.length > 120 || !sessionToken || sessionToken.length > 80) {
     return NextResponse.json({ venues: [] });
   }
 
   try {
-    const params = new URLSearchParams({
-      q: query,
-      format: "jsonv2",
-      addressdetails: "1",
-      limit: "8"
-    });
+    const body: Record<string, unknown> = {
+      input: query,
+      languageCode: "ar",
+      sessionToken,
+      includeQueryPredictions: false
+    };
 
     if (hasLocation) {
-      const delta = 0.7;
-      params.set("viewbox", [lng - delta, lat + delta, lng + delta, lat - delta].join(","));
-      params.set("bounded", "0");
+      body.origin = { latitude: lat, longitude: lng };
+      body.locationBias = {
+        circle: {
+          center: { latitude: lat, longitude: lng },
+          radius: 50000
+        }
+      };
     }
 
-    const response = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
-      headers: {
-        "Accept-Language": "ar,en",
-        "User-Agent": "DomusAureaWeddingPlatform/1.0 (venue-search)"
-      },
-      next: { revalidate: 60 * 60 }
-    });
+    const response = await requestGooglePlaces(
+      "/places:autocomplete",
+      { method: "POST", body: JSON.stringify(body) },
+      [
+        "suggestions.placePrediction.placeId",
+        "suggestions.placePrediction.text.text",
+        "suggestions.placePrediction.structuredFormat.mainText.text",
+        "suggestions.placePrediction.structuredFormat.secondaryText.text",
+        "suggestions.placePrediction.distanceMeters"
+      ].join(",")
+    );
 
     if (!response.ok) {
-      return NextResponse.json({ error: "Venue search provider is unavailable." }, { status: 502 });
+      return NextResponse.json({ error: "Google Places search is unavailable." }, { status: 502 });
     }
 
-    const places = (await response.json()) as NominatimPlace[];
-    const venues = places
-      .map((place) => {
-        const venueLat = Number(place.lat);
-        const venueLng = Number(place.lon);
-        const distance = hasLocation && Number.isFinite(venueLat) && Number.isFinite(venueLng) ? distanceKm(lat, lng, venueLat, venueLng) : null;
-
+    const result = (await response.json()) as GoogleAutocompleteResponse;
+    const venues = (result.suggestions ?? [])
+      .map((suggestion) => {
+        const prediction = suggestion.placePrediction;
+        if (!prediction?.placeId) return null;
         return {
-          name: place.name || place.display_name.split(",")[0] || query,
-          address: place.display_name,
-          lat: venueLat,
-          lng: venueLng,
-          distanceKm: distance,
-          importance: place.importance ?? 0,
-          type: place.type
+          placeId: prediction.placeId,
+          name: prediction.structuredFormat?.mainText?.text || prediction.text?.text || query,
+          address: prediction.structuredFormat?.secondaryText?.text || prediction.text?.text || "",
+          distanceMeters: prediction.distanceMeters ?? null
         };
       })
-      .filter((venue) => Number.isFinite(venue.lat) && Number.isFinite(venue.lng))
-      .sort((a, b) => {
-        if (a.distanceKm !== null && b.distanceKm !== null) {
-          const diff = a.distanceKm - b.distanceKm;
-          if (Math.abs(diff) > 0.2) return diff;
-        }
-        return b.importance - a.importance;
-      });
-
-    if (!venues.length) {
-      return NextResponse.json({
-        venues: [
-          {
-            name: query,
-            address: "لم نجد نتيجة مؤكدة. يمكنك حفظ اسم المكان يدويًا وإضافة العنوان لاحقًا.",
-            lat: null,
-            lng: null,
-            distanceKm: null,
-            importance: 0,
-            type: "manual"
-          }
-        ]
-      });
-    }
+      .filter((venue): venue is NonNullable<typeof venue> => venue !== null);
 
     return NextResponse.json({ venues });
-  } catch {
-    return NextResponse.json({ error: "Venue search failed." }, { status: 500 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Venue search failed.";
+    return NextResponse.json({ error: message }, { status: message.includes("not configured") ? 503 : 500 });
   }
 }

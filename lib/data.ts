@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Users
 } from "lucide-react";
+import { INSTAGRAM_URL } from "@/lib/social-links";
 
 export type InvitationTemplateStatus = "development" | "available";
 
@@ -34,7 +35,7 @@ export const wedding = {
   venueEn: "Emerald Palace",
   city: "Cairo",
   whatsapp: "https://wa.me/201000000000",
-  instagram: "https://instagram.com/domusaurea",
+  instagram: INSTAGRAM_URL,
   inviteLink: "/invitation/layan-yassin"
 };
 

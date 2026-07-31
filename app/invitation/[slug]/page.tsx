@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { InvitationExperience } from "@/components/invitation-experience";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import type { PublicInvitation } from "@/lib/invitations";
+import { buildGoogleMapsUrl } from "@/lib/maps";
 
 export const dynamic = "force-dynamic";
 
@@ -16,10 +17,15 @@ function getDemoInvitation(slug: string): PublicInvitation | null {
     bride_name: isTest ? "مايار" : "ليان",
     groom_name: isTest ? "أحمد" : "ياسين",
     wedding_date: "2026-12-12T20:00:00+02:00",
-    venue: isTest ? "قاعة جراند بالاس" : "قصر الزمرد - القاهرة",
-    venue_address: isTest ? "شارع الاحتفال ١٢٣، القاهرة، مصر" : null,
-    venue_lat: null,
-    venue_lng: null,
+    venue: "The Nile Ritz-Carlton, Cairo",
+    venue_address: "1113 Corniche El Nil, Cairo, Egypt, 11221",
+    venue_lat: 30.0458564,
+    venue_lng: 31.2323645,
+    venue_place_id: null,
+    venue_maps_url: buildGoogleMapsUrl(
+      "The Nile Ritz-Carlton, Cairo",
+      "1113 Corniche El Nil, Cairo, Egypt, 11221"
+    ),
     template_name: "Domus Aurea Invitation",
     package_name: "Royal Package",
     countdown_style: "Old Money",
@@ -38,15 +44,17 @@ export default async function InvitationPage({ params }: { params: { slug: strin
     const { data, error } = await supabase
       .from("invitations")
       .select(
-        "id, slug, bride_name, groom_name, wedding_date, venue, venue_address, venue_lat, venue_lng, template_name, package_name, countdown_style, music_file_name, seal_image_url, public_url, invitation_text"
+        "id, slug, bride_name, groom_name, wedding_date, venue, venue_address, venue_lat, venue_lng, venue_place_id, venue_maps_url, template_name, package_name, countdown_style, music_file_name, seal_image_url, public_url, invitation_text"
       )
       .eq("slug", params.slug)
       .single();
 
-    if (error && /venue_(address|lat|lng)|seal_image_url|invitation_text|column .* does not exist/i.test(error.message)) {
+    if (error && /venue_(place_id|maps_url).*does not exist/i.test(error.message)) {
       const legacy = await supabase
         .from("invitations")
-        .select("id, slug, bride_name, groom_name, wedding_date, venue, template_name, package_name, countdown_style, music_file_name, public_url")
+        .select(
+          "id, slug, bride_name, groom_name, wedding_date, venue, venue_address, venue_lat, venue_lng, template_name, package_name, countdown_style, music_file_name, seal_image_url, public_url, invitation_text"
+        )
         .eq("slug", params.slug)
         .single();
       invitation = legacy.data;

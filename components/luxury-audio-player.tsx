@@ -27,7 +27,6 @@ const speedOptions: Array<{ label: string; value: Speed }> = [
 ];
 
 function getStoredNumber(key: string, fallback: number) {
-  if (typeof window === "undefined") return fallback;
   const stored = window.sessionStorage.getItem(key);
   return stored ? Number(stored) : fallback;
 }
@@ -52,12 +51,15 @@ export function LuxuryAudioPlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [needsGesture, setNeedsGesture] = useState(false);
-  const [guestEnabledMusic, setGuestEnabledMusic] = useState(() => {
-    if (typeof window === "undefined") return true;
-    return window.sessionStorage.getItem("domus_music_enabled") !== "false";
-  });
-  const [volume, setVolume] = useState(() => getStoredNumber("domus_music_volume", 0.18));
-  const [speed, setSpeed] = useState<Speed>(() => (getStoredNumber("domus_music_speed", 1) as Speed) || 1);
+  const [guestEnabledMusic, setGuestEnabledMusic] = useState(true);
+  const [volume, setVolume] = useState(0.18);
+  const [speed, setSpeed] = useState<Speed>(1);
+
+  useEffect(() => {
+    setGuestEnabledMusic(window.sessionStorage.getItem("domus_music_enabled") !== "false");
+    setVolume(getStoredNumber("domus_music_volume", 0.18));
+    setSpeed((getStoredNumber("domus_music_speed", 1) as Speed) || 1);
+  }, []);
 
   const ensureGraph = useCallback(() => {
     if (!audioRef.current) return null;

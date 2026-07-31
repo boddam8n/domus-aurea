@@ -8,6 +8,8 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check, Heart, Home, Instagram, MapPin, MessageCircle, Music2, Send, UserRound } from "lucide-react";
 import { invitationData, type InvitationLanguage, type LocalizedText } from "@/src/data/invitation";
 import type { PublicInvitation } from "@/lib/invitations";
+import { buildGoogleMapsEmbedUrl, buildGoogleMapsUrl } from "@/lib/maps";
+import { INSTAGRAM_URL } from "@/lib/social-links";
 
 type RsvpChoice = "accepted" | "apologized";
 
@@ -50,23 +52,10 @@ function text(value: LocalizedText, language: InvitationLanguage) {
   return value[language];
 }
 
-function containsArabic(value: string) {
-  return /[\u0600-\u06FF]/.test(value);
-}
-
 function localizeName(value: string | null | undefined, fallback: LocalizedText, language: InvitationLanguage) {
   const cleaned = (value || "").trim();
   if (!cleaned) return text(fallback, language);
   return nameMap[cleaned]?.[language] || cleaned;
-}
-
-function localizeExternalText(value: string | null | undefined, fallback: LocalizedText, language: InvitationLanguage) {
-  const cleaned = (value || "").trim();
-  if (!cleaned) return text(fallback, language);
-  const isArabicValue = containsArabic(cleaned);
-  if (language === "ar" && isArabicValue) return cleaned;
-  if (language === "en" && !isArabicValue) return cleaned;
-  return text(fallback, language);
 }
 
 function safeDate(value?: string | null) {
@@ -99,10 +88,10 @@ function getRemaining(target: string) {
 }
 
 function getMapUrl(invitation: PublicInvitation) {
-  if (invitation.venue_lat && invitation.venue_lng) {
-    return `https://maps.google.com/?q=${invitation.venue_lat},${invitation.venue_lng}`;
-  }
-  return invitationData.venue.mapUrl;
+  return (
+    invitation.venue_maps_url ||
+    buildGoogleMapsUrl(invitation.venue, invitation.venue_address || "", invitation.venue_lat, invitation.venue_lng)
+  );
 }
 
 export function InvitationExperience({ invitation }: { invitation: PublicInvitation }) {
@@ -114,9 +103,10 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
   const groomName = localizeName(invitation.groom_name, invitationData.couple.groom, language);
   const brideName = localizeName(invitation.bride_name, invitationData.couple.bride, language);
   const dateParts = useMemo(() => formatDateParts(invitation.wedding_date, language), [invitation.wedding_date, language]);
-  const venueName = localizeExternalText(invitation.venue, invitationData.venue.name, language);
-  const venueAddress = localizeExternalText(invitation.venue_address, invitationData.venue.address, language);
+  const venueName = invitation.venue.trim();
+  const venueAddress = invitation.venue_address?.trim() || "";
   const mapUrl = getMapUrl(invitation);
+  const mapEmbedUrl = buildGoogleMapsEmbedUrl(invitation.venue_lat, invitation.venue_lng);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -178,7 +168,13 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
         <SectionDivider compact />
         <WeddingTimeSection language={language} />
         <SectionDivider compact />
-        <LocationSection language={language} venueName={venueName} venueAddress={venueAddress} mapUrl={mapUrl} />
+        <LocationSection
+          language={language}
+          venueName={venueName}
+          venueAddress={venueAddress}
+          mapUrl={mapUrl}
+          mapEmbedUrl={mapEmbedUrl}
+        />
         <SectionDivider />
         <RSVPSection invitation={invitation} language={language} />
         <SectionDivider compact />
@@ -635,12 +631,14 @@ function LocationSection({
   language,
   venueName,
   venueAddress,
-  mapUrl
+  mapUrl,
+  mapEmbedUrl
 }: {
   language: InvitationLanguage;
   venueName: string;
   venueAddress: string;
   mapUrl: string;
+  mapEmbedUrl: string;
 }) {
   const copy = invitationData.copy[language];
   return (
@@ -649,7 +647,18 @@ function LocationSection({
         <CornerOrnaments />
         <div className="grid grid-cols-[1.08fr_.92fr] items-center gap-3">
           <div className="relative aspect-[1.34/1] overflow-hidden rounded-[1rem] border border-[#b98b5f]/35 bg-[#fff8f1] shadow-[0_12px_28px_rgba(111,77,56,.1)]">
-            <Image src={assets.locationPalace} alt="" fill sizes="210px" className="object-cover object-center" />
+            {mapEmbedUrl ? (
+              <iframe
+                title={language === "ar" ? "خريطة موقع الحفل" : "Wedding venue map"}
+                src={mapEmbedUrl}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0 h-full w-full border-0"
+                allowFullScreen
+              />
+            ) : (
+              <Image src={assets.locationPalace} alt="" fill sizes="210px" className="object-cover object-center" />
+            )}
           </div>
           <div className="text-center">
             <ScriptHeading language={language}>{copy.locationTitle}</ScriptHeading>
@@ -806,7 +815,15 @@ function FooterSection({ language }: { language: InvitationLanguage }) {
           </Link>
         </div>
         <div className="mt-4 flex items-center justify-center gap-5 text-[#8a6240]">
-          <Instagram className="h-4 w-4" />
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Domus Aurea on Instagram"
+            className="transition hover:text-[#b67b42]"
+          >
+            <Instagram className="h-4 w-4" />
+          </a>
           <MessageCircle className="h-4 w-4" />
           <Heart className="h-4 w-4 fill-current" />
         </div>

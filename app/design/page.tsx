@@ -28,6 +28,8 @@ export default function DesignInvitationPage() {
     venueAddress: "",
     venueLat: undefined as number | undefined,
     venueLng: undefined as number | undefined,
+    venuePlaceId: "",
+    venueMapsUrl: "",
     phone: "",
     sealImageUrl: ""
   });
@@ -196,15 +198,19 @@ export default function DesignInvitationPage() {
                       name: form.venue,
                       address: form.venueAddress,
                       lat: form.venueLat,
-                      lng: form.venueLng
+                      lng: form.venueLng,
+                      placeId: form.venuePlaceId,
+                      mapsUrl: form.venueMapsUrl
                     }}
                     onChange={(venue) =>
                       setForm((current) => ({
                         ...current,
-                        venue: venue.name,
+                        venue: venue.name || "",
                         venueAddress: venue.address || "",
                         venueLat: venue.lat,
-                        venueLng: venue.lng
+                        venueLng: venue.lng,
+                        venuePlaceId: venue.placeId || "",
+                        venueMapsUrl: venue.mapsUrl || ""
                       }))
                     }
                   />
@@ -301,7 +307,10 @@ export default function DesignInvitationPage() {
                   <p>العداد: {countdown}</p>
                 </div>
                 {error ? <p className="mt-5 rounded-2xl border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-900">{error}</p> : null}
-                <button disabled={loading} className="mt-7 w-full rounded-full bg-night px-6 py-4 font-bold text-[#f7efe2] transition hover:bg-[#9b7330] disabled:opacity-60">
+                <button
+                  disabled={loading || !form.venuePlaceId}
+                  className="mt-7 w-full rounded-full bg-night px-6 py-4 font-bold text-[#f7efe2] transition hover:bg-[#9b7330] disabled:cursor-not-allowed disabled:opacity-60"
+                >
                   {loading ? "جاري إنشاء الرابط..." : "إنشاء الدعوة والرابط"}
                 </button>
                 {publicUrl ? (
