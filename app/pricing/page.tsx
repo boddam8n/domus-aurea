@@ -1,5 +1,6 @@
 import { PageShell } from "@/components/page-shell";
-import { ComparisonSection, FaqSection, PricingSection } from "@/components/home-sections";
+import { ComparisonSection, FaqSection } from "@/components/home-sections";
+import { PricingSection } from "@/components/pricing-section";
 
 export default function PricingPage() {
   return (
