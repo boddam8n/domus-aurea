@@ -158,9 +158,9 @@ export const invitationTemplates: InvitationTemplate[] = [
   {
     name: "Domus Aurea Invitation",
     nameAr: "دعوة دوموس أوريا",
-    image: "/invitation/closed-invitation.png",
+    image: "/assets/templates/burgundy-stationery.webp",
     previewVideo: "/invitation/intro-opening.mp4",
-    description: "Luxury floral wedding invitation with wax seal opening animation.",
+    description: "Burgundy handmade paper, ivory letterpress detail, and an antique-gold seal photographed in soft natural light.",
     status: "available",
     badge: "Launch Ready",
     badgeAr: "جاهز للإطلاق"
