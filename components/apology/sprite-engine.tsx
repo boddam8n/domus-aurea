@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element -- sprite frames are pre-sized, cached assets swapped in place */
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
 const frameCache = new Map<string, Promise<void>>();
 
@@ -31,7 +31,7 @@ type SpriteEngineProps = {
   onComplete?: () => void;
 };
 
-export function SpriteEngine({
+export const SpriteEngine = memo(function SpriteEngine({
   frames,
   frameDuration = 220,
   loop = true,
@@ -99,4 +99,4 @@ export function SpriteEngine({
       className={className}
     />
   );
-}
+});

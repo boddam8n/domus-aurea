@@ -36,9 +36,10 @@ export function useSoundManager() {
     []
   );
 
-  const enable = useCallback(() => {
+  const enable = useCallback((playAmbience = true) => {
     enabledRef.current = true;
     setEnabled(true);
+    if (!playAmbience) return;
     for (const name of ["ambience", "lamp"] as const) {
       const audio = soundsRef.current[name];
       if (audio?.paused) void audio.play().catch(() => undefined);
@@ -59,5 +60,9 @@ export function useSoundManager() {
     });
   }, []);
 
-  return { enabled, enable, toggle, play };
+  const stopAmbience = useCallback(() => {
+    for (const name of ["ambience", "lamp"] as const) soundsRef.current[name]?.pause();
+  }, []);
+
+  return { enabled, enable, toggle, play, stopAmbience };
 }

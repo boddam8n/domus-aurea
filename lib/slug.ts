@@ -11,3 +11,9 @@ export function createInvitationSlug(brideName: string, groomName: string) {
 
   return `${base}-${Math.random().toString(36).slice(2, 8)}`;
 }
+
+export function createApologySlug() {
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).slice(2, 9);
+  return `apology-${timestamp}-${random}`;
+}

@@ -33,6 +33,19 @@ function rect(canvas, x, y, width, height, color) {
   }
 }
 
+function pixelStroke(canvas, points, color, size = 3) {
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const [fromX, fromY] = points[index];
+    const [toX, toY] = points[index + 1];
+    const steps = Math.max(Math.abs(toX - fromX), Math.abs(toY - fromY));
+    for (let step = 0; step <= steps; step += 1) {
+      const x = Math.round(fromX + ((toX - fromX) * step) / Math.max(steps, 1));
+      const y = Math.round(fromY + ((toY - fromY) * step) / Math.max(steps, 1));
+      rect(canvas, x, y, size, size, color);
+    }
+  }
+}
+
 async function saveRaw(canvas, output) {
   await sharp(canvas.data, {
     raw: { width: canvas.width, height: canvas.height, channels: 4 }
@@ -175,6 +188,39 @@ function buildArrow(frame) {
   return canvas;
 }
 
+function buildHandArrow(kind, frame) {
+  const canvas = rgbaCanvas(72, 56);
+  const pulse = [0, 1, 2, 1][frame];
+  const shadow = [35, 24, 53, 225];
+  const cream = [255, 230, 166, 255];
+  const coral = [242, 116, 137, 255];
+  const cyan = [98, 224, 213, 255];
+  const paths = {
+    yesCurve: [[7, 42], [14, 34], [22, 31], [31, 31], [39, 26], [48, 19], [57, 18]],
+    yesPointer: [[56, 8], [51, 16], [49, 25], [44, 32], [35, 37], [26, 40], [17, 40]],
+    catHook: [[60, 12], [51, 12], [43, 16], [39, 23], [39, 31], [34, 38], [24, 42], [15, 42]]
+  };
+  const points = paths[kind].map(([x, y], index) => [x + (index % 3 === 0 ? pulse : 0), y]);
+  const ink = kind === "yesCurve" ? cream : kind === "yesPointer" ? coral : cyan;
+
+  pixelStroke(canvas, points.map(([x, y]) => [x + 2, y + 2]), shadow, 4);
+  pixelStroke(canvas, points, ink, 3);
+
+  const [tipX, tipY] = points[points.length - 1];
+  if (kind === "yesCurve") {
+    pixelStroke(canvas, [[tipX - 9, tipY - 7], [tipX, tipY], [tipX - 9, tipY + 7]], shadow, 5);
+    pixelStroke(canvas, [[tipX - 9, tipY - 7], [tipX, tipY], [tipX - 9, tipY + 7]], ink, 3);
+  } else {
+    pixelStroke(canvas, [[tipX + 9, tipY - 7], [tipX, tipY], [tipX + 9, tipY + 7]], shadow, 5);
+    pixelStroke(canvas, [[tipX + 9, tipY - 7], [tipX, tipY], [tipX + 9, tipY + 7]], ink, 3);
+  }
+
+  for (const [x, y] of [[11, 19], [64, 34]]) {
+    if ((frame + x) % 2 === 0) rect(canvas, x, y, 3, 3, [255, 245, 194, 210]);
+  }
+  return canvas;
+}
+
 function buildSparkle(frame) {
   const canvas = rgbaCanvas(28, 28);
   const radius = [2, 4, 6, 4][frame];
@@ -190,6 +236,13 @@ async function buildSprites() {
   for (let frame = 0; frame < 4; frame += 1) {
     await saveRaw(buildChoicePanel("yes", frame), path.join(choiceDir, `yes-${String(frame + 1).padStart(2, "0")}.webp`));
     await saveRaw(buildArrow(frame), path.join(spriteDir, `arrow-${String(frame + 1).padStart(2, "0")}.webp`));
+    for (const variant of ["yesCurve", "yesPointer", "catHook"]) {
+      const fileVariant = variant.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+      await saveRaw(
+        buildHandArrow(variant, frame),
+        path.join(spriteDir, `arrow-${fileVariant}-${String(frame + 1).padStart(2, "0")}.webp`)
+      );
+    }
     await saveRaw(buildSparkle(frame), path.join(spriteDir, `sparkle-${String(frame + 1).padStart(2, "0")}.webp`));
   }
   await saveRaw(buildChoicePanel("no"), path.join(choiceDir, "no.webp"));

@@ -211,8 +211,9 @@
 .signWrap {
   position: relative;
   z-index: 12;
-  width: min(100%, 41.5rem);
+  width: min(var(--apology-board-width, 100%), 41.5rem);
   margin-inline: auto;
+  transform: translate(var(--apology-board-x, 0), var(--apology-board-y, 0));
   filter: drop-shadow(0 14px 10px rgb(2 6 18 / 36%)) saturate(0.88) brightness(1.04);
 }
 
@@ -220,7 +221,7 @@
   position: relative;
   isolation: isolate;
   display: flex;
-  min-height: clamp(11.75rem, 29vw, 16.5rem);
+  min-height: max(clamp(11.75rem, 29vw, 16.5rem), var(--apology-board-height, 188px));
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -251,43 +252,15 @@
   max-width: 30rem;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  font-family: var(--font-amiri), var(--font-tajawal), serif;
-  font-size: clamp(1rem, 3vw, 1.55rem);
+  font-family: var(--apology-font-family, var(--font-amiri), var(--font-tajawal), serif);
+  font-size: clamp(0.72rem, var(--apology-font-size, 25px), 2.125rem);
   font-weight: 700;
-  line-height: 1.85;
-}
-
-.longBoard {
-  min-height: clamp(16.5rem, 36vw, 21rem);
-}
-
-.veryLongBoard {
-  min-height: clamp(21rem, 44vw, 27rem);
-}
-
-.ultraLongBoard {
-  min-height: clamp(26rem, 54vw, 34rem);
-}
-
-.longMessage {
-  font-size: clamp(0.86rem, 2.1vw, 1.18rem);
-  line-height: 1.9;
-}
-
-.veryLongMessage {
-  font-size: clamp(0.72rem, 1.65vw, 0.92rem);
-  line-height: 1.92;
-}
-
-.ultraLongMessage {
-  font-size: clamp(0.64rem, 1.35vw, 0.8rem);
-  line-height: 1.95;
+  line-height: var(--apology-line-height, 1.85);
+  color: var(--apology-text-color, #fff0cf);
 }
 
 .page[dir="ltr"] .message {
-  font-family: var(--font-playfair), Georgia, serif;
   font-weight: 600;
-  line-height: 1.68;
 }
 
 .choices {
@@ -394,6 +367,7 @@
   min-width: 0;
   padding: 1.35rem 0 0.45rem;
   direction: rtl;
+  transform: translate(var(--apology-yes-x, 0), var(--apology-yes-y, 0));
 }
 
 .yesHints {
@@ -407,13 +381,28 @@
 .pixelArrow {
   position: absolute;
   z-index: 4;
-  top: 48%;
-  left: 0.2rem;
   width: clamp(1.55rem, 4vw, 2.45rem);
   height: auto;
   object-fit: contain;
   pointer-events: none;
   image-rendering: pixelated;
+}
+
+.yesArrowLeft {
+  top: 42%;
+  left: -0.4rem;
+}
+
+.yesArrowRight {
+  top: 12%;
+  right: -0.2rem;
+  width: clamp(1.35rem, 3.5vw, 2.1rem);
+}
+
+.catArrow {
+  top: 34%;
+  right: -0.45rem;
+  width: clamp(1.3rem, 3.4vw, 2rem);
 }
 
 .catChoice {
@@ -446,6 +435,7 @@
   box-shadow: 0 7px 0 rgb(5 7 18 / 58%);
   color: #e5d8ec;
   image-rendering: pixelated;
+  transform: translate(var(--apology-no-x, 0), var(--apology-no-y, 0));
 }
 
 .noSign span {
@@ -465,7 +455,7 @@
   top: -0.35rem;
   left: 50%;
   width: min(112%, 13.5rem);
-  transform: translateX(-50%);
+  transform: translate(calc(-50% + var(--apology-cat-x, 0)), var(--apology-cat-y, 0));
   border: 0;
   background: transparent;
 }
@@ -619,6 +609,41 @@
 .bulbOne { left: 31%; }
 .bulbTwo { right: 31%; }
 
+.previewPage,
+.previewPage .scene {
+  min-height: 0;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.previewPage .scene {
+  overflow: hidden;
+}
+
+.previewSceneLayers {
+  position: absolute;
+}
+
+.previewPage .content {
+  width: min(100% - 0.75rem, 42rem);
+  min-height: 100%;
+  padding-block: 1rem;
+  transform: scale(0.88);
+}
+
+.previewPage .sign {
+  padding-top: clamp(2.35rem, 6vw, 3.4rem);
+  padding-bottom: clamp(2.35rem, 6vw, 3.4rem);
+}
+
+.previewPage .toolbar,
+.previewPage .lampLeft,
+.previewPage .lampRight,
+.previewPage .flowersLeft,
+.previewPage .flowersRight {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .page,
   .scene {
@@ -636,20 +661,8 @@
   }
 
   .sign {
-    min-height: clamp(11.75rem, 52vw, 15rem);
+    min-height: max(clamp(11.75rem, 52vw, 15rem), var(--apology-board-height, 188px));
     padding: 2.65rem clamp(2.05rem, 10vw, 3.1rem);
-  }
-
-  .longBoard {
-    min-height: clamp(17rem, 74vw, 22rem);
-  }
-
-  .veryLongBoard {
-    min-height: clamp(23rem, 100vw, 31rem);
-  }
-
-  .ultraLongBoard {
-    min-height: clamp(31rem, 132vw, 41rem);
   }
 
   .message {
@@ -707,10 +720,6 @@
     width: 78%;
   }
 
-  .pixelArrow {
-    left: 0.4rem;
-  }
-
   .yesText {
     font-size: clamp(1.05rem, 6vw, 1.35rem);
   }
@@ -722,6 +731,36 @@
 
   .catCaption {
     font-size: clamp(0.38rem, 1.75vw, 0.48rem);
+  }
+}
+
+@media (max-width: 560px) {
+  .signWrap {
+    transform: translate(
+      clamp(-30px, var(--apology-board-x, 0), 30px),
+      clamp(-30px, var(--apology-board-y, 0), 30px)
+    );
+  }
+
+  .yesChoice {
+    transform: translate(
+      clamp(-24px, var(--apology-yes-x, 0), 24px),
+      clamp(-24px, var(--apology-yes-y, 0), 24px)
+    );
+  }
+
+  .noSign {
+    transform: translate(
+      clamp(-24px, var(--apology-no-x, 0), 24px),
+      clamp(-24px, var(--apology-no-y, 0), 24px)
+    );
+  }
+
+  .catButton {
+    transform: translate(
+      calc(-50% + clamp(-24px, var(--apology-cat-x, 0), 24px)),
+      clamp(-24px, var(--apology-cat-y, 0), 24px)
+    );
   }
 }
 

@@ -14,3 +14,7 @@ Thumbs.db
 .tmp-lighthouse/
 public/apology/assets/source/
 apology-*.png
+
+.vercel
+.env.local
+.env.*.local

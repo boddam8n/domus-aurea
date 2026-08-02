@@ -31,6 +31,11 @@ export const apologyAssets = {
   birds: frames("/apology/assets/sprites/bird", 6),
   butterflies: frames("/apology/assets/sprites/butterfly", 6),
   arrow: frames("/apology/assets/sprites/arrow", 4),
+  arrows: {
+    yesCurve: frames("/apology/assets/sprites/arrow-yes-curve", 4),
+    yesPointer: frames("/apology/assets/sprites/arrow-yes-pointer", 4),
+    catHook: frames("/apology/assets/sprites/arrow-cat-hook", 4)
+  },
   sparkles: frames("/apology/assets/sprites/sparkle", 4),
   heart: "/apology/assets/effects/heart.webp",
   zzz: "/apology/assets/effects/zzz.webp",
