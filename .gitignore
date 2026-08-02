@@ -8,3 +8,9 @@ out/
 .DS_Store
 Thumbs.db
 *.tsbuildinfo
+
+# Local audit output and source artwork sheets are not runtime assets.
+.lighthouse-*.json
+.tmp-lighthouse/
+public/apology/assets/source/
+apology-*.png

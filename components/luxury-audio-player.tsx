@@ -203,6 +203,8 @@ export function LuxuryAudioPlayer({
     };
   }, []);
 
+  if (pathname?.startsWith("/apology")) return null;
+
   if (variant === "nav") {
     return (
       <div
@@ -212,7 +214,7 @@ export function LuxuryAudioPlayer({
             : "fixed left-4 top-[5.25rem] z-[60] md:left-auto md:right-8 md:top-5"
         }
       >
-        <audio ref={audioRef} src={src} preload="metadata" loop playsInline />
+        <audio ref={audioRef} src={src} preload="none" loop playsInline />
         <div
           className={
             isInvitationPage
@@ -256,7 +258,7 @@ export function LuxuryAudioPlayer({
 
   return (
     <div className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 rounded-full border border-white/12 bg-black/35 px-3 py-3 text-[#f7efe2] shadow-[0_18px_60px_rgba(0,0,0,.28)] backdrop-blur-xl md:px-4">
-      <audio ref={audioRef} src={src} preload="metadata" loop playsInline />
+      <audio ref={audioRef} src={src} preload="none" loop playsInline />
       <div className="flex flex-wrap items-center justify-center gap-3 md:justify-between">
         <div className="flex items-center gap-2">
           <button

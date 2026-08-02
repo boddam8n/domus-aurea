@@ -36,7 +36,7 @@ export const occasionRegistry: Occasion[] = [
   { id: "graduation", label: "Graduation", labelAr: "التخرج", icon: GraduationCap, kind: "invitation", status: "planned", showInNavigation: true },
   { id: "baby-shower", label: "Baby Shower", labelAr: "استقبال مولود", icon: Baby, kind: "invitation", status: "planned", showInNavigation: true },
   { id: "romance", label: "Romance", labelAr: "الرومانسية", icon: MessageCircleHeart, kind: "experience", status: "available", showInNavigation: true, href: "/romance" },
-  { id: "apology", label: "Apology", labelAr: "اعتذار", icon: HeartHandshake, kind: "message", status: "planned", showInNavigation: true },
+  { id: "apology", label: "Apology", labelAr: "اعتذار", icon: HeartHandshake, kind: "experience", status: "available", showInNavigation: true, href: "/apology" },
   { id: "celebration", label: "Celebration", labelAr: "احتفال", icon: PartyPopper, kind: "invitation", status: "planned", showInNavigation: true },
   { id: "love-letter", label: "Love Letter", labelAr: "رسالة حب", icon: Mail, kind: "message", status: "planned", showInNavigation: false },
   { id: "coffee-date", label: "Coffee Date", labelAr: "موعد قهوة", icon: Coffee, kind: "experience", status: "planned", showInNavigation: false },
