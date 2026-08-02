@@ -22,6 +22,7 @@ function getDemoInvitation(slug: string): PublicInvitation | null {
     venue_lat: 30.0458564,
     venue_lng: 31.2323645,
     venue_place_id: null,
+    venue_type: "lodging",
     venue_maps_url: buildGoogleMapsUrl(
       "The Nile Ritz-Carlton, Cairo",
       "1113 Corniche El Nil, Cairo, Egypt, 11221"
@@ -44,12 +45,12 @@ export default async function InvitationPage({ params }: { params: { slug: strin
     const { data, error } = await supabase
       .from("invitations")
       .select(
-        "id, slug, bride_name, groom_name, wedding_date, venue, venue_address, venue_lat, venue_lng, venue_place_id, venue_maps_url, template_name, package_name, countdown_style, music_file_name, seal_image_url, public_url, invitation_text"
+        "id, slug, bride_name, groom_name, wedding_date, venue, venue_address, venue_lat, venue_lng, venue_place_id, venue_maps_url, venue_type, template_name, package_name, countdown_style, music_file_name, seal_image_url, public_url, invitation_text"
       )
       .eq("slug", params.slug)
       .single();
 
-    if (error && /venue_(place_id|maps_url).*does not exist/i.test(error.message)) {
+    if (error && /venue_(place_id|maps_url|type).*does not exist/i.test(error.message)) {
       const legacy = await supabase
         .from("invitations")
         .select(

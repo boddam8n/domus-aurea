@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { CheckCircle2, ExternalLink, Loader2, LocateFixed, MapPin, Search } from "lucide-react";
-import { buildGoogleMapsEmbedUrl, type VerifiedVenue } from "@/lib/maps";
+import { getVenuePreviewImage, type VerifiedVenue } from "@/lib/maps";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 export type VenueSelection = Partial<VerifiedVenue>;
@@ -102,9 +102,9 @@ export function VenueAutocomplete({ value, onChange }: VenueAutocompleteProps) {
     };
   }, [location, query, value.placeId]);
 
-  const mapEmbedUrl = useMemo(
-    () => buildGoogleMapsEmbedUrl(value.lat, value.lng),
-    [value.lat, value.lng]
+  const previewImage = useMemo(
+    () => getVenuePreviewImage(value.venueType, value.name, value.address),
+    [value.address, value.name, value.venueType]
   );
 
   const isVerified = Boolean(
@@ -287,15 +287,16 @@ export function VenueAutocomplete({ value, onChange }: VenueAutocompleteProps) {
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
-          {mapEmbedUrl ? (
-            <iframe
-              title="معاينة موقع الحفل على Google Maps"
-              src={mapEmbedUrl}
-              className="h-56 w-full border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen
-            />
+          {previewImage ? (
+            <div className="relative aspect-[16/7] w-full overflow-hidden border-t border-gold/15">
+              <Image
+                src={previewImage}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </div>
           ) : null}
         </div>
       ) : null}

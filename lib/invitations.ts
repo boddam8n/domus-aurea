@@ -10,6 +10,7 @@ export type PublicInvitation = {
   venue_lng?: number | null;
   venue_place_id?: string | null;
   venue_maps_url?: string | null;
+  venue_type?: string | null;
   template_name: string;
   package_name: string;
   countdown_style: string;

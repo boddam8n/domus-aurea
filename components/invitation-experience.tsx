@@ -8,7 +8,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check, Heart, Home, Instagram, MapPin, MessageCircle, Music2, Send, UserRound } from "lucide-react";
 import { invitationData, type InvitationLanguage, type LocalizedText } from "@/src/data/invitation";
 import type { PublicInvitation } from "@/lib/invitations";
-import { buildGoogleMapsEmbedUrl, buildGoogleMapsUrl } from "@/lib/maps";
+import { buildGoogleMapsUrl, getVenuePreviewImage } from "@/lib/maps";
 import { INSTAGRAM_URL } from "@/lib/social-links";
 
 type RsvpChoice = "accepted" | "apologized";
@@ -23,12 +23,11 @@ type DateParts = {
 
 const assets = {
   introVideo: "/invitation/intro-opening.mp4",
-  introPoster: "/invitation/closed-invitation.png",
+  introPoster: "/invitation/closed-invitation.webp",
   swanHeroVideo: "/invitation/swan-hero.mp4",
   swanHero: "/invitation/swan-hero.webp",
   paper: "/invitation/paper-bg.webp",
   sectionDivider: "/invitation/section-divider-floral.svg",
-  locationPalace: "/invitation/location-venue.webp",
   petals: "/invitation/petals.svg",
   goldDivider: "/invitation/gold-divider.svg",
   ornament: "/invitation/ornament.svg"
@@ -106,7 +105,7 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
   const venueName = invitation.venue.trim();
   const venueAddress = invitation.venue_address?.trim() || "";
   const mapUrl = getMapUrl(invitation);
-  const mapEmbedUrl = buildGoogleMapsEmbedUrl(invitation.venue_lat, invitation.venue_lng);
+  const venuePreviewImage = getVenuePreviewImage(invitation.venue_type, venueName, venueAddress);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -154,32 +153,33 @@ export function InvitationExperience({ invitation }: { invitation: PublicInvitat
       <div className="fixed inset-0 -z-10 opacity-[.55]" style={{ backgroundImage: `url(${assets.paper})`, backgroundSize: "cover", backgroundPosition: "center top" }} />
       <div className="fixed inset-0 -z-10 hidden bg-[#f8ddd5] opacity-45 blur-2xl md:block" style={{ backgroundImage: `url(${assets.swanHero})`, backgroundSize: "cover", backgroundPosition: "center top" }} />
       <div className="fixed inset-0 -z-10 hidden bg-[linear-gradient(90deg,rgba(248,221,213,.96),rgba(255,248,241,.34)_50%,rgba(248,221,213,.96))] md:block" />
-      <FloatingPetals />
+      {intro === "done" ? <FloatingPetals /> : null}
       <LanguageSwitcher language={language} onChange={setLanguage} />
 
-      <main
-        className="mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#fff4ef] opacity-100 shadow-[0_0_80px_rgba(111,77,56,.16)] md:my-8 md:min-h-[calc(100vh-4rem)] md:max-w-[480px] md:rounded-[2rem] md:border md:border-[#d7b48c]/35 md:shadow-[0_24px_110px_rgba(111,77,56,.22)]"
-      >
-        <SwanHeroSection language={language} groomName={groomName} brideName={brideName} />
-        <SectionDivider />
-        <VenueSection language={language} />
-        <SectionDivider />
-        <CountdownSection language={language} target={invitation.wedding_date || invitationData.wedding.dateISO} />
-        <SectionDivider compact />
-        <WeddingTimeSection language={language} />
-        <SectionDivider compact />
-        <LocationSection
-          language={language}
-          venueName={venueName}
-          venueAddress={venueAddress}
-          mapUrl={mapUrl}
-          mapEmbedUrl={mapEmbedUrl}
-        />
-        <SectionDivider />
-        <RSVPSection invitation={invitation} language={language} />
-        <SectionDivider compact />
-        <FooterSection language={language} />
-      </main>
+      {intro === "done" ? (
+        <main
+          className="mx-auto min-h-screen w-full max-w-[430px] overflow-hidden bg-[#fff4ef] opacity-100 shadow-[0_0_80px_rgba(111,77,56,.16)] md:my-8 md:min-h-[calc(100vh-4rem)] md:max-w-[480px] md:rounded-[2rem] md:border md:border-[#d7b48c]/35 md:shadow-[0_24px_110px_rgba(111,77,56,.22)]"
+        >
+          <SwanHeroSection language={language} groomName={groomName} brideName={brideName} />
+          <SectionDivider />
+          <VenueSection language={language} />
+          <SectionDivider />
+          <CountdownSection language={language} target={invitation.wedding_date || invitationData.wedding.dateISO} />
+          <SectionDivider compact />
+          <WeddingTimeSection language={language} />
+          <SectionDivider compact />
+          <LocationSection
+            language={language}
+            venueName={venueName}
+            mapUrl={mapUrl}
+            previewImage={venuePreviewImage}
+          />
+          <SectionDivider />
+          <RSVPSection invitation={invitation} language={language} />
+          <SectionDivider compact />
+          <FooterSection language={language} />
+        </main>
+      ) : null}
 
       <AnimatePresence>
         {intro === "show" ? <IntroVideo key="intro" language={language} onComplete={finishIntro} /> : null}
@@ -299,10 +299,14 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
     const syncVideoReady = () => {
       if (video.readyState >= 3) setVideoReady(true);
     };
-    video.load();
     syncVideoReady();
-    const timer = window.setInterval(syncVideoReady, 250);
-    return () => window.clearInterval(timer);
+    video.addEventListener("loadeddata", syncVideoReady);
+    video.addEventListener("canplay", syncVideoReady);
+    video.load();
+    return () => {
+      video.removeEventListener("loadeddata", syncVideoReady);
+      video.removeEventListener("canplay", syncVideoReady);
+    };
   }, [videoReady]);
 
   return (
@@ -319,7 +323,6 @@ function IntroVideo({ language, onComplete }: { language: InvitationLanguage; on
           ref={videoRef}
           className={`absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-300 ${openingVisible ? "opacity-100" : "opacity-0"}`}
           src={assets.introVideo}
-          poster={assets.introPoster}
           muted
           playsInline
           preload="auto"
@@ -432,7 +435,7 @@ function SwanHeroSection({
 
   return (
     <section className="relative min-h-[100svh] overflow-hidden">
-      <Image src={assets.swanHero} alt="" fill priority sizes="430px" draggable={false} className="select-none object-cover object-top" />
+      <Image src={assets.swanHero} alt="" fill priority sizes="480px" draggable={false} className="select-none object-cover object-top" />
       {!videoFailed ? (
         <video
           className="absolute inset-0 h-full w-full select-none object-cover object-top"
@@ -441,8 +444,7 @@ function SwanHeroSection({
           muted
           loop
           playsInline
-          preload="auto"
-          poster={assets.swanHero}
+          preload="metadata"
           onError={() => setVideoFailed(true)}
         />
       ) : null}
@@ -482,9 +484,9 @@ function SectionDivider({ compact = false }: { compact?: boolean }) {
   return (
     <motion.div
       className={`relative overflow-hidden bg-[#fff4ef] px-7 ${compact ? "py-2.5" : "py-4"} select-none`}
-      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 10, filter: "blur(8px)" }}
-      whileInView={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once: false, amount: 0.45 }}
+      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 8 }}
+      whileInView={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.45 }}
       transition={{ duration: reduceMotion ? 0.01 : 0.95, ease: easing }}
     >
       <div className="absolute inset-x-10 top-1/2 h-px bg-gradient-to-r from-transparent via-[#c99b65]/20 to-transparent" />
@@ -498,10 +500,10 @@ function RevealSection({ children, className = "" }: { children: ReactNode; clas
   return (
     <motion.section
       className={className}
-      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 36, scale: 0.988, filter: "blur(12px)" }}
-      whileInView={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-      viewport={{ once: false, amount: 0.18 }}
-      transition={{ duration: reduceMotion ? 0.01 : 1.08, ease: easing }}
+      initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 24 }}
+      whileInView={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.18 }}
+      transition={{ duration: reduceMotion ? 0.01 : 0.9, ease: easing }}
     >
       {children}
     </motion.section>
@@ -630,41 +632,29 @@ function WeddingTimeSection({ language }: { language: InvitationLanguage }) {
 function LocationSection({
   language,
   venueName,
-  venueAddress,
   mapUrl,
-  mapEmbedUrl
+  previewImage
 }: {
   language: InvitationLanguage;
   venueName: string;
-  venueAddress: string;
   mapUrl: string;
-  mapEmbedUrl: string;
+  previewImage: string | null;
 }) {
   const copy = invitationData.copy[language];
   return (
     <RevealSection>
       <SectionShell className="px-4 py-5">
         <CornerOrnaments />
-        <div className="grid grid-cols-[1.08fr_.92fr] items-center gap-3">
-          <div className="relative aspect-[1.34/1] overflow-hidden rounded-[1rem] border border-[#b98b5f]/35 bg-[#fff8f1] shadow-[0_12px_28px_rgba(111,77,56,.1)]">
-            {mapEmbedUrl ? (
-              <iframe
-                title={language === "ar" ? "خريطة موقع الحفل" : "Wedding venue map"}
-                src={mapEmbedUrl}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="absolute inset-0 h-full w-full border-0"
-                allowFullScreen
-              />
-            ) : (
-              <Image src={assets.locationPalace} alt="" fill sizes="210px" className="object-cover object-center" />
-            )}
-          </div>
+        <div className={previewImage ? "grid grid-cols-[1.08fr_.92fr] items-center gap-3" : "mx-auto max-w-[19rem] text-center"}>
+          {previewImage ? (
+            <div className="relative aspect-[1.34/1] overflow-hidden rounded-[1rem] border border-[#b98b5f]/35 bg-[#fff8f1] shadow-[0_12px_28px_rgba(111,77,56,.1)]">
+              <Image src={previewImage} alt="" fill sizes="210px" className="object-cover object-center" />
+            </div>
+          ) : null}
           <div className="text-center">
             <ScriptHeading language={language}>{copy.locationTitle}</ScriptHeading>
             <Image src={assets.goldDivider} alt="" width={180} height={20} className="mx-auto mt-1 h-auto w-28 opacity-80" />
             <h3 className={`mt-3 text-[1.28rem] font-semibold text-[#8a6240] ${language === "ar" ? "arabic-title" : "serif-text"}`}>{venueName}</h3>
-            <p className={`mt-1 text-[.85rem] leading-5 text-[#7b5941] ${language === "ar" ? "arabic-body" : "serif-text"}`}>{venueAddress}</p>
             <a
               href={mapUrl}
               target="_blank"
@@ -860,7 +850,7 @@ function FloatingPetals() {
   const reduceMotion = useReducedMotion();
   const petals = useMemo(
     () =>
-      Array.from({ length: reduceMotion ? 0 : 22 }, (_, index) => ({
+      Array.from({ length: reduceMotion ? 0 : 14 }, (_, index) => ({
         id: index,
         left: `${5 + ((index * 29) % 90)}%`,
         delay: (index % 10) * 1.15,

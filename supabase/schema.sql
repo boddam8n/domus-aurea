@@ -21,6 +21,7 @@ create table if not exists public.invitations (
   venue_lng double precision,
   venue_place_id text,
   venue_maps_url text,
+  venue_type text,
   phone text not null,
   template_name text not null,
   package_name text not null,
@@ -36,9 +37,11 @@ alter table if exists public.invitations add column if not exists venue_lat doub
 alter table if exists public.invitations add column if not exists venue_lng double precision;
 alter table if exists public.invitations add column if not exists venue_place_id text;
 alter table if exists public.invitations add column if not exists venue_maps_url text;
+alter table if exists public.invitations add column if not exists venue_type text;
 alter table if exists public.invitations add column if not exists seal_image_url text;
 
 create index if not exists invitations_venue_place_id_idx on public.invitations(venue_place_id);
+create index if not exists invitations_venue_type_idx on public.invitations(venue_type);
 
 alter table public.invitations
   drop constraint if exists invitations_google_maps_url_check;

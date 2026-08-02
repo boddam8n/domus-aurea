@@ -9,6 +9,7 @@ export const invitationRequestSchema = z.object({
   venueLat: z.number().min(-90).max(90),
   venueLng: z.number().min(-180).max(180),
   venuePlaceId: z.string().trim().min(3, "Select a verified Google place").max(255),
+  venueType: z.string().trim().max(80).optional(),
   venueMapsUrl: z
     .url("A valid Google Maps URL is required")
     .refine(

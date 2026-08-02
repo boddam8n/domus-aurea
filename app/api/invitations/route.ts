@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
       venue_lng: parsed.data.venueLng ?? null,
       venue_place_id: parsed.data.venuePlaceId,
       venue_maps_url: parsed.data.venueMapsUrl,
+      venue_type: parsed.data.venueType || null,
       phone: parsed.data.phone,
       template_name: parsed.data.templateName,
       package_name: parsed.data.packageName,
@@ -46,13 +47,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      const isOptionalMigrationMissing = /(venue_place_id|venue_maps_url|seal_image_url).*does not exist/i.test(error.message);
+      const isOptionalMigrationMissing = /(venue_place_id|venue_maps_url|venue_type|seal_image_url).*does not exist/i.test(error.message);
 
       if (!isOptionalMigrationMissing) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      const { venue_place_id, venue_maps_url, seal_image_url, ...legacyPayload } = insertPayload;
+      const { venue_place_id, venue_maps_url, venue_type, seal_image_url, ...legacyPayload } = insertPayload;
       const retry = await service.from("invitations").insert(legacyPayload).select("*").single();
       if (retry.error) {
         return NextResponse.json({ error: retry.error.message }, { status: 500 });

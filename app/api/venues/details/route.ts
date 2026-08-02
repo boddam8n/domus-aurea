@@ -9,6 +9,7 @@ type GooglePlaceDetailsResponse = {
   formattedAddress?: string;
   location?: { latitude?: number; longitude?: number };
   googleMapsUri?: string;
+  primaryType?: string;
 };
 
 export async function GET(request: NextRequest) {
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     const response = await requestGooglePlaces(
       `/places/${encodeURIComponent(placeId)}?${params.toString()}`,
       { method: "GET" },
-      "id,displayName,formattedAddress,location,googleMapsUri"
+      "id,displayName,formattedAddress,location,googleMapsUri,primaryType"
     );
 
     if (!response.ok) {
@@ -50,7 +51,8 @@ export async function GET(request: NextRequest) {
       address,
       lat,
       lng,
-      mapsUrl: place.googleMapsUri || buildGoogleMapsUrl(name, address, lat, lng)
+      mapsUrl: place.googleMapsUri || buildGoogleMapsUrl(name, address, lat, lng),
+      venueType: place.primaryType
     };
 
     return NextResponse.json({ venue });

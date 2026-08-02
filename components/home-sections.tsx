@@ -13,7 +13,7 @@ export function HeroSection() {
   const { isArabic } = useLanguage();
 
   return (
-    <section className="home-section relative flex min-h-[42rem] items-end overflow-hidden px-5 pb-16 pt-32 sm:min-h-[46rem] md:min-h-[92svh] md:px-10 md:pb-24">
+    <section className="home-section relative isolate flex min-h-[42rem] w-full max-w-none items-end overflow-hidden px-5 pb-16 pt-32 sm:min-h-[46rem] md:min-h-[100svh] md:px-10 md:pb-24">
       <div className="absolute inset-0">
         <Image
           src="/assets/domus-hero.webp"
@@ -21,13 +21,13 @@ export function HeroSection() {
           fill
           priority
           sizes="100vw"
-          className="object-cover"
+          className="object-cover object-[64%_center] md:object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-night/82 via-night/42 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-night/80 via-transparent to-night/20" />
       </div>
-      <motion.div variants={stagger} initial="hidden" animate="show" className="relative mx-auto w-full max-w-7xl">
-        <div className="max-w-4xl">
+      <motion.div variants={stagger} initial="hidden" animate="show" className="relative mx-auto w-full max-w-[90rem]">
+        <div className="w-full max-w-4xl md:ml-0 md:mr-auto">
           <motion.p variants={fadeUp} className="homepage-eyebrow mb-5 text-[#e1bd72]">
             {isArabic ? "دعوات زفاف فاخرة" : "Luxury wedding invitations"}
           </motion.p>

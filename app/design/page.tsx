@@ -30,6 +30,7 @@ export default function DesignInvitationPage() {
     venueLng: undefined as number | undefined,
     venuePlaceId: "",
     venueMapsUrl: "",
+    venueType: "",
     phone: "",
     sealImageUrl: ""
   });
@@ -200,7 +201,8 @@ export default function DesignInvitationPage() {
                       lat: form.venueLat,
                       lng: form.venueLng,
                       placeId: form.venuePlaceId,
-                      mapsUrl: form.venueMapsUrl
+                      mapsUrl: form.venueMapsUrl,
+                      venueType: form.venueType
                     }}
                     onChange={(venue) =>
                       setForm((current) => ({
@@ -210,7 +212,8 @@ export default function DesignInvitationPage() {
                         venueLat: venue.lat,
                         venueLng: venue.lng,
                         venuePlaceId: venue.placeId || "",
-                        venueMapsUrl: venue.mapsUrl || ""
+                        venueMapsUrl: venue.mapsUrl || "",
+                        venueType: venue.venueType || ""
                       }))
                     }
                   />

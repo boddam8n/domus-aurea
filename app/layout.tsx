@@ -17,7 +17,8 @@ const amiri = Amiri({
   subsets: ["arabic", "latin"],
   weight: ["400", "700"],
   variable: "--font-amiri",
-  display: "swap"
+  display: "swap",
+  preload: false
 });
 
 const cormorant = Cormorant_Garamond({
@@ -31,21 +32,24 @@ const greatVibes = Great_Vibes({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-great-vibes",
-  display: "swap"
+  display: "swap",
+  preload: false
 });
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-playfair",
-  display: "swap"
+  display: "swap",
+  preload: false
 });
 
 const arefRuqaa = Aref_Ruqaa_Ink({
   subsets: ["arabic", "latin"],
   weight: ["400", "700"],
   variable: "--font-aref-ruqaa",
-  display: "swap"
+  display: "swap",
+  preload: false
 });
 
 export const metadata: Metadata = {
