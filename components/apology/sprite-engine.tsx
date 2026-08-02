@@ -4,6 +4,22 @@
 
 import { useEffect, useState } from "react";
 
+const frameCache = new Map<string, Promise<void>>();
+
+function preloadFrame(src: string) {
+  const cached = frameCache.get(src);
+  if (cached) return cached;
+
+  const request = new Promise<void>((resolve) => {
+    const image = new window.Image();
+    image.onload = () => resolve();
+    image.onerror = () => resolve();
+    image.src = src;
+  });
+  frameCache.set(src, request);
+  return request;
+}
+
 type SpriteEngineProps = {
   frames: readonly string[];
   frameDuration?: number;
@@ -26,6 +42,7 @@ export function SpriteEngine({
   onComplete
 }: SpriteEngineProps) {
   const [frameIndex, setFrameIndex] = useState(0);
+  const [framesReady, setFramesReady] = useState(frames.length < 2);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -37,8 +54,26 @@ export function SpriteEngine({
   }, []);
 
   useEffect(() => {
+    let active = true;
+    setFramesReady(frames.length < 2);
+    if (frames.length < 2 || reducedMotion) return;
+
+    const preload = () => {
+      void Promise.all(frames.map(preloadFrame)).then(() => {
+        if (active) setFramesReady(true);
+      });
+    };
+    const timer = window.setTimeout(preload, loading === "eager" ? 0 : 120);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [frames, loading, reducedMotion]);
+
+  useEffect(() => {
     setFrameIndex(0);
-    if (!playing || reducedMotion || frames.length < 2) return;
+    if (!playing || !framesReady || reducedMotion || frames.length < 2) return;
 
     const timer = window.setInterval(() => {
       setFrameIndex((current) => {
@@ -52,7 +87,7 @@ export function SpriteEngine({
     }, frameDuration);
 
     return () => window.clearInterval(timer);
-  }, [frameDuration, frames, loop, onComplete, playing, reducedMotion]);
+  }, [frameDuration, frames, framesReady, loop, onComplete, playing, reducedMotion]);
 
   return (
     <img
