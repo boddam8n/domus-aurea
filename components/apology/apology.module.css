@@ -26,17 +26,48 @@
   transition-delay: 0s;
 }
 
-.background {
-  position: absolute;
+.sceneLayers {
+  position: fixed;
   inset: 0;
-  background-image: linear-gradient(180deg, rgb(6 18 47 / 12%), rgb(2 13 28 / 28%)), url("/apology/assets/background/night-garden.webp");
-  background-position: center;
-  background-size: cover;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sceneSky,
+.sceneCity,
+.sceneGround {
+  position: absolute;
+  display: block;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+  user-select: none;
   image-rendering: pixelated;
 }
 
-.background::after {
-  content: "";
+.sceneSky {
+  inset: 0;
+  height: 100%;
+}
+
+.sceneCity {
+  right: 0;
+  bottom: 16%;
+  left: 0;
+  height: 38%;
+  object-position: center bottom;
+}
+
+.sceneGround {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 27%;
+  object-position: center bottom;
+}
+
+.atmosphere {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgb(2 7 20 / 4%), transparent 42%, rgb(1 8 18 / 26%));
@@ -180,96 +211,131 @@
 .signWrap {
   position: relative;
   z-index: 12;
-  width: min(100%, 46rem);
+  width: min(100%, 41.5rem);
   margin-inline: auto;
-  filter: drop-shadow(0 18px 12px rgb(2 6 18 / 42%));
+  filter: drop-shadow(0 14px 10px rgb(2 6 18 / 36%)) saturate(0.88) brightness(1.04);
 }
 
 .sign {
+  position: relative;
+  isolation: isolate;
   display: flex;
-  min-height: clamp(13rem, 34vw, 20rem);
+  min-height: clamp(11.75rem, 29vw, 16.5rem);
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: clamp(2.4rem, 7vw, 5rem) clamp(2.2rem, 9vw, 6rem);
+  padding: clamp(2.7rem, 6vw, 4.4rem) clamp(3rem, 9vw, 5.7rem);
   background-position: center;
   background-repeat: no-repeat;
   background-size: 100% 100%;
   text-align: center;
-  color: #fff1c9;
-  text-shadow: 0 2px 0 #3f2115;
+  color: #fff0cf;
+  text-shadow: 0 1px 0 #4a291d;
   image-rendering: pixelated;
 }
 
+.sign::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 19% 13%;
+  border: 1px solid rgb(255 224 170 / 14%);
+  box-shadow: inset 0 0 1.5rem rgb(86 40 24 / 8%);
+  pointer-events: none;
+}
+
 .message {
-  width: min(78%, 34rem);
-  max-width: 34rem;
+  position: relative;
+  z-index: 1;
+  width: min(76%, 30rem);
+  max-width: 30rem;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  font-size: clamp(1.15rem, 4.2vw, 2rem);
-  font-weight: 800;
-  line-height: 1.65;
+  font-family: var(--font-amiri), var(--font-tajawal), serif;
+  font-size: clamp(1rem, 3vw, 1.55rem);
+  font-weight: 700;
+  line-height: 1.85;
 }
 
 .longBoard {
-  min-height: clamp(18rem, 39vw, 23rem);
+  min-height: clamp(16.5rem, 36vw, 21rem);
 }
 
 .veryLongBoard {
-  min-height: clamp(22rem, 47vw, 29rem);
+  min-height: clamp(21rem, 44vw, 27rem);
 }
 
 .ultraLongBoard {
-  min-height: clamp(27rem, 57vw, 36rem);
+  min-height: clamp(26rem, 54vw, 34rem);
 }
 
 .longMessage {
-  font-size: clamp(0.92rem, 2.5vw, 1.35rem);
-  line-height: 1.65;
+  font-size: clamp(0.86rem, 2.1vw, 1.18rem);
+  line-height: 1.9;
 }
 
 .veryLongMessage {
-  font-size: clamp(0.76rem, 2vw, 1rem);
-  line-height: 1.7;
+  font-size: clamp(0.72rem, 1.65vw, 0.92rem);
+  line-height: 1.92;
 }
 
 .ultraLongMessage {
-  font-size: clamp(0.66rem, 1.55vw, 0.84rem);
-  line-height: 1.72;
+  font-size: clamp(0.64rem, 1.35vw, 0.8rem);
+  line-height: 1.95;
+}
+
+.page[dir="ltr"] .message {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-weight: 600;
+  line-height: 1.68;
 }
 
 .choices {
   position: relative;
   z-index: 14;
   display: grid;
-  grid-template-areas: "cat yes";
+  grid-template-areas: "yes cat";
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: center;
-  gap: clamp(0.35rem, 3vw, 2rem);
-  width: min(100%, 46rem);
-  margin: clamp(-0.2rem, -0.5vw, 0rem) auto 0;
+  align-items: stretch;
+  gap: clamp(0.6rem, 2.5vw, 1.4rem);
+  width: min(100%, 41.5rem);
+  margin: 0.45rem auto 0;
+  direction: ltr;
 }
 
-.yesButton,
+.yesSign,
 .catButton {
   appearance: none;
-  border: 0;
-  background: transparent;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
-.yesButton {
+.yesSign {
   position: relative;
-  z-index: 4;
-  align-self: center;
-  width: min(64%, 12rem);
-  margin: 6.1rem auto 0;
-  color: #3b2318;
+  z-index: 2;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: 0 7px 0 rgb(5 7 18 / 58%);
+  color: #ffe29a;
+  image-rendering: pixelated;
+  transition: filter 160ms steps(2, end);
 }
 
-.yesButton:focus-visible,
+.yesSign:hover {
+  filter: brightness(1.08);
+}
+
+.yesSign:active {
+  filter: brightness(1.16);
+}
+
+.yesSign:focus-visible,
 .catButton:focus-visible,
 .smallButton:focus-visible,
 .iconButton:focus-visible,
@@ -278,139 +344,130 @@
   outline-offset: 4px;
 }
 
-.yesButton:disabled {
+.yesSign:disabled {
   cursor: default;
 }
 
-.yesButtonSprite {
+.yesText {
+  position: relative;
+  z-index: 2;
+  direction: rtl;
+  font-family: var(--font-tajawal), ui-monospace, "Cascadia Mono", monospace;
+  font-size: clamp(1.35rem, 3.2vw, 1.9rem);
+  font-weight: 900;
+  text-shadow: 0 2px #5d2b2d, 0 0 9px rgb(255 194 75 / 34%);
+}
+
+.choiceTexture {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
   display: block;
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
   image-rendering: pixelated;
 }
 
-.yesButton span {
+.acceptedMark {
   position: absolute;
-  inset: 50% 13% auto;
-  transform: translateY(-54%);
+  z-index: 3;
+  right: 1rem;
+  bottom: 0.85rem;
+  color: #a8ffd5;
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: clamp(0.62rem, 1.45vw, 0.84rem);
+  font-size: 0.8rem;
   font-weight: 900;
-  text-align: center;
-  text-shadow: 0 1px rgb(255 241 189 / 70%);
+}
+
+.yesSignAccepted {
+  filter: brightness(1.08) saturate(0.92);
 }
 
 .yesChoice {
   position: relative;
   grid-area: yes;
-  width: min(100%, 21rem);
-  min-height: 13.5rem;
-  margin-inline: auto;
+  width: 100%;
+  height: clamp(9.5rem, 21vw, 12rem);
+  min-width: 0;
+  padding: 1.35rem 0 0.45rem;
+  direction: rtl;
 }
 
-.yesBillboard {
+.yesHints {
   position: absolute;
-  z-index: 1;
-  top: 0.5rem;
-  left: 50%;
-  display: grid;
-  width: 92%;
-  min-height: 9rem;
-  transform: translateX(-50%);
-  place-items: start center;
-  padding: 1.35rem 1rem 3.8rem;
-  border: 5px solid #5b3544;
-  background: #281b38;
-  box-shadow:
-    0 0 0 3px #160f27,
-    0 7px 0 #0e0b1e,
-    inset 0 0 0 4px #a5532e,
-    inset 0 -1.2rem rgb(9 10 28 / 28%);
-  color: #ffe29a;
-  text-shadow: 0 2px #5d2b2d, 0 0 9px rgb(255 194 75 / 38%);
-  image-rendering: pixelated;
-}
-
-.yesBillboard::before {
-  content: "";
-  position: absolute;
-  inset: 0.55rem;
-  border: 4px dotted #ffc761;
-  opacity: 0.88;
-  filter: drop-shadow(0 0 3px rgb(255 177 54 / 68%));
-}
-
-.yesBillboard span {
-  position: relative;
-  z-index: 2;
-  font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: clamp(1.15rem, 3vw, 1.75rem);
-  font-weight: 900;
+  z-index: 3;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
 }
 
 .pixelArrow {
   position: absolute;
-  z-index: 5;
-  top: 58%;
-  left: 0.7rem;
-  color: #8bffea;
-  direction: ltr;
-  font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: clamp(1.55rem, 3.6vw, 2.15rem);
-  font-weight: 900;
-  letter-spacing: -0.2em;
-  line-height: 1;
-  text-shadow: 0 0 4px #2cebd0, 0 0 10px rgb(69 255 226 / 52%);
-  animation: arrowBlink 1.35s steps(2, end) infinite;
+  z-index: 4;
+  top: 48%;
+  left: 0.2rem;
+  width: clamp(1.55rem, 4vw, 2.45rem);
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  image-rendering: pixelated;
 }
 
 .catChoice {
   position: relative;
   grid-area: cat;
-  display: grid;
-  justify-items: center;
+  width: 100%;
+  height: clamp(9.5rem, 21vw, 12rem);
   min-width: 0;
+  padding: 1.35rem 0 0.45rem;
+  direction: rtl;
 }
 
 .catStage {
   position: relative;
-  display: grid;
-  width: min(100%, 18rem);
-  min-height: 14.5rem;
-  place-items: end center;
+  width: 100%;
+  height: 100%;
 }
 
 .noSign {
   position: absolute;
   z-index: 1;
-  top: 0.5rem;
-  left: 50%;
+  inset: 0;
   display: grid;
-  width: 78%;
-  min-height: 8rem;
-  transform: translateX(-50%);
-  place-items: start center;
-  padding-top: 0.7rem;
-  border: 5px solid #3f304f;
-  background: #15152a;
-  box-shadow: 0 0 0 3px #090d1e, 0 7px 0 #070a16, inset 0 0 0 3px #5c4365;
-  color: #ddd2e9;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: 0 7px 0 rgb(5 7 18 / 58%);
+  color: #e5d8ec;
   image-rendering: pixelated;
 }
 
 .noSign span {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: var(--font-tajawal), ui-monospace, "Cascadia Mono", monospace;
-  font-size: clamp(1.75rem, 3.6vw, 2.2rem);
+  font-size: clamp(1.2rem, 2.8vw, 1.65rem);
   font-weight: 900;
   text-shadow: 0 2px #090b18;
 }
 
 .catButton {
-  position: relative;
+  position: absolute;
   z-index: 3;
-  width: min(100%, 15rem);
-  margin-bottom: -0.1rem;
+  top: -0.35rem;
+  left: 50%;
+  width: min(112%, 13.5rem);
+  transform: translateX(-50%);
+  border: 0;
+  background: transparent;
 }
 
 .catSprite {
@@ -423,28 +480,48 @@
 }
 
 .catCaption {
-  max-width: 13rem;
-  margin-top: -0.15rem;
+  position: absolute;
+  z-index: 5;
+  right: 0.35rem;
+  bottom: -0.35rem;
+  left: 0.35rem;
+  margin: 0;
   color: #d8c2d9;
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: clamp(0.55rem, 1.65vw, 0.68rem);
+  font-size: clamp(0.46rem, 1vw, 0.58rem);
   font-weight: 800;
-  line-height: 1.5;
+  line-height: 1.35;
   text-align: center;
   text-shadow: 0 2px #081128;
 }
 
-@keyframes arrowBlink {
-  0%,
-  100% {
-    opacity: 0.42;
-    transform: translateX(0);
-  }
+.hintSprite {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
 
-  50% {
-    opacity: 1;
-    transform: translateX(0.3rem);
-  }
+.pixelBirdOne { top: 0.05rem; left: 20%; width: 1.35rem; }
+.pixelBirdTwo { top: 0.2rem; right: 18%; width: 1.15rem; }
+
+.pixelHeart {
+  top: 0;
+  left: 50%;
+  width: 1.2rem;
+  transform: translateX(-50%);
+}
+
+.fireflyOne { top: 36%; right: 0.55rem; width: 0.8rem; }
+.fireflyTwo { bottom: 25%; left: 0.6rem; width: 0.8rem; }
+
+.pixelButterfly {
+  top: 0.15rem;
+  right: 31%;
+  width: 1.05rem;
 }
 
 .reaction {
@@ -454,12 +531,10 @@
   right: 12%;
   width: 3.4rem;
   opacity: 0.92;
-  transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.6s ease;
 }
 
 .reactionHeart {
-  transform: translateY(-3.8rem);
-  opacity: 0;
+  opacity: 0.96;
 }
 
 .secondReaction {
@@ -552,10 +627,6 @@
     overflow-y: auto;
   }
 
-  .background {
-    background-position: 54% center;
-  }
-
   .content {
     align-content: start;
     width: min(100% - 0.75rem, 31rem);
@@ -565,48 +636,42 @@
   }
 
   .sign {
-    min-height: clamp(14rem, 57vw, 17rem);
-    padding: 2.8rem clamp(1.7rem, 8vw, 2.7rem);
+    min-height: clamp(11.75rem, 52vw, 15rem);
+    padding: 2.65rem clamp(2.05rem, 10vw, 3.1rem);
   }
 
   .longBoard {
-    min-height: clamp(19rem, 82vw, 25rem);
+    min-height: clamp(17rem, 74vw, 22rem);
   }
 
   .veryLongBoard {
-    min-height: clamp(25rem, 108vw, 34rem);
+    min-height: clamp(23rem, 100vw, 31rem);
   }
 
   .ultraLongBoard {
-    min-height: clamp(32rem, 138vw, 43rem);
+    min-height: clamp(31rem, 132vw, 41rem);
   }
 
   .message {
-    width: min(82%, 25rem);
+    width: min(76%, 25rem);
   }
 
   .choices {
-    grid-template-areas: "cat" "yes";
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.7rem;
-    width: min(100% - 0.35rem, 23rem);
-    margin-top: 0.25rem;
+    grid-template-areas: "yes cat";
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.48rem, 2.4vw, 0.8rem);
+    width: min(100% - 0.25rem, 25rem);
+    margin-top: 0.45rem;
   }
 
-  .catStage {
-    width: min(100%, 18rem);
+  .yesChoice,
+  .catChoice {
+    height: clamp(9.4rem, 42vw, 11.4rem);
+    padding-top: 1.15rem;
   }
 
   .catButton {
-    width: min(77vw, 15rem);
-  }
-
-  .yesChoice {
-    width: min(100%, 21rem);
-  }
-
-  .yesButton {
-    width: min(61%, 11.5rem);
+    width: min(112%, 10.5rem);
   }
 
   .lampLeft,
@@ -635,23 +700,28 @@
   }
 
   .sign {
-    padding-inline: 1.55rem;
+    padding-inline: clamp(2rem, 10vw, 2.7rem);
   }
 
   .message {
-    width: 84%;
-  }
-
-  .catStage {
-    min-height: 14.5rem;
-  }
-
-  .yesChoice {
-    min-height: 13rem;
+    width: 78%;
   }
 
   .pixelArrow {
-    left: 0.75rem;
+    left: 0.4rem;
+  }
+
+  .yesText {
+    font-size: clamp(1.05rem, 6vw, 1.35rem);
+  }
+
+  .noSign span {
+    top: 0.72rem;
+    font-size: clamp(1rem, 5vw, 1.22rem);
+  }
+
+  .catCaption {
+    font-size: clamp(0.38rem, 1.75vw, 0.48rem);
   }
 }
 
@@ -670,7 +740,7 @@
   }
 
   .choices {
-    grid-template-areas: "cat yes";
+    grid-template-areas: "yes cat";
     grid-template-columns: 1fr 1fr;
     width: 100%;
     margin: 0;
@@ -687,13 +757,7 @@
 @media (prefers-reduced-motion: reduce) {
   .scene,
   .preloader,
-  .progressTrack span,
-  .reaction {
+  .progressTrack span {
     transition-duration: 0.01ms !important;
-  }
-
-  .pixelArrow {
-    animation: none !important;
-    opacity: 0.72;
   }
 }

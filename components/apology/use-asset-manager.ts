@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apologyAssetUrls } from "@/lib/apology-assets";
+import { apologyCriticalAssetUrls } from "@/lib/apology-assets";
 
 export function useAssetManager() {
   const [progress, setProgress] = useState(0);
@@ -13,10 +13,10 @@ export function useAssetManager() {
 
     const markComplete = () => {
       completed += 1;
-      if (!cancelled) setProgress(Math.round((completed / (apologyAssetUrls.length + 1)) * 100));
+      if (!cancelled) setProgress(Math.round((completed / (apologyCriticalAssetUrls.length + 1)) * 100));
     };
 
-    const preload = apologyAssetUrls.map(async (url) => {
+    const preload = apologyCriticalAssetUrls.map(async (url) => {
       try {
         const response = await fetch(url, { cache: "force-cache" });
         if (!response.ok) throw new Error(`Unable to preload ${url}`);

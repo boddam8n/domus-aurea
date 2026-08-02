@@ -1,5 +1,14 @@
+const frames = (prefix: string, count: number) => Array.from(
+  { length: count },
+  (_, index) => `${prefix}-${String(index + 1).padStart(2, "0")}.webp`
+);
+
 export const apologyAssets = {
-  background: "/apology/assets/background/night-garden.webp",
+  scene: {
+    sky: "/apology/assets/scene/sky.webp",
+    city: "/apology/assets/scene/city.webp",
+    ground: "/apology/assets/scene/ground.webp"
+  },
   catIdle: Array.from({ length: 6 }, (_, index) =>
     `/apology/assets/cat/cat-${String(index + 1).padStart(2, "0")}.webp`
   ),
@@ -7,39 +16,22 @@ export const apologyAssets = {
     `/apology/assets/cat/cat-${String(index + 7).padStart(2, "0")}.webp`
   ),
   sign: "/apology/assets/sign/wood-sign.webp",
-  yesButton: [
-    "/apology/assets/buttons/yes-idle.webp",
-    "/apology/assets/buttons/yes-glow.webp"
-  ],
-  yesPressed: "/apology/assets/buttons/yes-pressed.webp",
-  lamp: [
-    "/apology/assets/lamps/lamp-off.webp",
-    "/apology/assets/lamps/lamp-on.webp"
-  ],
-  bulb: [
-    "/apology/assets/lamps/bulb-dim.webp",
-    "/apology/assets/lamps/bulb-bright.webp"
-  ],
-  clouds: [
-    "/apology/assets/clouds/cloud-01.webp",
-    "/apology/assets/clouds/cloud-02.webp"
-  ],
-  moon: [
-    "/apology/assets/effects/moon-dim.webp",
-    "/apology/assets/effects/moon-glow.webp"
-  ],
-  stars: [
-    "/apology/assets/effects/star-dim.webp",
-    "/apology/assets/effects/star-bright.webp"
-  ],
-  flowers: [
-    "/apology/assets/flowers/flower-01.webp",
-    "/apology/assets/flowers/flower-02.webp"
-  ],
-  hearts: [
-    "/apology/assets/effects/heart-01.webp",
-    "/apology/assets/effects/heart-02.webp"
-  ],
+  choices: {
+    yes: frames("/apology/assets/choices/yes", 4),
+    no: "/apology/assets/choices/no.webp"
+  },
+  lamp: frames("/apology/assets/sprites/lamp", 4),
+  bulb: frames("/apology/assets/sprites/bulb", 4),
+  cloudLeft: frames("/apology/assets/sprites/cloud-left", 6),
+  cloudRight: frames("/apology/assets/sprites/cloud-right", 6),
+  moon: frames("/apology/assets/sprites/moon", 4),
+  stars: frames("/apology/assets/sprites/star", 4),
+  flowers: frames("/apology/assets/sprites/flower", 4),
+  hearts: frames("/apology/assets/sprites/heart", 4),
+  birds: frames("/apology/assets/sprites/bird", 6),
+  butterflies: frames("/apology/assets/sprites/butterfly", 6),
+  arrow: frames("/apology/assets/sprites/arrow", 4),
+  sparkles: frames("/apology/assets/sprites/sparkle", 4),
   heart: "/apology/assets/effects/heart.webp",
   zzz: "/apology/assets/effects/zzz.webp",
   audio: {
@@ -62,3 +54,13 @@ export const apologyAssetUrls = Array.from(new Set(flattenValues(apologyAssets))
 
 export const apologyImageUrls = apologyAssetUrls.filter((url) => !url.endsWith(".mp3"));
 export const apologyAudioUrls = apologyAssetUrls.filter((url) => url.endsWith(".mp3"));
+
+export const apologyCriticalAssetUrls = [
+  apologyAssets.scene.sky,
+  apologyAssets.scene.city,
+  apologyAssets.scene.ground,
+  apologyAssets.sign,
+  apologyAssets.choices.yes[0],
+  apologyAssets.choices.no,
+  apologyAssets.catIdle[0]
+] as const;

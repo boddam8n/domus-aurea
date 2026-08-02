@@ -14,7 +14,7 @@ export function useSoundManager() {
     const sounds = Object.fromEntries(
       Object.entries(apologyAssets.audio).map(([name, src]) => {
         const audio = new Audio(src);
-        audio.preload = "auto";
+        audio.preload = "metadata";
         audio.volume = name === "ambience" ? 0.13 : name === "lamp" ? 0.05 : 0.2;
         audio.loop = name === "ambience" || name === "lamp";
         return [name, audio];
