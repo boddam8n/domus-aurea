@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { apologyAssets } from "@/lib/apology-assets";
 import { SpriteEngine } from "./sprite-engine";
@@ -14,7 +14,6 @@ type ApologyLanguage = "ar" | "en";
 type ApologyExperienceProps = {
   initialLanguage: ApologyLanguage;
   initialMessage?: string;
-  senderName?: string;
 };
 
 const reversedCloudFrames = [...apologyAssets.clouds].reverse();
@@ -28,22 +27,22 @@ const zzzFrames = [apologyAssets.zzz] as const;
 
 const copy = {
   ar: {
-    eyebrow: "رسالة صغيرة من القلب",
-    defaultMessage: "أنا آسف... لم أقصد أن أزعلك. هل يمكن أن نبدأ من جديد؟ 🤍",
-    yes: "مسامحك",
-    catHint: "القطة مش جاهزة تقول لأ",
-    accepted: "شكرًا لقلبك الجميل... رجعنا أصحاب 🤍",
+    no: "لا",
+    yes: "ايوه",
+    press: "اضغط هنا",
+    catCaption: "بلاش تصحي شيتوس 💤",
+    catAria: "شيتوس مش جاهز يقول لأ",
     back: "العودة إلى Domus Aurea",
     sound: "تشغيل الصوت",
     mute: "إيقاف الصوت",
     loading: "بنرتّب الكلام من القلب"
   },
   en: {
-    eyebrow: "A tiny note from the heart",
-    defaultMessage: "I am sorry. I never meant to hurt you. Can we start again? 🤍",
-    yes: "I forgive you",
-    catHint: "The cat is not ready to say no",
-    accepted: "Thank you for your kind heart. We are okay again. 🤍",
+    no: "NO",
+    yes: "YES",
+    press: "PRESS HERE",
+    catCaption: "Please don't wake Cheetos 💤",
+    catAria: "Cheetos is not ready to say no",
     back: "Back to Domus Aurea",
     sound: "Enable sound",
     mute: "Mute sound",
@@ -51,12 +50,11 @@ const copy = {
   }
 } as const;
 
-function safeMessage(value: string | undefined, fallback: string) {
-  const normalized = value?.trim().slice(0, 500);
-  return normalized || fallback;
+function safeMessage(value: string | undefined) {
+  return value?.trim().slice(0, 1200) || "";
 }
 
-export function ApologyExperience({ initialLanguage, initialMessage, senderName }: ApologyExperienceProps) {
+export function ApologyExperience({ initialLanguage, initialMessage }: ApologyExperienceProps) {
   const [language, setLanguage] = useState<ApologyLanguage>(initialLanguage);
   const [catMode, setCatMode] = useState<"idle" | "reaction">("idle");
   const [reaction, setReaction] = useState<"zzz" | "heart">("zzz");
@@ -68,12 +66,22 @@ export function ApologyExperience({ initialLanguage, initialMessage, senderName 
   const { progress, ready } = useAssetManager();
   const { enabled: soundEnabled, enable: enableSound, toggle: toggleSound, play: playSound } = useSoundManager();
   const currentCopy = copy[language];
-  const message = useMemo(
-    () => safeMessage(initialMessage, currentCopy.defaultMessage),
-    [currentCopy.defaultMessage, initialMessage]
-  );
-  const shownMessage = accepted ? currentCopy.accepted : message;
-  const messageClass = shownMessage.length > 220 ? styles.veryLongMessage : shownMessage.length > 110 ? styles.longMessage : "";
+  const message = safeMessage(initialMessage);
+  const messageLength = Array.from(message).length;
+  const messageClass = messageLength > 600
+    ? styles.ultraLongMessage
+    : messageLength > 300
+      ? styles.veryLongMessage
+      : messageLength > 150
+        ? styles.longMessage
+        : "";
+  const boardClass = messageLength > 600
+    ? styles.ultraLongBoard
+    : messageLength > 300
+      ? styles.veryLongBoard
+      : messageLength > 150
+        ? styles.longBoard
+        : "";
 
   useEffect(() => {
     return () => {
@@ -144,33 +152,25 @@ export function ApologyExperience({ initialLanguage, initialMessage, senderName 
 
         <section className={styles.content} aria-label={language === "ar" ? "تجربة اعتذار" : "Apology experience"}>
           <div className={styles.signWrap}>
-            <div className={styles.sign} style={{ backgroundImage: `url(${apologyAssets.sign})` }}>
-              <p className={styles.eyebrow}>{currentCopy.eyebrow}</p>
-              <p className={`${styles.message} ${messageClass}`}>{shownMessage}</p>
-              {senderName ? <p className={styles.sender}>— {senderName}</p> : null}
+            <div className={`${styles.sign} ${boardClass}`} style={{ backgroundImage: `url(${apologyAssets.sign})` }}>
+              <p className={`${styles.message} ${messageClass}`}>{message}</p>
             </div>
           </div>
 
           <div className={styles.choices}>
-            <button type="button" onClick={acceptApology} className={styles.yesButton} disabled={accepted}>
-              <SpriteEngine
-                frames={buttonPressed ? pressedButtonFrames : apologyAssets.yesButton}
-                frameDuration={560}
-                className={styles.yesButtonSprite}
-              />
-              <span>{accepted ? "✓" : currentCopy.yes}</span>
-            </button>
-
             <div className={styles.catChoice}>
-              <button type="button" onClick={reactToCat} className={styles.catButton} aria-label={currentCopy.catHint}>
-                <SpriteEngine
-                  frames={catMode === "reaction" ? apologyAssets.catReaction : apologyAssets.catIdle}
-                  frameDuration={catMode === "reaction" ? 250 : 430}
-                  loop={catMode === "idle"}
-                  onComplete={finishCatReaction}
-                  className={styles.catSprite}
-                />
-              </button>
+              <div className={styles.catStage}>
+                <div className={styles.noSign} aria-hidden="true"><span>{currentCopy.no}</span></div>
+                <button type="button" onClick={reactToCat} className={styles.catButton} aria-label={currentCopy.catAria}>
+                  <SpriteEngine
+                    frames={catMode === "reaction" ? apologyAssets.catReaction : apologyAssets.catIdle}
+                    frameDuration={catMode === "reaction" ? 250 : 430}
+                    loop={catMode === "idle"}
+                    onComplete={finishCatReaction}
+                    className={styles.catSprite}
+                  />
+                </button>
+              </div>
               <div className={`${styles.reaction} ${reaction === "heart" ? styles.reactionHeart : ""}`}>
                 <SpriteEngine
                   frames={reaction === "heart" ? apologyAssets.hearts : zzzFrames}
@@ -183,7 +183,22 @@ export function ApologyExperience({ initialLanguage, initialMessage, senderName 
                   <SpriteEngine frames={reversedHeartFrames} frameDuration={320} className={styles.reactionSprite} />
                 </div>
               ) : null}
-              <p>{currentCopy.catHint}</p>
+              <p className={styles.catCaption}>{currentCopy.catCaption}</p>
+            </div>
+
+            <div className={styles.yesChoice}>
+              <div className={styles.yesBillboard} aria-hidden="true">
+                <span>{currentCopy.yes}</span>
+              </div>
+              <span className={styles.pixelArrow} aria-hidden="true">&gt;&gt;&gt;</span>
+              <button type="button" onClick={acceptApology} className={styles.yesButton} disabled={accepted}>
+                <SpriteEngine
+                  frames={buttonPressed ? pressedButtonFrames : apologyAssets.yesButton}
+                  frameDuration={560}
+                  className={styles.yesButtonSprite}
+                />
+                <span>{accepted ? "✓" : currentCopy.press}</span>
+              </button>
             </div>
           </div>
         </section>

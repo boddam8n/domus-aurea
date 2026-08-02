@@ -15,7 +15,6 @@ type ApologyPageProps = {
   searchParams: {
     lang?: string;
     message?: string;
-    from?: string;
   };
 };
 
@@ -24,7 +23,6 @@ export default function ApologyPage({ searchParams }: ApologyPageProps) {
     <ApologyExperience
       initialLanguage={searchParams.lang === "en" ? "en" : "ar"}
       initialMessage={searchParams.message}
-      senderName={searchParams.from?.trim().slice(0, 60)}
     />
   );
 }

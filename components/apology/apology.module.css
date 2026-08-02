@@ -201,13 +201,6 @@
   image-rendering: pixelated;
 }
 
-.eyebrow {
-  margin-bottom: 0.85rem;
-  color: #ffd77d;
-  font-size: clamp(0.68rem, 1.8vw, 0.86rem);
-  font-weight: 800;
-}
-
 .message {
   width: min(78%, 34rem);
   max-width: 34rem;
@@ -218,32 +211,43 @@
   line-height: 1.65;
 }
 
+.longBoard {
+  min-height: clamp(18rem, 39vw, 23rem);
+}
+
+.veryLongBoard {
+  min-height: clamp(22rem, 47vw, 29rem);
+}
+
+.ultraLongBoard {
+  min-height: clamp(27rem, 57vw, 36rem);
+}
+
 .longMessage {
-  font-size: clamp(0.95rem, 3.2vw, 1.45rem);
+  font-size: clamp(0.92rem, 2.5vw, 1.35rem);
   line-height: 1.65;
 }
 
 .veryLongMessage {
-  font-size: clamp(0.78rem, 2.5vw, 1.08rem);
+  font-size: clamp(0.76rem, 2vw, 1rem);
   line-height: 1.7;
 }
 
-.sender {
-  margin-top: 0.7rem;
-  color: #ffda88;
-  font-size: clamp(0.72rem, 2vw, 0.9rem);
-  font-weight: 800;
+.ultraLongMessage {
+  font-size: clamp(0.66rem, 1.55vw, 0.84rem);
+  line-height: 1.72;
 }
 
 .choices {
   position: relative;
   z-index: 14;
   display: grid;
+  grid-template-areas: "cat yes";
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: end;
+  align-items: center;
   gap: clamp(0.35rem, 3vw, 2rem);
-  width: min(100%, 42rem);
-  margin: clamp(-0.45rem, -1vw, -0.15rem) auto 0;
+  width: min(100%, 46rem);
+  margin: clamp(-0.2rem, -0.5vw, 0rem) auto 0;
 }
 
 .yesButton,
@@ -258,9 +262,10 @@
 
 .yesButton {
   position: relative;
+  z-index: 4;
   align-self: center;
-  width: min(100%, 19rem);
-  margin-inline: auto;
+  width: min(64%, 12rem);
+  margin: 6.1rem auto 0;
   color: #3b2318;
 }
 
@@ -290,23 +295,122 @@
   inset: 50% 13% auto;
   transform: translateY(-54%);
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: clamp(0.76rem, 3vw, 1.18rem);
+  font-size: clamp(0.62rem, 1.45vw, 0.84rem);
   font-weight: 900;
   text-align: center;
   text-shadow: 0 1px rgb(255 241 189 / 70%);
 }
 
+.yesChoice {
+  position: relative;
+  grid-area: yes;
+  width: min(100%, 21rem);
+  min-height: 13.5rem;
+  margin-inline: auto;
+}
+
+.yesBillboard {
+  position: absolute;
+  z-index: 1;
+  top: 0.5rem;
+  left: 50%;
+  display: grid;
+  width: 92%;
+  min-height: 9rem;
+  transform: translateX(-50%);
+  place-items: start center;
+  padding: 1.35rem 1rem 3.8rem;
+  border: 5px solid #5b3544;
+  background: #281b38;
+  box-shadow:
+    0 0 0 3px #160f27,
+    0 7px 0 #0e0b1e,
+    inset 0 0 0 4px #a5532e,
+    inset 0 -1.2rem rgb(9 10 28 / 28%);
+  color: #ffe29a;
+  text-shadow: 0 2px #5d2b2d, 0 0 9px rgb(255 194 75 / 38%);
+  image-rendering: pixelated;
+}
+
+.yesBillboard::before {
+  content: "";
+  position: absolute;
+  inset: 0.55rem;
+  border: 4px dotted #ffc761;
+  opacity: 0.88;
+  filter: drop-shadow(0 0 3px rgb(255 177 54 / 68%));
+}
+
+.yesBillboard span {
+  position: relative;
+  z-index: 2;
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: clamp(1.15rem, 3vw, 1.75rem);
+  font-weight: 900;
+}
+
+.pixelArrow {
+  position: absolute;
+  z-index: 5;
+  top: 58%;
+  left: 0.7rem;
+  color: #8bffea;
+  direction: ltr;
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: clamp(1.55rem, 3.6vw, 2.15rem);
+  font-weight: 900;
+  letter-spacing: -0.2em;
+  line-height: 1;
+  text-shadow: 0 0 4px #2cebd0, 0 0 10px rgb(69 255 226 / 52%);
+  animation: arrowBlink 1.35s steps(2, end) infinite;
+}
+
 .catChoice {
   position: relative;
+  grid-area: cat;
   display: grid;
   justify-items: center;
   min-width: 0;
+}
+
+.catStage {
+  position: relative;
+  display: grid;
+  width: min(100%, 18rem);
+  min-height: 14.5rem;
+  place-items: end center;
+}
+
+.noSign {
+  position: absolute;
+  z-index: 1;
+  top: 0.5rem;
+  left: 50%;
+  display: grid;
+  width: 78%;
+  min-height: 8rem;
+  transform: translateX(-50%);
+  place-items: start center;
+  padding-top: 0.7rem;
+  border: 5px solid #3f304f;
+  background: #15152a;
+  box-shadow: 0 0 0 3px #090d1e, 0 7px 0 #070a16, inset 0 0 0 3px #5c4365;
+  color: #ddd2e9;
+  image-rendering: pixelated;
+}
+
+.noSign span {
+  font-family: var(--font-tajawal), ui-monospace, "Cascadia Mono", monospace;
+  font-size: clamp(1.75rem, 3.6vw, 2.2rem);
+  font-weight: 900;
+  text-shadow: 0 2px #090b18;
 }
 
 .catButton {
   position: relative;
   z-index: 3;
   width: min(100%, 15rem);
+  margin-bottom: -0.1rem;
 }
 
 .catSprite {
@@ -318,15 +422,29 @@
   filter: drop-shadow(0 8px 4px rgb(2 7 18 / 28%));
 }
 
-.catChoice p {
+.catCaption {
   max-width: 13rem;
-  margin-top: -0.6rem;
+  margin-top: -0.15rem;
   color: #d8c2d9;
-  font-size: clamp(0.58rem, 2vw, 0.72rem);
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: clamp(0.55rem, 1.65vw, 0.68rem);
   font-weight: 800;
   line-height: 1.5;
   text-align: center;
   text-shadow: 0 2px #081128;
+}
+
+@keyframes arrowBlink {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: translateX(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateX(0.3rem);
+  }
 }
 
 .reaction {
@@ -426,33 +544,69 @@
 .bulbOne { left: 31%; }
 .bulbTwo { right: 31%; }
 
-@media (max-width: 680px) {
+@media (max-width: 768px) {
+  .page,
+  .scene {
+    min-height: 100svh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
   .background {
     background-position: 54% center;
   }
 
   .content {
-    align-content: center;
-    width: min(100% - 0.8rem, 31rem);
+    align-content: start;
+    width: min(100% - 0.75rem, 31rem);
+    min-height: auto;
     padding-top: max(4.6rem, calc(env(safe-area-inset-top) + 4.1rem));
+    padding-bottom: max(2.25rem, env(safe-area-inset-bottom));
   }
 
   .sign {
     min-height: clamp(14rem, 57vw, 17rem);
-    padding: 2.8rem 2.4rem;
+    padding: 2.8rem clamp(1.7rem, 8vw, 2.7rem);
+  }
+
+  .longBoard {
+    min-height: clamp(19rem, 82vw, 25rem);
+  }
+
+  .veryLongBoard {
+    min-height: clamp(25rem, 108vw, 34rem);
+  }
+
+  .ultraLongBoard {
+    min-height: clamp(32rem, 138vw, 43rem);
+  }
+
+  .message {
+    width: min(82%, 25rem);
   }
 
   .choices {
-    grid-template-columns: 1.08fr 0.92fr;
-    width: calc(100% - 0.35rem);
+    grid-template-areas: "cat" "yes";
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.7rem;
+    width: min(100% - 0.35rem, 23rem);
+    margin-top: 0.25rem;
   }
 
-  .yesButton {
-    width: 100%;
+  .catStage {
+    width: min(100%, 18rem);
   }
 
   .catButton {
-    width: 100%;
+    width: min(77vw, 15rem);
+  }
+
+  .yesChoice {
+    width: min(100%, 21rem);
+  }
+
+  .yesButton {
+    width: min(61%, 11.5rem);
   }
 
   .lampLeft,
@@ -467,12 +621,38 @@
     right: 7%;
   }
 
-  .cloudLeft { top: 16%; left: -5%; }
-  .cloudRight { top: 25%; right: -7%; }
+  .cloudLeft { top: 16%; left: 1%; }
+  .cloudRight { top: 25%; right: 1%; }
   .starOne { top: 12%; left: 16%; }
   .starTwo { top: 20%; right: 30%; }
   .bulbOne { left: 27%; }
   .bulbTwo { right: 27%; }
+}
+
+@media (max-width: 420px) {
+  .toolbar {
+    width: calc(100% - 1rem);
+  }
+
+  .sign {
+    padding-inline: 1.55rem;
+  }
+
+  .message {
+    width: 84%;
+  }
+
+  .catStage {
+    min-height: 14.5rem;
+  }
+
+  .yesChoice {
+    min-height: 13rem;
+  }
+
+  .pixelArrow {
+    left: 0.75rem;
+  }
 }
 
 @media (max-height: 650px) and (orientation: landscape) {
@@ -490,6 +670,7 @@
   }
 
   .choices {
+    grid-template-areas: "cat yes";
     grid-template-columns: 1fr 1fr;
     width: 100%;
     margin: 0;
@@ -509,5 +690,10 @@
   .progressTrack span,
   .reaction {
     transition-duration: 0.01ms !important;
+  }
+
+  .pixelArrow {
+    animation: none !important;
+    opacity: 0.72;
   }
 }
